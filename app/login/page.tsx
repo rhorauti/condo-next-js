@@ -8,7 +8,7 @@ export default function Page() {
         <Image src="/logo-ttsteel.jpg" alt="Logo" width={120} height={80} />
         <p className="font-semibold md:text-lg">Login</p>
         <div className="flex flex-col gap-2">
-          <label htmlFor="">Usuário</label>
+          <label htmlFor="">Usuário 1</label>
           <Input inputName="email"></Input>
         </div>
       </div>
