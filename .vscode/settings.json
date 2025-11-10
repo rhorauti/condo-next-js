@@ -6,7 +6,8 @@
     "javascriptreact": "javascriptreact",
     "typescriptreact": "typescriptreact"
   },
-  "tailwindCSS.experimental.configFile": "tailwind.config.js",
+  "tailwindCSS.rootFontSize": 16,
+  "tailwindCSS.experimental.configFile": "./tailwind.config.js",
   "tailwindCSS.files.exclude": [
     "**/.git/**",
     "**/node_modules/**",
@@ -23,6 +24,11 @@
   "tailwindCSS.lint.invalidTailwindDirective": "error",
   "tailwindCSS.lint.recommendedVariantOrder": "warning",
   "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.showPixelEquivalents": true,
+  "tailwindCSS.colorDecorators": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
   "css.validate": false,
   "scss.validate": false,
   "less.validate": false

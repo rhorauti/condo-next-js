@@ -10,7 +10,7 @@ module.exports = {
     extend: {
       colors: {
         logo: '#0353a3',
-        'logo-hover': '#4879f4',
+        'logo-hover': '#2c8dee',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
