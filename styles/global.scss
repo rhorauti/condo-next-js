@@ -2,57 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
+$logo: 225.9 70.7% 40.2%;
+$white: 0 0% 98%;
+$muted: 210 40% 96%;
+$almost-black: 222.2 84% 4.9%;
+$light-gray: 210 40% 98%;
+$light-mode-light-gray: 214.3 31.8% 91.4%; // input and border
+$dark-mode-red: 0 62.8% 30.6%;
+$light-mode-red: 0 84.2% 60.2%;
+$slate: 217.2 32.6% 17.5%;
+$light-mode-foreground: 222.2 47.4% 11.2%;
+$light-mode-muted-foreground: 215.4 16.3% 46.9%;
+$dark-mode-muted-foreground: 215 20.2% 65.1%;
+$dark-mode-ring: 212.7 26.8% 83.9%;
+$success: 109 53% 50%;
+$info: 211 57% 50%;
+$warning: 63 80% 64%;
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 225.9 70.7% 40.2%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --background: #{$white};
+    --foreground: #{$almost-black};
+    --card: #{$white};
+    --card-foreground: #{$almost-black};
+    --popover: #{$white};
+    --popover-foreground: #{$almost-black};
+    --primary: #{$logo};
+    --primary-foreground: #{$white};
+    --secondary: #{$muted};
+    --secondary-foreground: #{$light-mode-foreground};
+    --muted: #{$muted};
+    --muted-foreground: #{$light-mode-muted-foreground};
+    --accent: #{$muted};
+    --accent-foreground: #{$light-mode-foreground};
+    --destructive: #{$light-mode-red};
+    --destructive-foreground: #{$light-gray};
+    --border: #{$logo};
+    --input: #{$logo};
+    --ring: #{$almost-black};
     --radius: 0.5rem;
+    --success: #{$success};
+    --success-foreground: #{$white};
+    --warning: #{$warning};
+    --warning-foreground: #{$white};
+    --info: #{$info};
+    --info-foreground: #{$white};
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 225.9 70.7% 40.2%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: #{$almost-black};
+    --foreground: #{$light-gray};
+    --card: #{$almost-black};
+    --card-foreground: #{$light-gray};
+    --popover: #{$almost-black};
+    --popover-foreground: #{$light-gray};
+    --primary: #{$logo};
+    --primary-foreground: #{$white};
+    --secondary: #{$slate};
+    --secondary-foreground: #{$light-gray};
+    --muted: #{$slate};
+    --muted-foreground: #{$dark-mode-muted-foreground};
+    --accent: #{$slate};
+    --accent-foreground: #{$light-gray};
+    --destructive: #{$dark-mode-red};
+    --destructive-foreground: #{$light-gray};
+    --border: #{$slate};
+    --input: #{$slate};
+    --ring: #{$dark-mode-ring};
+    --success: #{$success};
+    --success-foreground: #{$white};
+    --warning: #{$warning};
+    --warning-foreground: #{$white};
+    --info: #{$info};
+    --info-foreground: #{$white};
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  // * {
+  //   @apply border-border;
+  // }
   body {
     @apply bg-background text-foreground;
   }
