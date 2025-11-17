@@ -9,6 +9,7 @@ const PasswordInput = React.forwardRef<
   React.ComponentProps<'input'>
 >(({ className, type, ...props }, ref) => {
   const [showPassword, setShowPassword] = React.useState(false);
+  const isInvalid = props['aria-invalid'];
 
   const toogleVisibility = (): void => {
     setShowPassword(!showPassword);
@@ -24,7 +25,10 @@ const PasswordInput = React.forwardRef<
       />
       <span
         onClick={toogleVisibility}
-        className="absolute right-2 top-2 cursor-pointer select-none"
+        className={cn(
+          `absolute right-2 top-2.5 cursor-pointer select-none`,
+          isInvalid ? 'text-destructive' : 'text-muted-foreground'
+        )}
       >
         {showPassword ? <EyeIcon size={20} /> : <EyeOffIcon size={20} />}
       </span>

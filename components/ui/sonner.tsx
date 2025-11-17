@@ -38,27 +38,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
             'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',
         },
       }}
-      style={
-        {
-          '--normal-bg': 'hsl(var(--card))',
-          '--normal-text': 'hsl(var(--card-foreground))',
-          '--normal-border': 'hsl(var(--border))',
-
-          '--success-bg': 'hsl(var(--success))',
-          '--success-text': 'hsl(var(--success-foreground))',
-
-          '--error-bg': 'hsl(var(--destructive))',
-          '--error-text': 'hsl(var(--destructive-foreground))',
-
-          '--warning-bg': 'hsl(var(--warning))',
-          '--warning-text': 'hsl(var(--warning-foreground))',
-
-          '--info-bg': 'hsl(var(--info))',
-          '--info-text': 'hsl(var(--info-foreground))',
-
-          '--border-radius': 'var(--radius)',
-        } as React.CSSProperties
-      }
       {...props}
     />
   );

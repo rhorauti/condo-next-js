@@ -3,7 +3,7 @@
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 import { LogIn } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -18,45 +18,56 @@ import { Button } from '@/components/ui/button/button';
 import { Input } from '@/components/ui/input/input';
 import { PasswordInput } from '@/components/ui/input/password-input';
 import { cn } from '@/lib/utils';
-import { ModalInfo } from '@/components/ui/modal/modal-info';
-import { IModalInfo } from '@/interfaces/modal-info.interface';
 import { toast } from 'sonner';
+import { onLoginUser } from '@/http/auth/auth.http';
+import { ILogin } from '@/interfaces/auth.interface';
 
 const loginSchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
   password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres.'),
+  agreedWithTerms: z.boolean(
+    'Os termos devem ser aceitos antes de realizar o login'
+  ),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
-  const emailId = useId();
-  const passwordId = useId();
   const formId = useId();
-  const [modal, setModal] = useState<IModalInfo>({
-    isActive: false,
-    title: '',
-    description: '',
-    isDialogFailure: false,
-  });
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
-    },
+      agreedWithTerms: false,
+    } as ILogin,
   });
 
+  const { isSubmitting } = form.formState;
+
   async function onSubmitForm(values: LoginFormValues) {
-    toast.success('Login efetuado com sucesso!');
-    // setModal((state) => ({
-    //   isActive: true,
-    //   description: 'Login efetuado com sucesso',
-    //   title: 'Login',
-    //   isDialogFailure: true,
-    // }));
-    console.log('Logged in:', values);
+    const toastId = toast.loading('Aguarde o login ser realizado.');
+    try {
+      const response = await onLoginUser(values);
+      toast.success('Login efetuado com sucesso!', {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => console.log('Fechar'),
+        },
+      });
+    } catch (error: any) {
+      const errorMessage =
+        typeof error === 'string' ? error : 'Ocorreu um erro.';
+      toast.error(errorMessage, {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => console.log('Fechar'),
+        },
+      });
+    }
   }
 
   return (
@@ -83,12 +94,15 @@ const LoginForm = () => {
               name="email"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={emailId}>E-mail</FieldLabel>
+                <Field>
+                  <FieldLabel htmlFor={`login-email-${formId}`}>
+                    E-mail
+                  </FieldLabel>
                   <Input
                     {...field}
                     type="email"
-                    id={emailId}
+                    id={`login-email-${formId}`}
+                    disabled={isSubmitting}
                     aria-invalid={fieldState.invalid}
                     placeholder="exemplo@provedor.com"
                     className={cn(
@@ -107,11 +121,14 @@ const LoginForm = () => {
               name="password"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={passwordId}>Senha</FieldLabel>
+                <Field>
+                  <FieldLabel htmlFor={`login-password-${formId}`}>
+                    Senha
+                  </FieldLabel>
                   <PasswordInput
-                    id={passwordId}
+                    id={`login-password-${formId}`}
                     aria-invalid={fieldState.invalid}
+                    disabled={isSubmitting}
                     {...field}
                     className={cn(
                       fieldState.invalid &&
@@ -127,21 +144,22 @@ const LoginForm = () => {
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <Button type="submit" form={formId} variant={'default'} size={'sm'}>
-            <LogIn />
-            <span>Entrar</span>
+          <Button
+            type="submit"
+            form={formId}
+            disabled={isSubmitting}
+            variant={'default'}
+            size={'sm'}
+          >
+            {isSubmitting ? (
+              <span className="animate-spin mr-2">⏳</span> // Or use a Loader Icon
+            ) : (
+              <LogIn className="mr-1" />
+            )}
+            <span>{isSubmitting ? 'Entrando...' : 'Entrar'}</span>
           </Button>
         </CardFooter>
       </Card>
-      <ModalInfo
-        isDialogFailure={modal.isDialogFailure}
-        isActive={modal.isActive}
-        title={modal.title}
-        description={modal.description}
-        onOpenChange={() =>
-          setModal((state) => ({ ...state, isActive: false }))
-        }
-      ></ModalInfo>
     </>
   );
 };

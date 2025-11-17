@@ -1,18 +1,24 @@
 const token = '';
 
+interface HttpConfig {
+  endpoint: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  data?: unknown;
+}
+
 /**
  * @param endpoint The API endpoint (e.g., '/users')
  * @param method The HTTP method (GET, POST, PUT, DELETE)
  * @param data The data (body) to send (for POST, PUT)
  * @returns The JSON response data
  */
-export async function httpRequest<T>(
-  endpoint: string,
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
-  data?: unknown
-): Promise<T> {
-  const baseUrl = process.env.API_URL;
-  const url = `${baseUrl}${endpoint}`;
+export async function httpRequest({
+  endpoint,
+  method = 'GET',
+  data,
+}: HttpConfig): Promise<any> {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`;
+  console.log('url', url);
 
   const options: RequestInit = {
     method: method,
@@ -31,19 +37,21 @@ export async function httpRequest<T>(
 
     if (!response.ok) {
       const errorData = await response.json();
-      if (errorData instanceof Error) {
-        throw new Error(errorData.message || 'Erro interno do servidor');
-      }
+      const errorMessage =
+        errorData.message || errorData.error || 'Erro interno do servidor';
+      throw new Error(
+        Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage
+      );
     }
 
     if (
       response.status === 204 ||
       response.headers.get('content-length') === '0'
     ) {
-      return null as T;
+      return null;
     }
 
-    return response.json() as Promise<T>;
+    return await response.json();
   } catch (error) {
     if (error instanceof Error) {
       console.error(`apiService error: ${error.message}`);
