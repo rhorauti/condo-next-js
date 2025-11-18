@@ -11,7 +11,7 @@ export const onLoginUser = async (
   loginData: ILogin
 ): Promise<IFetchResponse<LoginDataResponse>> => {
   return await httpRequest({
-    endpoint: '/login',
+    endpoint: 'login',
     method: 'POST',
     data: loginData,
   });
@@ -20,10 +20,10 @@ export const onLoginUser = async (
 export const onCreateUser = async (
   signUpData: SignUpValues
 ): Promise<IFetchResponse<SignUpDataResponse>> => {
-  const stringifyData = JSON.stringify(signUpData);
+  // const stringifyData = JSON.stringify(signUpData);
   return await httpRequest({
-    endpoint: '/signup',
+    endpoint: 'signup',
     method: 'POST',
-    data: stringifyData,
+    data: signUpData,
   });
 };

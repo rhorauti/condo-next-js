@@ -21,13 +21,15 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { onLoginUser } from '@/http/auth/auth.http';
 import { ILogin } from '@/interfaces/auth.interface';
+import { Checkbox } from '@/components/ui/checkbox';
+import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
   password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres.'),
-  agreedWithTerms: z.boolean(
-    'Os termos devem ser aceitos antes de realizar o login'
-  ),
+  agreedWithTerms: z.boolean().refine((checked) => checked == true, {
+    error: 'Os termos devem ser aceitos antes de realizar o login',
+  }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -76,10 +78,10 @@ const LoginForm = () => {
         <CardHeader>
           <Image
             className="self-center w-auto h-auto"
-            src="/logo-ttsteel.jpg"
+            src="/Logo_fundo_branco.jpg"
             alt="Logo"
-            width={120}
-            height={80}
+            width={140}
+            height={100}
             priority
           />
           <CardTitle className="text-center">Login</CardTitle>
@@ -104,6 +106,7 @@ const LoginForm = () => {
                     id={`login-email-${formId}`}
                     disabled={isSubmitting}
                     aria-invalid={fieldState.invalid}
+                    autoComplete="email"
                     placeholder="exemplo@provedor.com"
                     className={cn(
                       fieldState.invalid &&
@@ -129,6 +132,7 @@ const LoginForm = () => {
                     id={`login-password-${formId}`}
                     aria-invalid={fieldState.invalid}
                     disabled={isSubmitting}
+                    autoComplete="current-password"
                     {...field}
                     className={cn(
                       fieldState.invalid &&
@@ -141,6 +145,54 @@ const LoginForm = () => {
                 </Field>
               )}
             ></Controller>
+            <Controller
+              name="agreedWithTerms"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-top space-x-2">
+                    <Checkbox
+                      id={`login-agreedWithTerms-${formId}`}
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isSubmitting}
+                      className={cn(fieldState.invalid && 'border-destructive')}
+                    />
+                    <div className="grid gap-1.5">
+                      <label
+                        htmlFor={`login-agreedWithTerms-${formId}`}
+                        className="text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Li e aceito os{' '}
+                        <Link
+                          href="/terms"
+                          className="underline text-primary hover:text-primary/80"
+                          target="_blank"
+                        >
+                          Termos de Uso
+                        </Link>{' '}
+                        e{' '}
+                        <Link
+                          href="/privacy"
+                          className="underline text-primary hover:text-primary/80"
+                          target="_blank"
+                        >
+                          Política de Privacidade
+                        </Link>
+                        .
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Error Message */}
+                  {fieldState.invalid && (
+                    <span className="text-xs text-destructive">
+                      {fieldState.error?.message}
+                    </span>
+                  )}
+                </div>
+              )}
+            />
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">

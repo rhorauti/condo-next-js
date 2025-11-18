@@ -17,7 +17,7 @@ export async function httpRequest({
   method = 'GET',
   data,
 }: HttpConfig): Promise<any> {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`;
   console.log('url', url);
 
   const options: RequestInit = {

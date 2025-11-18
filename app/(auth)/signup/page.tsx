@@ -22,6 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import RequirementItem from '@/components/ui/requirement-item';
 import { onCreateUser } from '@/http/auth/auth.http';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,16 +35,27 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useId, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
 
 const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
 
+const PATTERNS = {
+  uppercase: /[A-Z]/,
+  number: /[0-9]/,
+  symbol: /[^a-zA-Z0-9]/,
+};
+
 const signUpSchema = z.object({
   name: z.string().nonempty('O nome é obrigatório.'),
-  password: z.string().nonempty('A senha é obrigatória'),
+  password: z
+    .string()
+    .min(6, 'Must be at least 6 characters')
+    .regex(PATTERNS.uppercase, 'A senha deve ter pelo menos 1 letra maiúscula.')
+    .regex(PATTERNS.number, 'A senha deve ter pelo menos 1 número')
+    .regex(PATTERNS.symbol, 'A senha deve ter pelo menos 1 símbolo.'),
   email: z
     .email('Formato de e-mail inválido.')
     .nonempty('O email é obrigatório'),
@@ -67,6 +79,15 @@ export default function SignUp() {
       birthDate: undefined,
     },
   });
+
+  const passwordValue = useWatch({
+    control: form.control,
+    name: 'password',
+    defaultValue: '',
+  });
+
+  const check = (regex: RegExp) => regex.test(passwordValue);
+  const isLengthValid = passwordValue.length >= 6;
 
   const onSubmitForm = async (data: SignUpValues): Promise<void> => {
     const toastId = toast.loading('Validando os dados...');
@@ -112,10 +133,10 @@ export default function SignUp() {
         <CardHeader className={cn('gap-2')}>
           <Image
             className="self-center w-auto h-auto"
-            src="/logo-ttsteel.jpg"
+            src="/Logo_fundo_branco.jpg"
             alt="Logo"
-            width={120}
-            height={80}
+            width={140}
+            height={100}
             priority
           />
           <CardTitle className={cn('text-center')}>Novo usuário</CardTitle>
@@ -135,8 +156,8 @@ export default function SignUp() {
                       {...field}
                       id={`signup-name-${formId}`}
                       aria-invalid={fieldState.invalid}
-                      autoComplete="off"
                       disabled={isSubmitting}
+                      autoComplete="name"
                       className={cn(
                         fieldState.invalid &&
                           'border-destructive focus-visible:shadow-none'
@@ -220,7 +241,7 @@ export default function SignUp() {
                       id={`signup-email-${formId}`}
                       aria-invalid={fieldState.invalid}
                       disabled={isSubmitting}
-                      autoComplete="off"
+                      autoComplete="email"
                       className={cn(
                         fieldState.invalid &&
                           'border-destructive focus-visible:shadow-none'
@@ -245,15 +266,34 @@ export default function SignUp() {
                       id={`signup-password-${formId}`}
                       aria-invalid={fieldState.invalid}
                       disabled={isSubmitting}
-                      autoComplete="off"
+                      autoComplete="new-password"
                       className={cn(
                         fieldState.invalid &&
                           'border-destructive focus-visible:shadow-none'
                       )}
                     ></PasswordInput>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    <div className="space-y-1.5">
+                      {fieldState.invalid && (
+                        <ul className="space-y-1">
+                          <RequirementItem
+                            isValid={isLengthValid}
+                            label="A senha deve ter pelo menos 6 caracteres"
+                          />
+                          <RequirementItem
+                            isValid={check(PATTERNS.uppercase)}
+                            label="A senha deve ter pelo menos 1 letra maiúscula"
+                          />
+                          <RequirementItem
+                            isValid={check(PATTERNS.number)}
+                            label="A senha deve ter pelo menos 1 número"
+                          />
+                          <RequirementItem
+                            isValid={check(PATTERNS.symbol)}
+                            label="A senha deve ter pelo menos 1 símbolo"
+                          />
+                        </ul>
+                      )}
+                    </div>
                   </Field>
                 )}
               ></Controller>
@@ -276,7 +316,7 @@ export default function SignUp() {
           <Button
             type="submit"
             form={formId}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !form.formState.isValid}
             variant={'default'}
             size={'sm'}
           >

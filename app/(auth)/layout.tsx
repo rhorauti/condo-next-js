@@ -1,4 +1,6 @@
 import { Toaster } from '@/components/ui/sonner';
+import { Suspense } from 'react';
+import Loading from './loading';
 
 type AuthLayoutProps = {
   children?: React.ReactNode;
