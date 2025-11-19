@@ -20,10 +20,19 @@ export const onLoginUser = async (
 export const onCreateUser = async (
   signUpData: SignUpValues
 ): Promise<IFetchResponse<SignUpDataResponse>> => {
-  // const stringifyData = JSON.stringify(signUpData);
   return await httpRequest({
     endpoint: 'signup',
     method: 'POST',
     data: signUpData,
+  });
+};
+
+export const onValidateToken = async (
+  token: string
+): Promise<IFetchResponse<string>> => {
+  return await httpRequest({
+    endpoint: 'token-validation',
+    method: 'POST',
+    data: token,
   });
 };

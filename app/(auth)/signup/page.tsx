@@ -316,7 +316,7 @@ export default function SignUp() {
           <Button
             type="submit"
             form={formId}
-            disabled={isSubmitting || !form.formState.isValid}
+            disabled={isSubmitting}
             variant={'default'}
             size={'sm'}
           >
