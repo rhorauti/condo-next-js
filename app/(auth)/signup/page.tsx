@@ -23,18 +23,15 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import RequirementItem from '@/components/ui/requirement-item';
-import { onCreateUser } from '@/http/auth/auth.http';
+import { onCreateUser, onGetCSRFToken } from '@/http/auth/auth.http';
 import { cn } from '@/lib/utils';
+import authStore from '@/store/auth.store';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import {
-  Calendar as CalendarIcon,
-  ChevronDownIcon,
-  UserRoundPlus,
-} from 'lucide-react';
+import { ChevronDownIcon, UserRoundPlus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -67,6 +64,19 @@ const signUpSchema = z.object({
 export type SignUpValues = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
+  const setToken = authStore((state) => state.setCSRFToken);
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const response = await onGetCSRFToken();
+        setToken(response.data?.csrfToken || '');
+      } catch (error) {
+        toast.error('Falha ao solicitar o csrf token.');
+      }
+    };
+    fetchToken();
+  }, [setToken]);
+
   const formId = useId();
   const [open, setOpen] = useState(false);
 
@@ -89,10 +99,12 @@ export default function SignUp() {
   const check = (regex: RegExp) => regex.test(passwordValue);
   const isLengthValid = passwordValue.length >= 6;
 
+  const csrfToken = authStore((state) => state.csrfToken);
+
   const onSubmitForm = async (data: SignUpValues): Promise<void> => {
     const toastId = toast.loading('Validando os dados...');
     try {
-      const response = await onCreateUser(data);
+      const response = await onCreateUser(csrfToken, data);
       if (response.status) {
         toast.success(response.message, {
           id: toastId,

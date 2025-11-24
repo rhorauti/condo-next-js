@@ -3,7 +3,7 @@
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useId } from 'react';
+import { useEffect, useId } from 'react';
 import { LogIn } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input/input';
 import { PasswordInput } from '@/components/ui/input/password-input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { onLoginUser } from '@/http/auth/auth.http';
+import { onGetCSRFToken, onLoginUser } from '@/http/auth/auth.http';
 import { ILogin } from '@/interfaces/auth.interface';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
@@ -35,6 +35,10 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
+  useEffect(() => {
+    onGetCSRFToken();
+  }, []);
+
   const formId = useId();
 
   const form = useForm<LoginFormValues>({
@@ -56,7 +60,7 @@ const LoginForm = () => {
         id: toastId,
         action: {
           label: 'Fechar',
-          onClick: () => console.log('Fechar'),
+          onClick: () => '',
         },
       });
     } catch (error: any) {
@@ -66,7 +70,7 @@ const LoginForm = () => {
         id: toastId,
         action: {
           label: 'Fechar',
-          onClick: () => console.log('Fechar'),
+          onClick: () => '',
         },
       });
     }

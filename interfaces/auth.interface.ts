@@ -14,3 +14,7 @@ export interface ISignUp {
   name: string;
   birthDate: string;
 }
+
+export interface ICSRFTokenResponse {
+  csrfToken: string;
+}

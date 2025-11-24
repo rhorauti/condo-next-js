@@ -1,8 +1,9 @@
-const token = '';
-
 interface HttpConfig {
   endpoint: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  contentType?: string;
+  jwtToken?: string;
+  csrfToken?: string;
   data?: unknown;
 }
 
@@ -15,16 +16,20 @@ interface HttpConfig {
 export async function httpRequest({
   endpoint,
   method = 'GET',
+  contentType = 'application/json',
+  jwtToken,
+  csrfToken,
   data,
 }: HttpConfig): Promise<any> {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`;
-  console.log('url', url);
 
   const options: RequestInit = {
     method: method,
+    credentials: 'include',
     headers: {
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : '',
+      'Content-Type': contentType,
+      ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
+      ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
     },
   };
 
@@ -50,7 +55,7 @@ export async function httpRequest({
     ) {
       return null;
     }
-
+    console.log('json()', await response.json());
     return await response.json();
   } catch (error) {
     if (error instanceof Error) {
