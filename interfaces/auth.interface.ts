@@ -1,9 +1,8 @@
-export type LoginDataResponse = Omit<ILogin, 'agreedWithTerms' | 'password'>;
+export type AuthDataResponse = Omit<ILogin, 'agreedWithTerms' | 'password'>;
 
 export interface ILogin {
   email: string;
   password: string;
-  agreedWithTerms: boolean;
 }
 
 export type SignUpDataResponse = Omit<ISignUp, 'password'>;
@@ -13,6 +12,10 @@ export interface ISignUp {
   password: string;
   name: string;
   birthDate: string;
+}
+
+export interface INewPassword {
+  password: string;
 }
 
 export interface ICSRFTokenResponse {

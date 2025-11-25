@@ -8,9 +8,6 @@ interface ICredential {
 
 interface AuthState {
   credential: ICredential;
-  csrfToken: string;
-  setCSRFToken: (newToken: string) => void;
-  getCSRFToken: () => string;
 }
 
 const authStore = create<AuthState>((set, get) => ({
@@ -19,10 +16,6 @@ const authStore = create<AuthState>((set, get) => ({
     email: '',
     accessLevel: 0,
   },
-  csrfToken: '',
-  setCSRFToken: (newToken: string) => set({ csrfToken: newToken }),
-  getCSRFToken: () => get().csrfToken,
-  clearCSRFToken: () => set({ csrfToken: '' }),
   setCredential: (credential: ICredential) =>
     set({
       credential: {

@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Field,
   FieldError,
@@ -23,18 +24,18 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import RequirementItem from '@/components/ui/requirement-item';
-import { onCreateUser, onGetCSRFToken } from '@/http/auth/auth.http';
+import { onCreateUser } from '@/http/auth/auth.http';
 import { cn } from '@/lib/utils';
-import authStore from '@/store/auth.store';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { ChevronDownIcon, UserRoundPlus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useId, useState } from 'react';
+import { useId, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
+import { useRouter } from 'next/navigation';
 
 const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
@@ -59,26 +60,17 @@ const signUpSchema = z.object({
   birthDate: z
     .date('Data inválida')
     .max(eighteenYearsAgo, { message: 'Você deve ter pelo menos 18 anos.' }),
+  agreedWithTerms: z.boolean().refine((checked) => checked == true, {
+    error: 'Os termos devem ser aceitos antes de realizar o login',
+  }),
 });
 
 export type SignUpValues = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
-  const setToken = authStore((state) => state.setCSRFToken);
-  useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const response = await onGetCSRFToken();
-        setToken(response.data?.csrfToken || '');
-      } catch (error) {
-        toast.error('Falha ao solicitar o csrf token.');
-      }
-    };
-    fetchToken();
-  }, [setToken]);
-
   const formId = useId();
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -87,6 +79,7 @@ export default function SignUp() {
       password: '',
       email: '',
       birthDate: undefined,
+      agreedWithTerms: false,
     },
   });
 
@@ -99,12 +92,10 @@ export default function SignUp() {
   const check = (regex: RegExp) => regex.test(passwordValue);
   const isLengthValid = passwordValue.length >= 6;
 
-  const csrfToken = authStore((state) => state.csrfToken);
-
   const onSubmitForm = async (data: SignUpValues): Promise<void> => {
     const toastId = toast.loading('Validando os dados...');
     try {
-      const response = await onCreateUser(csrfToken, data);
+      const response = await onCreateUser(data);
       if (response.status) {
         toast.success(response.message, {
           id: toastId,
@@ -113,6 +104,7 @@ export default function SignUp() {
             onClick: () => '',
           },
         });
+        router.push('/login');
       } else {
         toast.error(response.message, {
           id: toastId,
@@ -123,17 +115,17 @@ export default function SignUp() {
         });
       }
     } catch (error) {
-      const errorMessage =
-        typeof error === 'string'
-          ? error
-          : 'Ocorreu um erro ao criar o usuário.';
-      toast.error(errorMessage, {
-        id: toastId,
-        action: {
-          label: 'Fechar',
-          onClick: () => '',
-        },
-      });
+      if (error instanceof Error) {
+        toast.error(error.message, {
+          id: toastId,
+          action: {
+            label: 'Fechar',
+            onClick: () => '',
+          },
+        });
+      } else {
+        console.log(error);
+      }
     }
   };
 
@@ -309,6 +301,56 @@ export default function SignUp() {
                   </Field>
                 )}
               ></Controller>
+              <Controller
+                name="agreedWithTerms"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-top space-x-2">
+                      <Checkbox
+                        id={`login-agreedWithTerms-${formId}`}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={isSubmitting}
+                        className={cn(
+                          fieldState.invalid && 'border-destructive'
+                        )}
+                      />
+                      <div className="grid gap-1.5">
+                        <label
+                          htmlFor={`login-agreedWithTerms-${formId}`}
+                          className="text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Li e aceito os{' '}
+                          <Link
+                            href="/terms"
+                            className="underline text-primary hover:text-primary/80"
+                            target="_blank"
+                          >
+                            Termos de Uso
+                          </Link>{' '}
+                          e{' '}
+                          <Link
+                            href="/privacy"
+                            className="underline text-primary hover:text-primary/80"
+                            target="_blank"
+                          >
+                            Política de Privacidade
+                          </Link>
+                          .
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Error Message */}
+                    {fieldState.invalid && (
+                      <span className="text-xs text-destructive">
+                        {fieldState.error?.message}
+                      </span>
+                    )}
+                  </div>
+                )}
+              />
               <Field>
                 <p className="flex gap-2 justify-center items-center">
                   <span>Já possui conta?</span>
@@ -333,7 +375,7 @@ export default function SignUp() {
             size={'sm'}
           >
             {isSubmitting ? (
-              <span className="animate-spin mr-2">⏳</span> // Or use a Loader Icon
+              <span className="animate-spin mr-2">⏳</span>
             ) : (
               <UserRoundPlus className="mr-1" />
             )}

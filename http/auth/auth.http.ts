@@ -1,16 +1,18 @@
 import {
-  ICSRFTokenResponse,
   ILogin,
-  LoginDataResponse,
+  AuthDataResponse,
   SignUpDataResponse,
 } from '@/interfaces/auth.interface';
 import { httpRequest } from '../http-request';
 import { IFetchResponse } from '@/interfaces/response.interface';
 import { SignUpValues } from '@/app/(auth)/signup/page';
+import { NewPasswordValues } from '@/app/(auth)/new-password/page';
+import { PasswordRecoveryValues } from '@/app/(auth)/password-recovery/page';
+import { LoginFormValues } from '@/app/(auth)/login/page';
 
 export const onLoginUser = async (
   loginData: ILogin
-): Promise<IFetchResponse<LoginDataResponse>> => {
+): Promise<IFetchResponse<LoginFormValues>> => {
   return await httpRequest({
     endpoint: 'login',
     method: 'POST',
@@ -19,31 +21,49 @@ export const onLoginUser = async (
 };
 
 export const onCreateUser = async (
-  csrfToken: string,
   signUpData: SignUpValues
 ): Promise<IFetchResponse<SignUpDataResponse>> => {
   return await httpRequest({
-    csrfToken: csrfToken,
     endpoint: 'signup',
     method: 'POST',
     data: signUpData,
   });
 };
 
-export const onGetCSRFToken = async (): Promise<
-  IFetchResponse<ICSRFTokenResponse>
-> => {
+export const onSetNewPassword = async (
+  newPasswordData: NewPasswordValues
+): Promise<IFetchResponse<AuthDataResponse>> => {
   return await httpRequest({
-    endpoint: 'csrf-token',
+    endpoint: 'new-password',
+    method: 'POST',
+    data: newPasswordData,
+  });
+};
+
+export const onSendRecoveryEmail = async (
+  passwordRecoveryData: PasswordRecoveryValues
+): Promise<IFetchResponse<AuthDataResponse>> => {
+  return await httpRequest({
+    endpoint: 'password-recovery',
+    method: 'POST',
+    data: passwordRecoveryData,
+  });
+};
+
+export const onValidateEmail = async (
+  jwtToken: string
+): Promise<IFetchResponse<string>> => {
+  return await httpRequest({
+    jwtToken: jwtToken,
+    endpoint: 'validate-email',
+    method: 'POST',
   });
 };
 
 export const onValidateToken = async (
-  csrfToken: string,
   jwtToken: string
 ): Promise<IFetchResponse<string>> => {
   return await httpRequest({
-    csrfToken: csrfToken,
     jwtToken: jwtToken,
     endpoint: 'token-validation',
     method: 'POST',

@@ -3,7 +3,7 @@
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useId } from 'react';
+import { useId } from 'react';
 import { LogIn } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -16,45 +16,47 @@ import {
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Button } from '@/components/ui/button/button';
 import { Input } from '@/components/ui/input/input';
-import { PasswordInput } from '@/components/ui/input/password-input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { onLoginUser } from '@/http/auth/auth.http';
-import { ILogin } from '@/interfaces/auth.interface';
+import { onSendRecoveryEmail } from '@/http/auth/auth.http';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-const loginSchema = z.object({
+const passwordRecoverySchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
-  password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres.'),
 });
 
-export type LoginFormValues = z.infer<typeof loginSchema>;
+export type PasswordRecoveryValues = z.infer<typeof passwordRecoverySchema>;
 
-const LoginForm = () => {
+const PasswordRecovery = () => {
   const formId = useId();
+  const router = useRouter();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<PasswordRecoveryValues>({
+    resolver: zodResolver(passwordRecoverySchema),
     defaultValues: {
       email: '',
-      password: '',
-    } as ILogin,
+    },
   });
 
   const { isSubmitting } = form.formState;
 
-  async function onSubmitForm(values: LoginFormValues) {
-    const toastId = toast.loading('Aguarde o login ser realizado.');
+  async function onSubmitForm(values: PasswordRecoveryValues) {
+    const toastId = toast.loading('Aguarde...');
     try {
-      const response = await onLoginUser(values);
+      const response = await onSendRecoveryEmail(values);
       if (response && response.status) {
-        toast.success('Login efetuado com sucesso!', {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
+        toast.success(
+          'E-mail de recuperação enviado com sucesso. Verifique sua caixa de e-mail.',
+          {
+            id: toastId,
+            action: {
+              label: 'Fechar',
+              onClick: () => '',
+            },
+          }
+        );
+        router.push('/login');
       } else {
         toast.error(response.message, {
           id: toastId,
@@ -91,7 +93,7 @@ const LoginForm = () => {
             height={100}
             priority
           />
-          <CardTitle className="text-center">Login</CardTitle>
+          <CardTitle className="text-center">Recuperação de senha</CardTitle>
         </CardHeader>
         <CardContent>
           <form
@@ -126,39 +128,10 @@ const LoginForm = () => {
                 </Field>
               )}
             ></Controller>
-
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor={`login-password-${formId}`}>
-                    Senha
-                  </FieldLabel>
-                  <PasswordInput
-                    id={`login-password-${formId}`}
-                    aria-invalid={fieldState.invalid}
-                    disabled={isSubmitting}
-                    autoComplete="current-password"
-                    {...field}
-                    className={cn(
-                      fieldState.invalid &&
-                        'border-destructive focus-visible:shadow-none'
-                    )}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            ></Controller>
             <Field>
               <div className="flex justify-center gap-2">
-                <span>Esqueceu a senha?</span>
-                <Link
-                  href="/password-recovery"
-                  className="underline text-primary"
-                >
+                <span>Já possui conta?</span>
+                <Link href="/login" className="underline text-primary">
                   Clique aqui.
                 </Link>
               </div>
@@ -174,11 +147,11 @@ const LoginForm = () => {
             size={'sm'}
           >
             {isSubmitting ? (
-              <span className="animate-spin mr-2">⏳</span> // Or use a Loader Icon
+              <span className="animate-spin mr-2">⏳</span>
             ) : (
               <LogIn className="mr-1" />
             )}
-            <span>{isSubmitting ? 'Entrando...' : 'Entrar'}</span>
+            <span>{isSubmitting ? 'Entrando...' : 'Enviar'}</span>
           </Button>
         </CardFooter>
       </Card>
@@ -186,4 +159,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default PasswordRecovery;

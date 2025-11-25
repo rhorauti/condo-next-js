@@ -5,3 +5,9 @@ export interface IFetchResponse<T> {
   data?: T;
   error?: string;
 }
+
+export interface IError {
+  status: boolean;
+  date: string;
+  message: string;
+}
