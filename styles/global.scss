@@ -7,7 +7,7 @@ $white: 0 0% 98%;
 $muted: 210 40% 96%;
 $almost-black: 222.2 84% 4.9%;
 $light-gray: 210 40% 98%;
-$light-mode-light-gray: 214.3 31.8% 91.4%; // input and border
+$light-mode-light-gray: 214.3 31.8% 91.4%;
 $dark-mode-red: 0 62.8% 30.6%;
 $light-mode-red: 0 84.2% 60.2%;
 $slate: 217.2 32.6% 17.5%;
@@ -47,6 +47,14 @@ $warning: 63 80% 64%;
     --warning-foreground: #{$white};
     --info: #{$info};
     --info-foreground: #{$white};
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
@@ -75,13 +83,18 @@ $warning: 63 80% 64%;
     --warning-foreground: #{$white};
     --info: #{$info};
     --info-foreground: #{$white};
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
 @layer base {
-  // * {
-  //   @apply border-border;
-  // }
   body {
     @apply bg-background text-foreground;
   }
@@ -109,51 +122,11 @@ body {
   box-sizing: border-box;
 }
 
-// main {
-//   padding: 5rem 0;
-//   flex: 1;
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: center;
-//   align-items: center;
-// }
-
-// footer {
-//   width: 100%;
-//   height: 100px;
-//   border-top: 1px solid #eaeaea;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// }
-
-// footer img {
-//   margin-left: 0.5rem;
-// }
-
-// footer a {
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// }
-
-// a {
-//   color: inherit;
-//   text-decoration: none;
-// }
-
-// code {
-//   background: #fafafa;
-//   border-radius: 5px;
-//   padding: 0.75rem;
-//   font-size: 1.1rem;
-//   font-family:
-//     Menlo,
-//     Monaco,
-//     Lucida Console,
-//     Liberation Mono,
-//     DejaVu Sans Mono,
-//     Bitstream Vera Sans Mono,
-//     Courier New,
-//     monospace;
-// }
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

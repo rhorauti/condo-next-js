@@ -1,6 +1,4 @@
 import { Toaster } from '@/components/ui/sonner';
-import { Suspense } from 'react';
-import Loading from './loading';
 
 type AuthLayoutProps = {
   children?: React.ReactNode;
@@ -9,9 +7,9 @@ type AuthLayoutProps = {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <>
-      <div className="flex flex-col min-h-screen justify-center items-center bg-gradient-to-b from-blue-900 to-blue-500 p-4">
+      <main className="flex flex-col min-h-screen justify-center items-center bg-gradient-to-b from-blue-900 to-blue-500 p-4">
         {children}
-      </div>
+      </main>
       <Toaster
         position="top-center"
         richColors={true}

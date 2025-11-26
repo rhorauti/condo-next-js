@@ -14,8 +14,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Button } from '@/components/ui/button/button';
-import { Input } from '@/components/ui/input/input';
+import { Button } from '@/components/button/button';
+import { Input } from '@/components/input/input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { onSendRecoveryEmail } from '@/http/auth/auth.http';

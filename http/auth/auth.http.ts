@@ -31,9 +31,11 @@ export const onCreateUser = async (
 };
 
 export const onSetNewPassword = async (
+  jwtToken: string,
   newPasswordData: NewPasswordValues
 ): Promise<IFetchResponse<AuthDataResponse>> => {
   return await httpRequest({
+    jwtToken: jwtToken,
     endpoint: 'new-password',
     method: 'POST',
     data: newPasswordData,

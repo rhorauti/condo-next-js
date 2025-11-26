@@ -14,9 +14,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Button } from '@/components/ui/button/button';
-import { Input } from '@/components/ui/input/input';
-import { PasswordInput } from '@/components/ui/input/password-input';
+import { Button } from '@/components/button/button';
+import { Input } from '@/components/input/input';
+import { PasswordInput } from '@/components/input/password-input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { onLoginUser } from '@/http/auth/auth.http';

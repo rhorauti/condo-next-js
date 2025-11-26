@@ -16,8 +16,8 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
-import { Input } from '@/components/ui/input/input';
-import { PasswordInput } from '@/components/ui/input/password-input';
+import { Input } from '@/components/input/input';
+import { PasswordInput } from '@/components/input/password-input';
 import {
   Popover,
   PopoverContent,
