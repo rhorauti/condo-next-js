@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { PasswordInput } from '@/components/input/password-input';
-import RequirementItem from '@/components/ui/requirement-item';
+import RequirementItem from '@/components/requirement-item/requirement-item';
 import { onSetNewPassword } from '@/http/auth/auth.http';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';

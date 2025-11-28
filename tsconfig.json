@@ -20,7 +20,12 @@
       "@/components/*": ["./components/*"],
       "@/lib/*": ["./lib/*"],
       "@/pages/*": ["./pages/*"],
-      "@/styles/*": ["./styles/*"]
+      "@/styles/*": ["./styles/*"],
+      "@/enum/*": ["./enum/*"],
+      "@/http/*": ["./http/*"],
+      "@/interfaces/*": ["./interfaces/*"],
+      "@/store/*": ["./store/*"],
+      "@/stories/*": ["./stories/*"]
     },
     "plugins": [
       {

@@ -16,14 +16,13 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
-import { Input } from '@/components/input/input';
 import { PasswordInput } from '@/components/input/password-input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import RequirementItem from '@/components/ui/requirement-item';
+import RequirementItem from '@/components/requirement-item/requirement-item';
 import { onCreateUser } from '@/http/auth/auth.http';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -36,6 +35,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
 import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
 
 const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
@@ -162,6 +162,7 @@ export default function SignUp() {
                       aria-invalid={fieldState.invalid}
                       disabled={isSubmitting}
                       autoComplete="name"
+                      placeholder="Digite seu nome"
                       className={cn(
                         fieldState.invalid &&
                           'border-destructive focus-visible:shadow-none'
@@ -245,6 +246,7 @@ export default function SignUp() {
                       id={`signup-email-${formId}`}
                       aria-invalid={fieldState.invalid}
                       disabled={isSubmitting}
+                      placeholder="Digite seu e-mail"
                       autoComplete="email"
                       className={cn(
                         fieldState.invalid &&

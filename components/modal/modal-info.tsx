@@ -7,8 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '../button/button';
 import { Check, CircleX } from 'lucide-react';
+import { Button } from '../ui/button';
 
 interface DialogProps {
   isActive: boolean;

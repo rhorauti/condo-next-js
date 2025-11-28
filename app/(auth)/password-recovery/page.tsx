@@ -14,13 +14,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Button } from '@/components/button/button';
-import { Input } from '@/components/input/input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { onSendRecoveryEmail } from '@/http/auth/auth.http';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 const passwordRecoverySchema = z.object({
   email: z.email('Por favor, insira um email válido.'),

@@ -3,7 +3,7 @@
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useId } from 'react';
+import { useId } from 'react';
 import { LogIn } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -14,14 +14,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Button } from '@/components/button/button';
-import { Input } from '@/components/input/input';
 import { PasswordInput } from '@/components/input/password-input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { onLoginUser } from '@/http/auth/auth.http';
 import { ILogin } from '@/interfaces/auth.interface';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const loginSchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
