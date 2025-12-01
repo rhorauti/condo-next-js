@@ -53,10 +53,12 @@ const PasswordInput = React.forwardRef<
         {...props}
         ref={ref}
         placeholder="Digite sua senha"
+        data-testid="password-input"
         type={showPassword ? 'text' : 'password'}
         className={cn('pr-10', className)}
       />
       <button
+        type="button"
         data-testid="toggle-password-button"
         aria-label="Toggle password visibility"
         onClick={toogleVisibility}

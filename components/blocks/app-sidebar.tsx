@@ -1,157 +1,99 @@
 'use client';
 
 import * as React from 'react';
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from 'lucide-react';
+import { BookOpen, Bot, Settings2, SquareTerminal } from 'lucide-react';
 
 import { NavMain } from '@/components/blocks/nav-main';
-import { NavProjects } from '@/components/blocks/nav-projects';
 import { NavUser } from '@/components/blocks/nav-user';
-import { TeamSwitcher } from '@/components/blocks/team-switcher';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenuButton,
   SidebarRail,
 } from '@/components/ui/sidebar';
+import Image from 'next/image';
 
-// This is sample data.
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: 'Rafael Horauti',
+    email: 'rafael.horauti@gmail.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-    {
-      name: 'Evil Corp.',
-      logo: Command,
-      plan: 'Free',
-    },
-  ],
   navMain: [
     {
-      title: 'Playground',
-      url: '#',
+      title: 'Mensagens',
+      url: 'messages',
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: 'History',
-          url: '#',
+          title: 'Sugestões',
+          url: '/suggestions',
         },
         {
-          title: 'Starred',
-          url: '#',
+          title: 'Q/A',
+          url: '/question-answers',
         },
         {
-          title: 'Settings',
-          url: '#',
+          title: 'Market Place',
+          url: '/market-place',
+        },
+        {
+          title: 'Avisos',
+          url: '/bulletin-board',
         },
       ],
     },
     {
-      title: 'Models',
+      title: 'FAQ',
       url: '#',
       icon: Bot,
       items: [
         {
-          title: 'Genesis',
+          title: 'Escrito',
           url: '#',
         },
         {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
+          title: 'Vídeos',
           url: '#',
         },
       ],
     },
     {
-      title: 'Documentation',
+      title: 'Eventos',
       url: '#',
       icon: BookOpen,
       items: [
         {
-          title: 'Introduction',
+          title: 'Assembléias',
           url: '#',
         },
         {
-          title: 'Get Started',
+          title: 'Comemorações',
           url: '#',
         },
         {
-          title: 'Tutorials',
-          url: '#',
-        },
-        {
-          title: 'Changelog',
+          title: 'Feira livre',
           url: '#',
         },
       ],
     },
     {
-      title: 'Settings',
+      title: 'Financeiro',
       url: '#',
       icon: Settings2,
       items: [
         {
-          title: 'General',
+          title: 'Mensalidades',
           url: '#',
         },
         {
-          title: 'Team',
-          url: '#',
-        },
-        {
-          title: 'Billing',
-          url: '#',
-        },
-        {
-          title: 'Limits',
+          title: 'Relatórios',
           url: '#',
         },
       ],
-    },
-  ],
-  projects: [
-    {
-      name: 'Design Engineering',
-      url: '#',
-      icon: Frame,
-    },
-    {
-      name: 'Sales & Marketing',
-      url: '#',
-      icon: PieChart,
-    },
-    {
-      name: 'Travel',
-      url: '#',
-      icon: Map,
     },
   ],
 };
@@ -160,11 +102,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <SidebarMenuButton
+          size="lg"
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+        >
+          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <Image
+              className="self-center w-auto h-auto"
+              src="/Logo_fundo_branco.jpg"
+              alt="Logo"
+              width={140}
+              height={120}
+              priority
+            />
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">ConectaCondo</span>
+          </div>
+        </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

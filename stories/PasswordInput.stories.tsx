@@ -1,6 +1,6 @@
 import { PasswordInput } from '@/components/input/password-input';
 import type { Meta, StoryObj } from '@storybook/react';
-import { screen } from 'storybook/test';
+import { userEvent, within, expect } from 'storybook/test';
 
 const placeholder = 'Digite sua senha';
 
@@ -38,42 +38,28 @@ export const DefaultStateTypePassword: Story = {
     value: 'Teste123!',
     readOnly: true,
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByTestId('password-input');
+    await expect(input).toHaveAttribute('type', 'password');
+  },
 };
 
 /**
  * Default state with input type text
  */
-// export const DefaultStateTypeText: Story = {
-//   args: {
-//     'aria-invalid': false,
-//     placeholder: placeholder,
-//     value: 'Teste123!',
-//     readOnly: true,
-//   },
-//   play: async ({ userEvent }) => {
-//     await userEvent.click(screen.getByTestId('toggle-password-button'));
-//   },
-// };
-
 export const DefaultStateTypeText: Story = {
-  render: (args) => (
-    <PasswordInput
-      aria-invalid={true}
-      placeholder={placeholder}
-      value="Test123!"
-      readOnly={true}
-    />
-  ),
-};
-
-/**
- * Invalid state
- */
-export const InvalidState: Story = {
   args: {
-    'aria-invalid': true,
+    'aria-invalid': false,
     placeholder: placeholder,
     value: 'Teste123!',
     readOnly: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toggleButton = canvas.getByTestId('toggle-password-button');
+    const input = canvas.getByTestId('password-input');
+    await userEvent.click(toggleButton);
+    await expect(input).toHaveAttribute('type', 'text');
   },
 };
