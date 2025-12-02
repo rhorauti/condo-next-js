@@ -37,7 +37,7 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
                   <BreadcrumbPage
                     className={cn('md:text-lg md:font-semibold text-primary')}
                   >
-                    User Home
+                    Eventos
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>

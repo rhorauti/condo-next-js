@@ -312,6 +312,7 @@ export default function SignUp() {
                       <Checkbox
                         id={`login-agreedWithTerms-${formId}`}
                         checked={field.value}
+                        aria-label="Agree with terms"
                         onCheckedChange={field.onChange}
                         disabled={isSubmitting}
                         className={cn(

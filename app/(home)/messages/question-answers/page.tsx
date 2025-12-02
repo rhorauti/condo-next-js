@@ -1,12 +1,12 @@
 import Message from '@/components/message/message';
 
 const user = {
-  profileSrc: '/avatars/shadcn.jpg',
+  profileUrl: '/avatars/shadcn.jpg',
   profileFallback: 'RH',
-  profileUrl: '',
   name: 'Rafael Horauti',
-  description: 'Post teste',
-  media: null,
+  description:
+    'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+  media: ['/post.jpg'],
   timestamp: new Date(),
   likes: 12,
   isSaved: false,
@@ -16,7 +16,9 @@ export default function Page() {
   return (
     <>
       <div className="container flex justify-center">
-        <Message user={user} />
+        <div className="w-[30rem]">
+          <Message user={user} />
+        </div>
       </div>
     </>
   );

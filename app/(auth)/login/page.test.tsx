@@ -4,13 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { toast } from 'sonner';
 
 jest.mock('../../../http/auth/auth.http');
-jest.mock('sonner', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-    loading: jest.fn(),
-  },
-}));
+jest.mock('sonner');
 
 import { onLoginUser } from '../../../http/auth/auth.http';
 const mockOnLoginUser = jest.mocked(onLoginUser);

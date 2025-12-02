@@ -11,7 +11,7 @@ export interface ISignUp {
   email: string;
   password: string;
   name: string;
-  birthDate: string;
+  birthDate: Date;
 }
 
 export interface INewPassword {
