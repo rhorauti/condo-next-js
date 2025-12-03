@@ -2,16 +2,17 @@
 
 import { AvatarImage } from '@radix-ui/react-avatar';
 import { Avatar, AvatarFallback } from '../ui/avatar';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { BookmarkIcon, HeartIcon, MessageCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface IMessage {
   profileFallback: string;
   profileUrl: string;
   name: string;
   description: string | null;
-  media: string[] | null;
+  mediaList: string[] | null;
   timestamp: Date;
   likes: number;
   isSaved: boolean;
@@ -19,10 +20,10 @@ interface IMessage {
 
 interface IProps {
   user: IMessage;
-  comments?: IMessage[];
+  others?: IMessage[];
 }
 
-export default function Message({ user, comments }: IProps) {
+export default function Message({ user, others }: IProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const formatTimePassed = (pastDate: Date | string): string => {
@@ -60,6 +61,12 @@ export default function Message({ user, comments }: IProps) {
     setIsExpanded(!isExpanded);
   };
 
+  const mediaList = useMemo(() => {
+    if (user.mediaList == null || user.mediaList == undefined) return [];
+    else if (Array.isArray(user.mediaList)) return user.mediaList;
+    else [user.mediaList];
+  }, [user.mediaList]);
+
   return (
     <>
       <article className="flex flex-col items-center justify-start border border-gray-400 rounded-md p-4">
@@ -90,17 +97,24 @@ export default function Message({ user, comments }: IProps) {
           </div>
         </header>
         <section className="p-4">
-          <img src={user.media} alt="Image Post" />
+          {(mediaList || []).map((media) => (
+            <img src={media} alt="Image Post" />
+          ))}
         </section>
         <footer>
-          <ToggleGroup type="multiple" variant="default" spacing={2} size="sm">
+          <ToggleGroup
+            type="multiple"
+            variant="default"
+            className={cn('gap-2')}
+            size="sm"
+          >
             <ToggleGroupItem
-              value="star"
-              aria-label="Toggle star"
+              value="message"
+              aria-label="Toggle message"
               className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
             >
               <MessageCircle />
-              12
+              {others?.length ?? 0}
             </ToggleGroupItem>
             <ToggleGroupItem
               value="heart"
@@ -108,7 +122,7 @@ export default function Message({ user, comments }: IProps) {
               className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-red-500 data-[state=on]:*:[svg]:stroke-red-500"
             >
               <HeartIcon />
-              54
+              {user.likes}
             </ToggleGroupItem>
             <ToggleGroupItem
               value="bookmark"
@@ -116,7 +130,7 @@ export default function Message({ user, comments }: IProps) {
               className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500"
             >
               <BookmarkIcon />
-              45
+              {user.isSaved}
             </ToggleGroupItem>
           </ToggleGroup>
         </footer>

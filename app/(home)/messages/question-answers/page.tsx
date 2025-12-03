@@ -6,10 +6,10 @@ const user = {
   name: 'Rafael Horauti',
   description:
     'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-  media: ['/post.jpg'],
+  mediaList: ['/post.jpg'],
   timestamp: new Date(),
   likes: 12,
-  isSaved: false,
+  isSaved: true,
 };
 
 export default function Page() {
