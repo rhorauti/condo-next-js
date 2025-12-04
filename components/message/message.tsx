@@ -6,6 +6,14 @@ import { useMemo, useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { BookmarkIcon, HeartIcon, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '../ui/carousel';
+import { Card, CardContent } from '../ui/card';
 
 interface IMessage {
   profileFallback: string;
@@ -96,10 +104,22 @@ export default function Message({ user, others }: IProps) {
             </div>
           </div>
         </header>
-        <section className="p-4">
-          {(mediaList || []).map((media) => (
-            <img src={media} alt="Image Post" />
-          ))}
+        <section className="p-2">
+          <Carousel className="w-full max-w-xs">
+            <CarouselContent>
+              {(mediaList || []).map((media, index) => (
+                <CarouselItem key={index}>
+                  <Card>
+                    <CardContent className="flex aspect-square items-center justify-center">
+                      <img src={media} alt="Image Post" />
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         </section>
         <footer>
           <ToggleGroup
