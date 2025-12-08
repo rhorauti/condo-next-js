@@ -2,10 +2,8 @@ import { AppSidebar } from '@/components/blocks/app-sidebar';
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -44,7 +42,7 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="px-4">{children}</div>
+        <div className="min-w-24 overflow-auto px-4">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

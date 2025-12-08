@@ -23,8 +23,8 @@ const data = {
   },
   navMain: [
     {
-      title: 'Mensagens',
-      url: 'messages',
+      title: 'Postagens',
+      url: 'posts',
       icon: SquareTerminal,
       isActive: true,
       items: [

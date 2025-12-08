@@ -8,6 +8,12 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        xs: '450px',
+      },
+      aspectRatio: {
+        '4/5': '4 / 5',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

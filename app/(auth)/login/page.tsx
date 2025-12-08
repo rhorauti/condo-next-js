@@ -56,26 +56,16 @@ const LoginForm = () => {
           },
         });
       } else {
-        toast.error(response.message, {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
+        throw new Error(response?.message || 'Erro ao fazer o login');
       }
-    } catch (error: any) {
-      if (error instanceof Error) {
-        toast.error(error.message, {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
-      } else {
-        console.log(error);
-      }
+    } catch (error: unknown) {
+      toast.error((error as Error).message, {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
+      });
     }
   }
 

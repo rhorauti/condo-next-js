@@ -46,22 +46,41 @@ const PATTERNS = {
   symbol: /[^a-zA-Z0-9]/,
 };
 
+export const FORM_ERRORS = {
+  name: 'O nome é obrigatório.',
+  password: {
+    min: 'A senha deve ter pelo menos 6 caracteres.',
+    uppercase: 'A senha deve ter pelo menos 1 letra maiúscula.',
+    number: 'A senha deve ter pelo menos 1 número.',
+    symbol: 'A senha deve ter pelo menos 1 símbolo.',
+  },
+  email: {
+    invalid: 'Formato de e-mail inválido.',
+    required: 'O email é obrigatório.',
+  },
+  birthDate: {
+    invalid: 'Data inválida.',
+    minAge: 'Você deve ter pelo menos 18 anos.',
+  },
+  terms: 'Os termos devem ser aceitos antes de realizar o login.',
+};
+
 const signUpSchema = z.object({
-  name: z.string().nonempty('O nome é obrigatório.'),
+  name: z.string().nonempty(FORM_ERRORS.name),
   password: z
     .string()
-    .min(6, 'Must be at least 6 characters')
-    .regex(PATTERNS.uppercase, 'A senha deve ter pelo menos 1 letra maiúscula.')
-    .regex(PATTERNS.number, 'A senha deve ter pelo menos 1 número')
-    .regex(PATTERNS.symbol, 'A senha deve ter pelo menos 1 símbolo.'),
+    .min(6, FORM_ERRORS.password.min)
+    .regex(PATTERNS.uppercase, FORM_ERRORS.password.uppercase)
+    .regex(PATTERNS.number, FORM_ERRORS.password.number)
+    .regex(PATTERNS.symbol, FORM_ERRORS.password.symbol),
   email: z
     .email('Formato de e-mail inválido.')
-    .nonempty('O email é obrigatório'),
+    .nonempty('O email é obrigatório.'),
   birthDate: z
-    .date('Data inválida')
+    .date('Data inválida.')
     .max(eighteenYearsAgo, { message: 'Você deve ter pelo menos 18 anos.' }),
   agreedWithTerms: z.boolean().refine((checked) => checked == true, {
-    error: 'Os termos devem ser aceitos antes de realizar o login',
+    error: 'Os termos devem ser aceitos antes de realizar o login.',
   }),
 });
 
@@ -96,7 +115,7 @@ export default function SignUp() {
     const toastId = toast.loading('Validando os dados...');
     try {
       const response = await onCreateUser(data);
-      if (response.status) {
+      if (response && response.status) {
         toast.success(response.message, {
           id: toastId,
           action: {
@@ -106,26 +125,16 @@ export default function SignUp() {
         });
         router.push('/login');
       } else {
-        toast.error(response.message, {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
+        throw new Error(response?.message || 'Erro ao criar usuário');
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message, {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
-      } else {
-        console.log(error);
-      }
+    } catch (error: unknown) {
+      toast.error((error as Error).message, {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
+      });
     }
   };
 
@@ -283,19 +292,19 @@ export default function SignUp() {
                         <ul className="space-y-1">
                           <RequirementItem
                             isValid={isLengthValid}
-                            label="A senha deve ter pelo menos 6 caracteres"
+                            label={FORM_ERRORS.password.min}
                           />
                           <RequirementItem
                             isValid={check(PATTERNS.uppercase)}
-                            label="A senha deve ter pelo menos 1 letra maiúscula"
+                            label={FORM_ERRORS.password.uppercase}
                           />
                           <RequirementItem
                             isValid={check(PATTERNS.number)}
-                            label="A senha deve ter pelo menos 1 número"
+                            label={FORM_ERRORS.password.number}
                           />
                           <RequirementItem
                             isValid={check(PATTERNS.symbol)}
-                            label="A senha deve ter pelo menos 1 símbolo"
+                            label={FORM_ERRORS.password.symbol}
                           />
                         </ul>
                       )}
