@@ -21,8 +21,7 @@ import { useId } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
-import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const PATTERNS = {
   uppercase: /[A-Z]/,
@@ -30,13 +29,22 @@ const PATTERNS = {
   symbol: /[^a-zA-Z0-9]/,
 };
 
+export const FORM_ERRORS = {
+  password: {
+    min: 'A senha deve ter pelo menos 6 caracteres.',
+    uppercase: 'A senha deve ter pelo menos 1 letra maiúscula.',
+    number: 'A senha deve ter pelo menos 1 número.',
+    symbol: 'A senha deve ter pelo menos 1 símbolo.',
+  },
+};
+
 const newPasswordSchema = z.object({
   password: z
     .string()
-    .min(6, 'Must be at least 6 characters')
-    .regex(PATTERNS.uppercase, 'A senha deve ter pelo menos 1 letra maiúscula.')
-    .regex(PATTERNS.number, 'A senha deve ter pelo menos 1 número')
-    .regex(PATTERNS.symbol, 'A senha deve ter pelo menos 1 símbolo.'),
+    .min(6, FORM_ERRORS.password.min)
+    .regex(PATTERNS.uppercase, FORM_ERRORS.password.uppercase)
+    .regex(PATTERNS.number, FORM_ERRORS.password.number)
+    .regex(PATTERNS.symbol, FORM_ERRORS.password.symbol),
 });
 
 export type NewPasswordValues = z.infer<typeof newPasswordSchema>;
@@ -145,19 +153,19 @@ export default function NewPassword() {
                         <ul className="space-y-1">
                           <RequirementItem
                             isValid={isLengthValid}
-                            label="A senha deve ter pelo menos 6 caracteres"
+                            label={FORM_ERRORS.password.min}
                           />
                           <RequirementItem
                             isValid={check(PATTERNS.uppercase)}
-                            label="A senha deve ter pelo menos 1 letra maiúscula"
+                            label={FORM_ERRORS.password.uppercase}
                           />
                           <RequirementItem
                             isValid={check(PATTERNS.number)}
-                            label="A senha deve ter pelo menos 1 número"
+                            label={FORM_ERRORS.password.number}
                           />
                           <RequirementItem
                             isValid={check(PATTERNS.symbol)}
-                            label="A senha deve ter pelo menos 1 símbolo"
+                            label={FORM_ERRORS.password.symbol}
                           />
                         </ul>
                       )}

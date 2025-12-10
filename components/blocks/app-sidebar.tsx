@@ -19,7 +19,7 @@ const data = {
   user: {
     name: 'Rafael Horauti',
     email: 'rafael.horauti@gmail.com',
-    avatar: '/avatars/shadcn.jpg',
+    avatar: '/teste1.jpeg',
   },
   navMain: [
     {

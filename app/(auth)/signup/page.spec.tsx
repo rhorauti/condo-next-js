@@ -8,6 +8,7 @@ jest.mock('next/navigation');
 jest.mock('../../../http/auth/auth.http');
 jest.mock('sonner');
 
+const mockUseRouter = jest.mocked(useRouter);
 const mockOnCreateUser = jest.mocked(onCreateUser);
 
 import { render, screen, waitFor } from '@testing-library/react';
@@ -18,6 +19,21 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 describe('Sign Up Page', () => {
+  const mockPush = jest.fn();
+
+  beforeEach(() => {
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+      replace: jest.fn(),
+      refresh: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      prefetch: jest.fn(),
+    });
+
+    jest.clearAllMocks();
+  });
+
   const setup = () => {
     const utils = render(<SignUp />);
     const name = screen.getByRole('textbox', { name: /nome/i });
@@ -90,7 +106,7 @@ describe('Sign Up Page', () => {
         'Usuário criado com sucesso.',
         expect.anything()
       );
-      expect(useRouter().push).toHaveBeenCalledWith('/login');
+      expect(mockPush).toHaveBeenCalledWith('/login');
     });
   }, 15000);
 

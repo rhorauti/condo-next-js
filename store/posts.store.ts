@@ -22,7 +22,7 @@ const HomeStore = create<IHomeStore>((set, get) => ({
       description: '',
       mediaList: null,
       timestamp: new Date(),
-      likes: 0,
+      likesQty: 0,
       isSaved: false,
       commentsQty: 0,
     },

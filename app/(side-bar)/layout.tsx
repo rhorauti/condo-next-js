@@ -42,7 +42,7 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="min-w-24 overflow-auto px-4">{children}</div>
+        <div className="min-w-24 overflow-auto p-4">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
