@@ -154,7 +154,7 @@ export default function Post({ user }: IProps) {
                 {user.name}
               </span>
               <span className="text-gray-600">
-                {formatTimePassed(user.timestamp)}
+                {formatTimePassed(user.createdAt)}
               </span>
               <Badge variant="default">Avisos</Badge>
             </div>

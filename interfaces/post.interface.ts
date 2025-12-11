@@ -6,7 +6,7 @@ export interface IPost {
   name: string;
   description: string | null;
   mediaList?: string[] | null;
-  timestamp: Date;
+  createdAt: Date;
   likesQty: number;
   isLiked: boolean;
   isSaved: boolean;
