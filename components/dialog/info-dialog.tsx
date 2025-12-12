@@ -18,7 +18,7 @@ interface DialogProps {
   onOpenChange: () => void;
 }
 
-export function ModalInfo({
+export function InfoDialog({
   isActive = false,
   isDialogFailure = true,
   title,

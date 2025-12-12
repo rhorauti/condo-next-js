@@ -32,16 +32,12 @@ import {
 import { Button } from '../ui/button';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
-import { Field, FieldGroup, FieldLabel } from '../ui/field';
-import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
+import { PostFormDialog } from '../dialog/post-form-dialog';
 
 interface IProps {
   user: IPost;
@@ -58,6 +54,7 @@ export default function Post({ user }: IProps) {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [isLiked, setIsLiked] = useState(user.isLiked);
   const [isPostSaved, setIsPostSaved] = useState(user.isSaved);
+  const [isCommentDialogActive, setIsCommentDialogActive] = useState(false);
 
   useEffect(() => {
     const textRef = descriptionRef.current;
@@ -122,8 +119,6 @@ export default function Post({ user }: IProps) {
     else return [user.mediaList];
   }, [user.mediaList]);
 
-  const onCommentButtonClick = () => {};
-
   const onToggleHeartButton = () => {};
 
   const onToggleSaveButton = () => {};
@@ -144,9 +139,9 @@ export default function Post({ user }: IProps) {
             {user.profileFallback}
           </AvatarFallback>
         </Avatar>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
-            <div className="flex gap-3 pr-4">
+            <div className="flex flex-wrap gap-4 pr-4">
               <span
                 onClick={() => onShowProfile()}
                 className="font-semibold cursor-pointer hover:underline"
@@ -177,33 +172,6 @@ export default function Post({ user }: IProps) {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Create New File</DialogTitle>
-                  <DialogDescription>
-                    Provide a name for your new file. Click create when
-                    you&apos;re done.
-                  </DialogDescription>
-                </DialogHeader>
-                <FieldGroup className="pb-3">
-                  <Field>
-                    <FieldLabel htmlFor="filename">File Name</FieldLabel>
-                    <Input
-                      id="filename"
-                      name="filename"
-                      placeholder="document.txt"
-                    />
-                  </Field>
-                </FieldGroup>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                  <Button type="submit">Create</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </div>
           <div>
             <p
@@ -234,10 +202,12 @@ export default function Post({ user }: IProps) {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div>
-              <CarouselPrevious />
-              <CarouselNext />
-            </div>
+            {count > 1 && (
+              <div>
+                <CarouselPrevious />
+                <CarouselNext />
+              </div>
+            )}
           </Carousel>
           {count > 1 && (
             <div className="flex justify-center gap-2 pt-4">
@@ -267,7 +237,7 @@ export default function Post({ user }: IProps) {
           <ToggleGroupItem
             value="post"
             aria-label="Toggle post"
-            onClick={() => onCommentButtonClick}
+            onClick={() => setIsCommentDialogActive(true)}
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500 flex justify-center"
           >
             <MessageCircle />
@@ -296,6 +266,22 @@ export default function Post({ user }: IProps) {
           </ToggleGroupItem>
         </ToggleGroup>
       </footer>
+
+      <Dialog
+        open={isCommentDialogActive}
+        onOpenChange={() => setIsCommentDialogActive(false)}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogTitle>Teste</DialogTitle>
+          <DialogDescription>Description Test</DialogDescription>
+        </DialogContent>
+      </Dialog>
+
+      <PostFormDialog
+        showDialog={showEditDialog}
+        description="Description test for Post page"
+        onCloseDialog={() => setShowEditDialog(false)}
+      />
     </article>
   );
 }

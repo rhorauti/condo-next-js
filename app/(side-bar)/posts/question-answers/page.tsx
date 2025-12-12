@@ -28,7 +28,7 @@ const posts = [
     description:
       'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
     mediaList: ['/teste1.jpeg'],
-    timestamp: new Date(),
+    createdAt: new Date(),
     likesQty: 12,
     isLiked: true,
     isSaved: true,
@@ -49,7 +49,7 @@ const posts = [
       '/teste3.jpeg',
       '/teste4.jpeg',
     ],
-    timestamp: new Date(),
+    createdAt: new Date(),
     likesQty: 12,
     isLiked: false,
     isSaved: true,
@@ -58,8 +58,6 @@ const posts = [
 ];
 
 export default function Page() {
-  const [isDialogActive, setIsDialogActive] = useState(false);
-
   return (
     <>
       <div className="flex justify-center overflow-auto w-full">
@@ -94,16 +92,6 @@ export default function Page() {
           </div>
         </div>
       </div>
-
-      <Dialog
-        open={isDialogActive}
-        onOpenChange={() => setIsDialogActive(false)}
-      >
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogTitle>Teste</DialogTitle>
-          <Description>Description Test</Description>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
