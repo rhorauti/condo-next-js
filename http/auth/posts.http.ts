@@ -16,3 +16,10 @@ export const savePost = async (post: IPost): Promise<IPost> => {
 export const deletePost = async (idPost: number): Promise<void> => {
   return await httpRequest({ endpoint: `/posts/${idPost}`, method: 'DELETE' });
 };
+
+export const onGetPostComments = async (idPost: number): Promise<IPost[]> => {
+  return await httpRequest({
+    endpoint: `posts/comments/${idPost}`,
+    method: 'GET',
+  });
+};

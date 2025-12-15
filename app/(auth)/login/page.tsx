@@ -3,7 +3,7 @@
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import { LogIn } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -22,6 +22,7 @@ import { ILogin } from '@/interfaces/auth.interface';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
@@ -32,6 +33,8 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
   const formId = useId();
+  const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -42,17 +45,27 @@ const LoginForm = () => {
   });
 
   const { isSubmitting } = form.formState;
+  const isLoading = isSubmitting || isRedirecting;
 
   async function onSubmitForm(values: LoginFormValues) {
     const toastId = toast.loading('Aguarde o login ser realizado.');
     try {
       const response = await onLoginUser(values);
       if (response && response.status) {
+        setIsRedirecting(true);
+        const redirectDelay = 2000;
+        const timer = setTimeout(() => {
+          router.push('/dashboard');
+        }, redirectDelay);
         toast.success('Login efetuado com sucesso!', {
           id: toastId,
+          duration: redirectDelay,
           action: {
             label: 'Fechar',
-            onClick: () => '',
+            onClick: () => {
+              clearTimeout(timer);
+              router.push('/dashboard');
+            },
           },
         });
       } else {
@@ -159,16 +172,16 @@ const LoginForm = () => {
           <Button
             type="submit"
             form={formId}
-            disabled={isSubmitting}
+            disabled={isLoading}
             variant={'default'}
             size={'sm'}
           >
-            {isSubmitting ? (
-              <span className="animate-spin mr-2">⏳</span> // Or use a Loader Icon
+            {isLoading ? (
+              <span className="animate-spin mr-2">⏳</span>
             ) : (
               <LogIn className="mr-1" />
             )}
-            <span>{isSubmitting ? 'Entrando...' : 'Entrar'}</span>
+            <span>{isLoading ? 'Entrando...' : 'Entrar'}</span>
           </Button>
         </CardFooter>
       </Card>

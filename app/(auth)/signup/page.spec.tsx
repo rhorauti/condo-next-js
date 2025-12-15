@@ -5,7 +5,7 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 jest.mock('next/navigation');
-jest.mock('../../../http/auth/auth.http');
+jest.mock('@/http/auth/auth.http');
 jest.mock('sonner');
 
 const mockUseRouter = jest.mocked(useRouter);

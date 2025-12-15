@@ -30,31 +30,41 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '../ui/dialog';
 import { Badge } from '../ui/badge';
-import { PostFormDialog } from '../dialog/post-form-dialog';
+import { PostFormDialog } from './post-form-dialog';
+import { PostCommentsDialog } from './post-comments-dialog';
+import { onGetPostComments } from '@/http/auth/posts.http';
+import { comment } from 'postcss';
 
 interface IProps {
-  user: IPost;
+  postInfo: IPost;
 }
 
-export default function Post({ user }: IProps) {
+export default function Post({ postInfo }: IProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const [showToggle, setShowToggle] = useState(false);
+  const [postData, setPostData] = useState<IPost>({
+    idPost: 0,
+    type: 0,
+    profileFallback: '',
+    profileUrl: '',
+    name: '',
+    description: '',
+    mediaList: [],
+    createdAt: new Date(),
+    likesQty: 0,
+    isLiked: false,
+    isSaved: false,
+  });
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showShareDialog, setShowShareDialog] = useState(false);
-  const [isLiked, setIsLiked] = useState(user.isLiked);
-  const [isPostSaved, setIsPostSaved] = useState(user.isSaved);
+  const [isLiked, setIsLiked] = useState(postInfo.isLiked);
+  const [isPostSaved, setIsPostSaved] = useState(postInfo.isSaved);
   const [isCommentDialogActive, setIsCommentDialogActive] = useState(false);
+  const [comments, setComments] = useState<IPost[]>();
 
   useEffect(() => {
     const textRef = descriptionRef.current;
@@ -65,7 +75,7 @@ export default function Post({ user }: IProps) {
         setShowToggle(false);
       }
     }
-  }, [isExpanded, user.description]);
+  }, [isExpanded, postInfo.description]);
 
   useEffect(() => {
     if (!api) {
@@ -114,10 +124,11 @@ export default function Post({ user }: IProps) {
   };
 
   const mediaList = useMemo(() => {
-    if (user.mediaList == null || user.mediaList == undefined) return [];
-    else if (Array.isArray(user.mediaList)) return user.mediaList;
-    else return [user.mediaList];
-  }, [user.mediaList]);
+    if (postInfo.mediaList == null || postInfo.mediaList == undefined)
+      return [];
+    else if (Array.isArray(postInfo.mediaList)) return postInfo.mediaList;
+    else return [postInfo.mediaList];
+  }, [postInfo.mediaList]);
 
   const onToggleHeartButton = () => {};
 
@@ -127,6 +138,17 @@ export default function Post({ user }: IProps) {
 
   const onDeletePost = () => {};
 
+  const onShowCommentsDialog = async (idPost: number): Promise<void> => {
+    const comments = await onGetPostComments(idPost);
+    setComments(comments);
+    setIsCommentDialogActive(true);
+  };
+
+  const onShowEditPostDialog = (): void => {
+    setPostData(postInfo);
+    setShowEditDialog(true);
+  };
+
   return (
     <article className="flex flex-col items-center gap-2 max-w-[32.5rem] w-full justify-start border border-gray-400 rounded-md p-4">
       <header className="flex gap-3 w-full">
@@ -134,9 +156,9 @@ export default function Post({ user }: IProps) {
           onClick={() => onShowProfile()}
           className="h-12 w-12 rounded-full cursor-pointer"
         >
-          <AvatarImage src={user.profileUrl} alt="Profile Image" />
+          <AvatarImage src={postInfo.profileUrl} alt="Profile Image" />
           <AvatarFallback className="rounded-lg">
-            {user.profileFallback}
+            {postInfo.profileFallback}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-2">
@@ -146,10 +168,10 @@ export default function Post({ user }: IProps) {
                 onClick={() => onShowProfile()}
                 className="font-semibold cursor-pointer hover:underline"
               >
-                {user.name}
+                {postInfo.name}
               </span>
               <span className="text-gray-600">
-                {formatTimePassed(user.createdAt)}
+                {formatTimePassed(postInfo.createdAt)}
               </span>
               <Badge variant="default">Avisos</Badge>
             </div>
@@ -161,7 +183,7 @@ export default function Post({ user }: IProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-40" align="end">
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
+                  <DropdownMenuItem onSelect={() => onShowEditPostDialog()}>
                     <Pencil />
                     Editar
                   </DropdownMenuItem>
@@ -178,7 +200,7 @@ export default function Post({ user }: IProps) {
               ref={descriptionRef}
               className={`transition-all duration-300 text-base ${isExpanded ? 'line-clamp-none' : 'line-clamp-2'}`}
             >
-              {user.description ?? ''}
+              {postInfo.description ?? ''}
             </p>
             {showToggle && (
               <button onClick={onToogleText} className="text-gray-400">
@@ -237,11 +259,11 @@ export default function Post({ user }: IProps) {
           <ToggleGroupItem
             value="post"
             aria-label="Toggle post"
-            onClick={() => setIsCommentDialogActive(true)}
+            onClick={() => onShowCommentsDialog(postInfo.idPost)}
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500 flex justify-center"
           >
             <MessageCircle />
-            <span>{user.commentsQty}</span>
+            <span>{comments?.length || 0}</span>
           </ToggleGroupItem>
           <ToggleGroupItem
             value="heart"
@@ -250,7 +272,7 @@ export default function Post({ user }: IProps) {
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-red-500 data-[state=on]:*:[svg]:stroke-red-500 flex justify-center"
           >
             <HeartIcon fill="red" stroke="red" />
-            <span>{user.likesQty}</span>
+            <span>{postInfo.likesQty}</span>
           </ToggleGroupItem>
           <ToggleGroupItem
             value="bookmark"
@@ -259,27 +281,23 @@ export default function Post({ user }: IProps) {
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500 flex justify-center"
           >
             <BookmarkIcon
-              fill={user.isSaved ? 'gray' : ''}
-              stroke={user.isSaved ? 'gray' : ''}
+              fill={postInfo.isSaved ? 'gray' : ''}
+              stroke={postInfo.isSaved ? 'gray' : ''}
             />
-            <span>{user.isSaved}</span>
+            <span>{postInfo.isSaved}</span>
           </ToggleGroupItem>
         </ToggleGroup>
       </footer>
 
-      <Dialog
-        open={isCommentDialogActive}
-        onOpenChange={() => setIsCommentDialogActive(false)}
-      >
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogTitle>Teste</DialogTitle>
-          <DialogDescription>Description Test</DialogDescription>
-        </DialogContent>
-      </Dialog>
+      <PostCommentsDialog
+        showDialog={isCommentDialogActive}
+        description="Description test for Post page"
+        onCloseDialog={() => setIsCommentDialogActive(false)}
+      />
 
       <PostFormDialog
         showDialog={showEditDialog}
-        description="Description test for Post page"
+        postInfo={postData}
         onCloseDialog={() => setShowEditDialog(false)}
       />
     </article>

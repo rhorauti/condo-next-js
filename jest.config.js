@@ -10,6 +10,10 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom',
   clearMocks: true,
+  // Ensure Jest resolves TS path aliases like "@/..."
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+  },
   testPathIgnorePatterns: [
     '/node_modules/',
     '/e2e/',

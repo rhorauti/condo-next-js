@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -16,7 +15,7 @@ interface IProps {
   onCloseDialog: () => void;
 }
 
-export function CommentsDialog({ showDialog, onCloseDialog }: IProps) {
+export function PostCommentsDialog({ showDialog, onCloseDialog }: IProps) {
   return (
     <Dialog open={showDialog} onOpenChange={onCloseDialog}>
       <DialogContent className="sm:max-w-[425px]">

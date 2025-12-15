@@ -2,26 +2,29 @@ import { getPostList } from '@/http/auth/posts.http';
 import { IPost } from '@/interfaces/post.interface';
 import { create } from 'zustand';
 
-interface IHomePageInfo {
+interface IPageInfo {
   title: string;
   post: IPost;
   postList: IPost[];
 }
 
-interface IHomeStore {
-  pageInfo: IHomePageInfo;
+interface IPostStore {
+  pageInfo: IPageInfo;
 }
 
-const HomeStore = create<IHomeStore>((set, get) => ({
+const postStore = create<IPostStore>((set, get) => ({
   pageInfo: {
     title: '',
     post: {
+      idPost: 0,
+      type: 0,
+      isLiked: false,
       profileFallback: '',
       profileUrl: '',
       name: '',
       description: '',
       mediaList: null,
-      timestamp: new Date(),
+      createdAt: new Date(),
       likesQty: 0,
       isSaved: false,
       commentsQty: 0,
@@ -31,4 +34,4 @@ const HomeStore = create<IHomeStore>((set, get) => ({
   getPostList: getPostList(),
 }));
 
-export default HomeStore;
+export default postStore;

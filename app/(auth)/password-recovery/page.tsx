@@ -46,16 +46,13 @@ const PasswordRecovery = () => {
     try {
       const response = await onSendRecoveryEmail(values);
       if (response && response.status) {
-        toast.success(
-          'E-mail de recuperação enviado com sucesso. Verifique sua caixa de e-mail.',
-          {
-            id: toastId,
-            action: {
-              label: 'Fechar',
-              onClick: () => '',
-            },
-          }
-        );
+        toast.success(response.message, {
+          id: toastId,
+          action: {
+            label: 'Fechar',
+            onClick: () => '',
+          },
+        });
         router.push('/login');
       } else {
         toast.error(response.message, {

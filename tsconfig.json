@@ -25,7 +25,11 @@
       "@/http/*": ["./http/*"],
       "@/interfaces/*": ["./interfaces/*"],
       "@/store/*": ["./store/*"],
-      "@/stories/*": ["./stories/*"]
+      "@/stories/*": ["./stories/*"],
+      "@/app/*": ["./app/*"],
+      "@/e2e/*": ["./e2e/*"],
+      "@/public/*": ["./public/*"],
+      "@/utils/*": ["./utils/*"]
     },
     "plugins": [
       {

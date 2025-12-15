@@ -3,10 +3,10 @@ import LoginForm from './page';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'sonner';
 
-jest.mock('../../../http/auth/auth.http');
+jest.mock('@/http/auth/auth.http');
 jest.mock('sonner');
 
-import { onLoginUser } from '../../../http/auth/auth.http';
+import { onLoginUser } from '@/http/auth/auth.http';
 const mockOnLoginUser = jest.mocked(onLoginUser);
 
 describe('Login Page Component', () => {

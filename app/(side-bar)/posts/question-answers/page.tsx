@@ -87,7 +87,7 @@ export default function Page() {
           </div>
           <div className="flex flex-col items-center gap-4">
             {posts.map((post, index) => (
-              <Post key={index} user={post} />
+              <Post key={index} postInfo={post} />
             ))}
           </div>
         </div>

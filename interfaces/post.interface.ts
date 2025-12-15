@@ -1,6 +1,6 @@
 export interface IPost {
   idPost: number;
-  type: number;
+  type?: number;
   profileFallback: string;
   profileUrl: string;
   name: string;
@@ -10,5 +10,4 @@ export interface IPost {
   likesQty: number;
   isLiked: boolean;
   isSaved: boolean;
-  commentsQty: number;
 }

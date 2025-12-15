@@ -1,4 +1,4 @@
-export type AuthDataResponse = Omit<ILogin, 'agreedWithTerms' | 'password'>;
+export type AuthDataResponse = Omit<ILogin, 'password'>;
 
 export interface ILogin {
   email: string;
