@@ -34,7 +34,6 @@ import { Badge } from '../ui/badge';
 import { PostFormDialog } from './post-form-dialog';
 import { PostCommentsDialog } from './post-comments-dialog';
 import { onGetPostComments } from '@/http/auth/posts.http';
-import { comment } from 'postcss';
 
 interface IProps {
   postInfo: IPost;
@@ -47,26 +46,28 @@ export default function Post({ postInfo }: IProps) {
   const [count, setCount] = useState(0);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const [showToggle, setShowToggle] = useState(false);
-  const [postData, setPostData] = useState<IPost>({
-    idPost: 0,
-    type: 0,
-    profileFallback: '',
-    profileUrl: '',
-    name: '',
-    description: '',
-    mediaList: [],
-    createdAt: new Date(),
-    likesQty: 0,
-    isLiked: false,
-    isSaved: false,
-  });
+
+  // const initialPostData = {
+  //   idPost: 0,
+  //   type: 0,
+  //   profileFallback: '',
+  //   profileUrl: '',
+  //   name: '',
+  //   description: '',
+  //   mediaList: [],
+  //   createdAt: new Date(),
+  //   likesQty: 0,
+  //   isLiked: false,
+  //   isSaved: false,
+  // };
+
+  // const [postData, setPostData] = useState<IPost>(postInfo ?? initialPostData);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [isLiked, setIsLiked] = useState(postInfo.isLiked);
-  const [isPostSaved, setIsPostSaved] = useState(postInfo.isSaved);
   const [isCommentDialogActive, setIsCommentDialogActive] = useState(false);
   const [comments, setComments] = useState<IPost[]>();
 
   useEffect(() => {
+    // setPostData(postInfo);
     const textRef = descriptionRef.current;
     if (textRef) {
       if (isExpanded || textRef.scrollHeight > textRef.clientHeight) {
@@ -145,7 +146,7 @@ export default function Post({ postInfo }: IProps) {
   };
 
   const onShowEditPostDialog = (): void => {
-    setPostData(postInfo);
+    // setPostData(postInfo);
     setShowEditDialog(true);
   };
 
@@ -293,12 +294,6 @@ export default function Post({ postInfo }: IProps) {
         showDialog={isCommentDialogActive}
         description="Description test for Post page"
         onCloseDialog={() => setIsCommentDialogActive(false)}
-      />
-
-      <PostFormDialog
-        showDialog={showEditDialog}
-        postInfo={postData}
-        onCloseDialog={() => setShowEditDialog(false)}
       />
     </article>
   );

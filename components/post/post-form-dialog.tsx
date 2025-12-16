@@ -15,20 +15,26 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { ImageIcon, MapPin, Smile, User, X, Plus } from 'lucide-react';
+import { ImageIcon, X } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { toast } from 'sonner';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import {
+  Carousel,
+  CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '../ui/carousel';
+import { cn } from '@/lib/utils';
 
 interface IProps {
   showDialog: boolean;
-  postInfo?: IPost; // Made optional since you might be creating new posts
+  postInfo?: IPost;
   onCloseDialog: () => void;
 }
 
-// --- CONSTANTS ---
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_FILES = 5; // Limit max files
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const ACCEPTED_IMAGE_TYPES = [
   'image/jpeg',
   'image/jpg',
@@ -36,36 +42,31 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/webp',
 ];
 
-// --- SCHEMA ---
 const postSchema = z
   .object({
-    content: z.string().optional(),
+    description: z.string().optional(),
     media: z
-      .array(z.instanceof(File)) // Changed to Array of Files
-      .refine(
-        (files) => files.length <= MAX_FILES,
-        `You can only upload up to ${MAX_FILES} photos.`
-      )
+      .array(z.instanceof(File))
       .refine(
         (files) => files.every((file) => file.size <= MAX_FILE_SIZE),
-        `Each file must be less than 10MB.`
+        `Cada arquivo só pode ter até no máximo ${Math.ceil(MAX_FILE_SIZE / (1024 * 1024))}Mb.`
       )
       .refine(
         (files) =>
           files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
-        'Only .jpg, .png, and .webp formats are supported.'
+        'São permitidos somente arquivos no formato .jpg, .png, and .webp.'
       )
       .optional(),
   })
   .refine(
     (data) => {
-      const hasText = data.content && data.content.trim().length > 0;
+      const hasText = data.description && data.description.trim().length > 0;
       const hasFile = data.media && data.media.length > 0;
       return hasText || hasFile;
     },
     {
-      message: 'Please write something or add a photo.',
-      path: ['content'],
+      message: 'Escreva um comentário ou adicione uma mídia',
+      path: ['description'],
     }
   );
 
@@ -77,16 +78,33 @@ export function PostFormDialog({
   onCloseDialog,
 }: IProps) {
   const formId = useId();
-
-  // --- STATE FOR MULTI-FILES ---
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+
+  const initialPostData = {
+    idPost: 0,
+    type: 0,
+    profileFallback: '',
+    profileUrl: '',
+    name: '',
+    description: '',
+    mediaList: null,
+    createdAt: new Date(),
+    likesQty: 0,
+    isLiked: false,
+    isSaved: false,
+  };
+
+  const [postData, setPostData] = useState<IPost>(postInfo ?? initialPostData);
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
     defaultValues: {
-      content: '',
+      description: '',
       media: [],
     },
   });
@@ -99,30 +117,38 @@ export function PostFormDialog({
     formState: { errors, isSubmitting },
   } = form;
 
-  // Cleanup URLs to prevent memory leaks
+  useEffect(() => {
+    setPostData(postInfo ?? initialPostData);
+    if (!api) {
+      return;
+    }
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+    api.on('select', () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
+
   useEffect(() => {
     return () => {
       previewUrls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, []); // Only runs on unmount
+  }, []);
 
-  // --- HANDLERS ---
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onHandleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const newFiles = Array.from(files);
       const combinedFiles = [...selectedFiles, ...newFiles];
 
-      // Update State & Previews
       setSelectedFiles(combinedFiles);
 
       const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
       setPreviewUrls((prev) => [...prev, ...newPreviews]);
 
-      // Sync with React Hook Form
       setValue('media', combinedFiles, { shouldValidate: true });
     }
-    // Reset input to allow selecting the same file again if needed
+
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -139,25 +165,22 @@ export function PostFormDialog({
 
   const onSubmit = async (data: PostFormValues) => {
     const formData = new FormData();
-    formData.append('content', data.content || '');
+    formData.append('description', data.description || '');
 
-    // Append all files
     if (data.media) {
       data.media.forEach((file) => {
         formData.append('files', file);
       });
     }
 
-    // Simulate API Call
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    console.log('Submitted Files:', data.media?.length);
-    toast.success('Post created successfully!');
+    toast.success('Post criado com sucesso!');
 
-    handleClose();
+    onHandleClose();
   };
 
-  const handleClose = () => {
+  const onHandleClose = () => {
     form.reset();
     setSelectedFiles([]);
     setPreviewUrls([]);
@@ -165,18 +188,24 @@ export function PostFormDialog({
   };
 
   return (
-    <Dialog open={showDialog} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] p-0 gap-0 overflow-hidden bg-transparent border-none shadow-none">
-        {/* We use a single Card as the content container */}
+    <Dialog open={showDialog} onOpenChange={onHandleClose}>
+      <DialogContent
+        showCloseButton={false}
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        className="sm:max-w-[43rem] p-0 gap-0 overflow-hidden bg-transparent border-none shadow-none"
+      >
         <Card className="w-full shadow-md border-border/60">
           <DialogHeader className="px-6 pt-6 pb-2">
             <div className="flex items-center justify-between">
-              <DialogTitle>Create Post</DialogTitle>
+              <DialogTitle>
+                {postInfo ? 'Editar Post' : 'Criar Post'}
+              </DialogTitle>
               <DialogClose asChild>
                 <Button
-                  variant="ghost"
+                  variant="destructive"
                   size="icon"
-                  className="h-8 w-8 rounded-full"
+                  className="h-6 w-6 rounded-full"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -192,102 +221,116 @@ export function PostFormDialog({
               </Avatar>
               <div>
                 <p className="text-sm font-semibold leading-none">
-                  Rafael Horauti
+                  {postData.name}
                 </p>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-5 text-[10px] px-2 mt-1 bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20"
-                >
-                  Public <User className="ml-1 h-3 w-3" />
-                </Button>
               </div>
             </div>
           </CardHeader>
 
           <CardContent className="pb-2 px-6">
-            <form id={`form-${formId}`} onSubmit={handleSubmit(onSubmit)}>
-              {/* Text Input */}
+            <form
+              id={`form-${formId}`}
+              onSubmit={handleSubmit(onSubmit)}
+              className={cn('flex flex-col gap-2')}
+            >
               <Textarea
-                {...register('content')}
-                placeholder="What's on your mind, Rafael?"
-                className="min-h-[80px] text-lg border-none focus-visible:ring-0 resize-none px-0 py-2 placeholder:text-muted-foreground/70"
+                {...register('description')}
+                placeholder="O que você está pensando?"
+                className={cn(
+                  'min-h-[80px] text-lg border-none focus-visible:ring-0 resize-none px-1 py-1 placeholder:text-muted-foreground/70'
+                )}
               />
 
-              {/* Multi-Image Preview Scroll Area */}
               {previewUrls.length > 0 && (
-                <ScrollArea className="w-full whitespace-nowrap rounded-md border mt-2">
-                  <div className="flex w-max space-x-4 p-4">
-                    {previewUrls.map((url, index) => (
-                      <div
-                        key={url}
-                        className="relative aspect-square h-40 w-40 shrink-0 overflow-hidden rounded-md border bg-muted"
-                      >
-                        <img
-                          src={url}
-                          alt={`Preview ${index}`}
-                          className="h-full w-full object-cover"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-80 hover:opacity-100 shadow-sm"
-                          onClick={() => removeImage(index)}
+                <div className="rounded-md border mt-2 p-4">
+                  <Carousel
+                    setApi={setApi}
+                    opts={{
+                      align: 'start',
+                      slidesToScroll: 1,
+                    }}
+                    className="w-full max-w-full"
+                  >
+                    <CarouselContent className="-ml-2 md:-ml-4">
+                      {previewUrls.map((url, index) => (
+                        <CarouselItem
+                          key={index}
+                          className="pl-2 md:pl-4 basis-full md:basis-1/3 relative"
                         >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-
-                    {/* "Add More" Button inside scroll area */}
-                    {selectedFiles.length < MAX_FILES && (
-                      <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex h-40 w-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/20 hover:bg-muted/40 transition-colors"
-                      >
-                        <Plus className="h-8 w-8 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          Add
-                        </span>
-                      </div>
+                          <img
+                            src={url}
+                            alt="Image Post"
+                            className="object-cover w-full aspect-square rounded-md"
+                          />
+                          <Button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            variant="destructive"
+                            size="icon"
+                            className="absolute right-2 top-2 h-6 w-6 rounded-full"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    {previewUrls.length > 3 && (
+                      <>
+                        <CarouselPrevious
+                          type="button"
+                          className={cn('left-1')}
+                        />
+                        <CarouselNext type="button" className={cn('right-1')} />
+                      </>
                     )}
-                  </div>
-                  <ScrollBar orientation="horizontal" />
-                </ScrollArea>
+                  </Carousel>
+                  {previewUrls.length > 1 && (
+                    <div className="md:hidden flex justify-center gap-2 pt-4">
+                      {previewUrls.map((_, index) => (
+                        <button
+                          type="button"
+                          key={index}
+                          className={`h-2 w-2 rounded-full transition-all ${
+                            index === current - 1
+                              ? 'bg-primary w-6'
+                              : 'bg-muted-foreground/50'
+                          }`}
+                          onClick={() => api?.scrollTo(index)}
+                          aria-label={`Go to slide ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
 
-              {/* Hidden File Input */}
               <input
                 type="file"
-                multiple // ALLOWS MULTIPLE FILES
+                multiple
                 accept="image/*"
                 className="hidden"
                 ref={(e) => {
-                  register('media'); // Link RHF
-                  fileInputRef.current = e; // Link manual ref
+                  register('media');
+                  fileInputRef.current = e;
                 }}
-                onChange={handleFileChange}
+                onChange={onHandleFileChange}
               />
 
-              {/* Error Messages */}
-              {errors.content && (
+              {errors.description && (
                 <p className="text-destructive text-sm mt-2">
-                  {errors.content.message}
+                  {errors.description.message}
                 </p>
               )}
               {errors.media && (
-                <p className="text-destructive text-sm mt-2">
+                <p className="text-destructive text-sm">
                   {errors.media.message as string}
                 </p>
               )}
             </form>
-          </CardContent>
 
-          <div className="px-6 mt-2">
-            <div className="border rounded-lg p-3 flex items-center justify-between shadow-sm">
+            <div className="border rounded-lg p-3 mt-4 flex items-center justify-between shadow-sm">
               <span className="text-sm font-semibold text-muted-foreground cursor-default">
-                Add to your post
+                Adicione fotos/vídeos
               </span>
               <div className="flex gap-1">
                 <Button
@@ -299,45 +342,21 @@ export function PostFormDialog({
                 >
                   <ImageIcon className="h-5 w-5" />
                 </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <User className="h-5 w-5" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700"
-                >
-                  <Smile className="h-5 w-5" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                >
-                  <MapPin className="h-5 w-5" />
-                </Button>
               </div>
             </div>
-          </div>
+          </CardContent>
 
-          <CardFooter className="pt-4 px-6 pb-6">
+          <CardFooter className="pt-2 px-6 pb-6">
             <Button
               type="submit"
               form={`form-${formId}`}
               className="w-full font-semibold"
               disabled={
                 isSubmitting ||
-                (!watch('content') && selectedFiles.length === 0)
+                (!watch('description') && selectedFiles.length === 0)
               }
             >
-              {isSubmitting ? 'Posting...' : 'Post'}
+              {isSubmitting ? 'Postando...' : 'Postar'}
             </Button>
           </CardFooter>
         </Card>

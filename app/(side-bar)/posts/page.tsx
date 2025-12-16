@@ -1,20 +1,11 @@
 'use client';
 
 import Post from '@/components/post/post';
+import { PostFormDialog } from '@/components/post/post-form-dialog';
 import SearchBar from '@/components/search-bar/search-bar';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { IPost } from '@/interfaces/post.interface';
 import { cn } from '@/lib/utils';
-import { Description } from '@radix-ui/react-dialog';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,7 +15,7 @@ const posts = [
     type: 0,
     profileUrl: '/teste1.jpeg',
     profileFallback: 'RH',
-    name: 'Rafael Horauti',
+    name: 'Rafael Horauti 2',
     description:
       'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
     mediaList: ['/teste1.jpeg'],
@@ -39,7 +30,7 @@ const posts = [
     type: 0,
     profileUrl: '/teste2.jpeg',
     profileFallback: 'RH',
-    name: 'Daniela Horauti',
+    name: 'Daniela Horauti 3',
     description:
       'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
     mediaList: [
@@ -58,6 +49,30 @@ const posts = [
 ];
 
 export default function Page() {
+  const [isPostDialogActive, setIsPostDialogActive] = useState(false);
+  const [postData, setPostData] = useState<IPost>();
+
+  const initialPostData = {
+    idPost: 0,
+    type: 0,
+    profileFallback: '',
+    profileUrl: '',
+    name: '',
+    description: '',
+    mediaList: [],
+    createdAt: new Date(),
+    likesQty: 0,
+    isLiked: false,
+    isSaved: false,
+  };
+
+  // const onShowDialog = (isNewDialog: boolean): void => {
+  //   if (!isNewDialog) {
+  //     setPostData();
+  //     setIsPostDialogActive(true);
+  //   }
+  // };
+
   return (
     <>
       <div className="flex justify-center overflow-auto w-full">
@@ -66,21 +81,6 @@ export default function Page() {
             <div className={cn('grow')}>
               <SearchBar />
             </div>
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a fruit" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
             <Button variant="default">
               <Plus className="h-4 w-4" />
             </Button>
@@ -91,6 +91,12 @@ export default function Page() {
             ))}
           </div>
         </div>
+
+        {/* <PostFormDialog
+          showDialog={onShowDialog()}
+          postInfo={postInfo}
+          onCloseDialog={() => isPostDialogActive(false)}
+        /> */}
       </div>
     </>
   );
