@@ -1,7 +1,6 @@
 export interface IPost {
   idPost: number;
   type?: number;
-  profileFallback: string;
   profileUrl: string;
   name: string;
   description: string | null;

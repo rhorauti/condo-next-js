@@ -31,43 +31,41 @@ import {
 } from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { PostFormDialog } from './post-form-dialog';
 import { PostCommentsDialog } from './post-comments-dialog';
 import { onGetPostComments } from '@/http/auth/posts.http';
+import useAuthStore from '@/store/auth.store';
 
 interface IProps {
   postInfo: IPost;
+  onShowPostDialog?: () => void;
+  onDeletePost?: () => void;
 }
 
-export default function Post({ postInfo }: IProps) {
+export default function Post({
+  postInfo,
+  onShowPostDialog,
+  onDeletePost,
+}: IProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const [showToggle, setShowToggle] = useState(false);
-
-  // const initialPostData = {
-  //   idPost: 0,
-  //   type: 0,
-  //   profileFallback: '',
-  //   profileUrl: '',
-  //   name: '',
-  //   description: '',
-  //   mediaList: [],
-  //   createdAt: new Date(),
-  //   likesQty: 0,
-  //   isLiked: false,
-  //   isSaved: false,
-  // };
-
-  // const [postData, setPostData] = useState<IPost>(postInfo ?? initialPostData);
+  const [timeDisplay, setTimeDisplay] = useState<string>('');
+  const [isMounted, setIsMounted] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isCommentDialogActive, setIsCommentDialogActive] = useState(false);
   const [comments, setComments] = useState<IPost[]>();
+  const authStore = useAuthStore((state) => state);
 
   useEffect(() => {
-    // setPostData(postInfo);
+    authStore.setFallbackName();
+    setIsMounted(true);
+    setTimeDisplay(formatTimePassed(postInfo.createdAt));
+  }, [postInfo.createdAt]);
+
+  useEffect(() => {
     const textRef = descriptionRef.current;
     if (textRef) {
       if (isExpanded || textRef.scrollHeight > textRef.clientHeight) {
@@ -120,13 +118,12 @@ export default function Post({ postInfo }: IProps) {
     }
   };
 
-  const onToogleText = () => {
+  const onToggleText = () => {
     setIsExpanded(!isExpanded);
   };
 
   const mediaList = useMemo(() => {
-    if (postInfo.mediaList == null || postInfo.mediaList == undefined)
-      return [];
+    if (postInfo.mediaList == null) return [];
     else if (Array.isArray(postInfo.mediaList)) return postInfo.mediaList;
     else return [postInfo.mediaList];
   }, [postInfo.mediaList]);
@@ -137,42 +134,35 @@ export default function Post({ postInfo }: IProps) {
 
   const onShowProfile = () => {};
 
-  const onDeletePost = () => {};
-
   const onShowCommentsDialog = async (idPost: number): Promise<void> => {
     const comments = await onGetPostComments(idPost);
     setComments(comments);
     setIsCommentDialogActive(true);
   };
 
-  const onShowEditPostDialog = (): void => {
-    // setPostData(postInfo);
-    setShowEditDialog(true);
-  };
-
   return (
     <article className="flex flex-col items-center gap-2 max-w-[32.5rem] w-full justify-start border border-gray-400 rounded-md p-4">
       <header className="flex gap-3 w-full">
         <Avatar
-          onClick={() => onShowProfile()}
+          onClick={onShowProfile}
           className="h-12 w-12 rounded-full cursor-pointer"
         >
           <AvatarImage src={postInfo.profileUrl} alt="Profile Image" />
           <AvatarFallback className="rounded-lg">
-            {postInfo.profileFallback}
+            {authStore.credential.fallbackName}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
-            <div className="flex flex-wrap gap-4 pr-4">
+            <div className="flex flex-wrap sm:gap-4 gap-2 pr-4">
               <span
-                onClick={() => onShowProfile()}
+                onClick={onShowProfile}
                 className="font-semibold cursor-pointer hover:underline"
               >
                 {postInfo.name}
               </span>
-              <span className="text-gray-600">
-                {formatTimePassed(postInfo.createdAt)}
+              <span className="text-gray-600" suppressHydrationWarning>
+                {isMounted ? timeDisplay : ''}
               </span>
               <Badge variant="default">Avisos</Badge>
             </div>
@@ -184,11 +174,11 @@ export default function Post({ postInfo }: IProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-40" align="end">
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onSelect={() => onShowEditPostDialog()}>
+                  <DropdownMenuItem onSelect={onShowPostDialog}>
                     <Pencil />
                     Editar
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => onDeletePost()}>
+                  <DropdownMenuItem onSelect={onDeletePost}>
                     <Trash2 />
                     Excluir
                   </DropdownMenuItem>
@@ -204,7 +194,7 @@ export default function Post({ postInfo }: IProps) {
               {postInfo.description ?? ''}
             </p>
             {showToggle && (
-              <button onClick={onToogleText} className="text-gray-400">
+              <button onClick={onToggleText} className="text-gray-400">
                 {isExpanded ? 'menos' : 'mais'}
               </button>
             )}
@@ -269,7 +259,7 @@ export default function Post({ postInfo }: IProps) {
           <ToggleGroupItem
             value="heart"
             aria-label="Toggle heart"
-            onClick={() => onToggleHeartButton}
+            onClick={onToggleHeartButton}
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-red-500 data-[state=on]:*:[svg]:stroke-red-500 flex justify-center"
           >
             <HeartIcon fill="red" stroke="red" />
@@ -278,7 +268,7 @@ export default function Post({ postInfo }: IProps) {
           <ToggleGroupItem
             value="bookmark"
             aria-label="Toggle bookmark"
-            onClick={() => onToggleSaveButton}
+            onClick={onToggleSaveButton}
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500 flex justify-center"
           >
             <BookmarkIcon

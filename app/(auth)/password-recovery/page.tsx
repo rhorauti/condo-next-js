@@ -80,7 +80,7 @@ const PasswordRecovery = () => {
 
   return (
     <>
-      <Card>
+      <Card className={cn(' w-full sm:w-[350px]')}>
         <CardHeader>
           <Image
             className="self-center w-auto h-auto"

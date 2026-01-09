@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { IPost } from '@/interfaces/post.interface';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const posts = [
+const postList = [
   {
     idPost: 12,
     type: 0,
@@ -50,8 +50,6 @@ const posts = [
 
 export default function Page() {
   const [isPostDialogActive, setIsPostDialogActive] = useState(false);
-  const [postData, setPostData] = useState<IPost>();
-
   const initialPostData = {
     idPost: 0,
     type: 0,
@@ -65,39 +63,43 @@ export default function Page() {
     isLiked: false,
     isSaved: false,
   };
+  const [postData, setPostData] = useState<IPost>(initialPostData);
 
-  // const onShowDialog = (isNewDialog: boolean): void => {
-  //   if (!isNewDialog) {
-  //     setPostData();
-  //     setIsPostDialogActive(true);
-  //   }
-  // };
+  const onShowDialog = (post?: IPost): void => {
+    setPostData(post ?? initialPostData);
+    setIsPostDialogActive(true);
+  };
 
   return (
     <>
       <div className="flex justify-center overflow-auto w-full">
-        <div className="flex flex-col items-center gap-6 w-full">
-          <div className="flex flex-col xs:flex-row gap-4">
-            <div className={cn('grow')}>
-              <SearchBar />
-            </div>
-            <Button variant="default">
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex flex-col gap-4 items-center justify-center w-full xs:flex-row">
+            <SearchBar />
+            <Button
+              variant="default"
+              className="w-full xs:w-auto"
+              onClick={() => onShowDialog()}
+            >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
           <div className="flex flex-col items-center gap-4">
-            {posts.map((post, index) => (
-              <Post key={index} postInfo={post} />
+            {postList.map((post, index) => (
+              <Post
+                key={index}
+                postInfo={post}
+                onShowPostDialog={() => onShowDialog(post)}
+              />
             ))}
           </div>
         </div>
-
-        {/* <PostFormDialog
-          showDialog={onShowDialog()}
-          postInfo={postInfo}
-          onCloseDialog={() => isPostDialogActive(false)}
-        /> */}
       </div>
+      <PostFormDialog
+        showDialog={isPostDialogActive}
+        postInfo={postData}
+        onCloseDialog={() => setIsPostDialogActive(false)}
+      />
     </>
   );
 }

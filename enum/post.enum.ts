@@ -1,20 +1,42 @@
 export enum POST_TYPE {
-  QUESTION_ANSWER = 0,
+  QUESTION_FEEDBACK = 0,
   BULLETIN_BOARD = 1,
-  FEEDBACK = 2,
+  COMPLAINS = 2,
+  OTHERS = 3,
 }
 
-export const translatePost = (post: number): string => {
+export const translatePostToString = (post: POST_TYPE): string => {
   switch (post) {
     case 0: {
-      return 'Dúvidas';
+      return 'Dúvidas & Sugestões';
     }
     case 1: {
-      return 'Quadro de Avisos';
+      return 'Avisos';
     }
     case 2: {
-      return 'Sugestões & Melhorias';
+      return 'Reclamações';
+    }
+    case 3: {
+      return 'Outros';
     }
   }
-  return '';
+  return 'Outros';
+};
+
+export const translatePostToNumber = (post: string): POST_TYPE => {
+  switch (post) {
+    case 'Dúvidas & Sugestões': {
+      return 0;
+    }
+    case 'Avisos': {
+      return 1;
+    }
+    case 'Reclamações': {
+      return 2;
+    }
+    case 'Outros': {
+      return 3;
+    }
+  }
+  return 3;
 };

@@ -6,10 +6,10 @@ import { cn } from '@/lib/utils';
 export default function SearchBar() {
   const id = useId();
   return (
-    <div className="flex items-stretch h-10 w-full">
+    <div className="flex h-10 w-full">
       <input
         id={`search-bar-${id}`}
-        className="h-full border border-r-0 rounded-l-md border-gray-400 px-4 py-1 outline-none text-base"
+        className="h-full border border-r-0 rounded-l-md border-gray-400 px-4 py-1 outline-none text-base grow"
         placeholder="Procurar uma palavra..."
       />
       <Button

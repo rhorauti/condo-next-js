@@ -1,7 +1,7 @@
 import { IPost } from '@/interfaces/post.interface';
 import { httpRequest } from '../http-request';
 
-export const getPostList = async (): Promise<IPost> => {
+export const getPostList = async (): Promise<IPost[]> => {
   return await httpRequest({ endpoint: '/posts', method: 'GET' });
 };
 

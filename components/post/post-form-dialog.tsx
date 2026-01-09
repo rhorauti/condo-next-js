@@ -1,17 +1,18 @@
 'use client';
 
-import { useId, useRef, useState, useEffect } from 'react';
+import { useId, useRef, useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
 import { IPost } from '@/interfaces/post.interface';
 import z from 'zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -27,6 +28,16 @@ import {
   CarouselPrevious,
 } from '../ui/carousel';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { POST_TYPE, translatePostToString } from '@/enum/post.enum';
+import useAuthStore from '@/store/auth.store';
 
 interface IProps {
   showDialog: boolean;
@@ -45,6 +56,7 @@ const ACCEPTED_IMAGE_TYPES = [
 const postSchema = z
   .object({
     description: z.string().optional(),
+    postType: z.string().nonempty('Selecione um tipo de postagem'),
     media: z
       .array(z.instanceof(File))
       .refine(
@@ -65,7 +77,7 @@ const postSchema = z
       return hasText || hasFile;
     },
     {
-      message: 'Escreva um comentário ou adicione uma mídia',
+      message: 'Escreva um comentário',
       path: ['description'],
     }
   );
@@ -84,6 +96,8 @@ export function PostFormDialog({
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const [postTypeList, setPostTypeList] = useState<string[]>([]);
+  const authStore = useAuthStore((state) => state);
 
   const initialPostData = {
     idPost: 0,
@@ -101,10 +115,23 @@ export function PostFormDialog({
 
   const [postData, setPostData] = useState<IPost>(postInfo ?? initialPostData);
 
+  const fallbackName = useMemo(() => {
+    const trimmed = authStore.credential.name?.trim() || '';
+    if (!trimmed) return '';
+    const parts = trimmed.split(' ').filter(Boolean);
+    if (parts.length === 1) {
+      return parts[0][0]?.toUpperCase() ?? '';
+    }
+    const first = parts[0][0] ?? '';
+    const last = parts[parts.length - 1][0] ?? '';
+    return (first + last).toUpperCase();
+  }, [authStore.credential.name]);
+
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
     defaultValues: {
       description: '',
+      postType: '',
       media: [],
     },
   });
@@ -116,6 +143,13 @@ export function PostFormDialog({
     watch,
     formState: { errors, isSubmitting },
   } = form;
+
+  const description = watch('description');
+  const postType = watch('postType');
+
+  useEffect(() => {
+    setPostData(postInfo ?? initialPostData);
+  }, [postInfo]);
 
   useEffect(() => {
     setPostData(postInfo ?? initialPostData);
@@ -130,10 +164,19 @@ export function PostFormDialog({
   }, [api]);
 
   useEffect(() => {
+    authStore.setFallbackName();
+    setPostTypeList(setPostTypeStringList());
     return () => {
       previewUrls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);
+
+  const setPostTypeStringList = (): string[] => {
+    const numberList = Object.values(POST_TYPE).filter(
+      (v): v is POST_TYPE => typeof v === 'number'
+    );
+    return numberList.map((number) => translatePostToString(number));
+  };
 
   const onHandleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -164,23 +207,23 @@ export function PostFormDialog({
   };
 
   const onSubmit = async (data: PostFormValues) => {
-    const formData = new FormData();
-    formData.append('description', data.description || '');
+    console.log('submit', data);
+    // const formData = new FormData();
+    // formData.append('description', data.description || '');
+    // formData.append('postType', data.postType || '');
 
-    if (data.media) {
-      data.media.forEach((file) => {
-        formData.append('files', file);
-      });
-    }
+    // if (data.media) {
+    //   data.media.forEach((file) => {
+    //     formData.append('files', file);
+    //   });
+    // }
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // toast.success('Post criado com sucesso!');
 
-    toast.success('Post criado com sucesso!');
-
-    onHandleClose();
+    // onHandleClose();
   };
 
-  const onHandleClose = () => {
+  const onHandleClose = (): void => {
     form.reset();
     setSelectedFiles([]);
     setPreviewUrls([]);
@@ -196,11 +239,16 @@ export function PostFormDialog({
         className="sm:max-w-[43rem] p-0 gap-0 overflow-hidden bg-transparent border-none shadow-none"
       >
         <Card className="w-full shadow-md border-border/60">
-          <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogHeader className="px-6 pt-6">
             <div className="flex items-center justify-between">
-              <DialogTitle>
-                {postInfo ? 'Editar Post' : 'Criar Post'}
-              </DialogTitle>
+              <div className="flex flex-col gap-2">
+                <DialogTitle>
+                  {postInfo?.idPost || 0 > 0 ? 'Editar Post' : 'Criar Post'}
+                </DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
+                  Compartilhe um texto e/ou mídias com seus seguidores.
+                </DialogDescription>
+              </div>
               <DialogClose asChild>
                 <Button
                   variant="destructive"
@@ -216,8 +264,8 @@ export function PostFormDialog({
           <CardHeader className="pb-3 px-6">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarImage src={authStore.credential.photoUrl} />
+                <AvatarFallback>{fallbackName}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-semibold leading-none">
@@ -231,18 +279,51 @@ export function PostFormDialog({
             <form
               id={`form-${formId}`}
               onSubmit={handleSubmit(onSubmit)}
-              className={cn('flex flex-col gap-2')}
+              className={cn('flex flex-col gap-3')}
             >
               <Textarea
                 {...register('description')}
                 placeholder="O que você está pensando?"
                 className={cn(
-                  'min-h-[80px] text-lg border-none focus-visible:ring-0 resize-none px-1 py-1 placeholder:text-muted-foreground/70'
+                  'min-h-[80px] text-lg focus-visible:ring-0 resize-y px-2 py-1 placeholder:text-muted-foreground/70'
                 )}
               />
 
+              {errors.description && (
+                <p className="text-destructive text-sm">
+                  {errors.description.message}
+                </p>
+              )}
+
+              <Controller
+                control={form.control}
+                name="postType"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione um tipo de postagem" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {postTypeList.map((postType, index) => (
+                          <SelectItem key={index} value={postType}>
+                            {postType}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+
+              {errors.postType && (
+                <p className="text-destructive text-sm">
+                  {errors.postType.message}
+                </p>
+              )}
+
               {previewUrls.length > 0 && (
-                <div className="rounded-md border mt-2 p-4">
+                <div className="rounded-md border p-4">
                   <Carousel
                     setApi={setApi}
                     opts={{
@@ -316,34 +397,29 @@ export function PostFormDialog({
                 onChange={onHandleFileChange}
               />
 
-              {errors.description && (
-                <p className="text-destructive text-sm mt-2">
-                  {errors.description.message}
-                </p>
-              )}
               {errors.media && (
                 <p className="text-destructive text-sm">
                   {errors.media.message as string}
                 </p>
               )}
-            </form>
 
-            <div className="border rounded-lg p-3 mt-4 flex items-center justify-between shadow-sm">
-              <span className="text-sm font-semibold text-muted-foreground cursor-default">
-                Adicione fotos/vídeos
-              </span>
-              <div className="flex gap-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="text-green-600 hover:bg-green-50 hover:text-green-700"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <ImageIcon className="h-5 w-5" />
-                </Button>
+              <div className="border rounded-lg p-3 flex items-center justify-between shadow-sm">
+                <span className="text-sm font-semibold text-muted-foreground cursor-default">
+                  Adicione fotos/vídeos
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-green-600 hover:bg-green-50 hover:text-green-700"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <ImageIcon className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
-            </div>
+            </form>
           </CardContent>
 
           <CardFooter className="pt-2 px-6 pb-6">
@@ -352,8 +428,7 @@ export function PostFormDialog({
               form={`form-${formId}`}
               className="w-full font-semibold"
               disabled={
-                isSubmitting ||
-                (!watch('description') && selectedFiles.length === 0)
+                isSubmitting || !description?.trim() || !postType?.trim()
               }
             >
               {isSubmitting ? 'Postando...' : 'Postar'}

@@ -114,7 +114,7 @@ export default function NewPassword() {
 
   return (
     <>
-      <Card>
+      <Card className={cn(' w-full sm:w-[350px]')}>
         <CardHeader className={cn('gap-2')}>
           <Image
             className="self-center w-auto h-auto"

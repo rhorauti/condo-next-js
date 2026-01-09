@@ -2,36 +2,33 @@ import { getPostList } from '@/http/auth/posts.http';
 import { IPost } from '@/interfaces/post.interface';
 import { create } from 'zustand';
 
-interface IPageInfo {
+interface IPostStore {
   title: string;
   post: IPost;
   postList: IPost[];
-}
-
-interface IPostStore {
-  pageInfo: IPageInfo;
+  getPostList: () => Promise<void>;
 }
 
 const postStore = create<IPostStore>((set, get) => ({
-  pageInfo: {
-    title: '',
-    post: {
-      idPost: 0,
-      type: 0,
-      isLiked: false,
-      profileFallback: '',
-      profileUrl: '',
-      name: '',
-      description: '',
-      mediaList: null,
-      createdAt: new Date(),
-      likesQty: 0,
-      isSaved: false,
-      commentsQty: 0,
-    },
-    postList: [],
+  title: '',
+  post: {
+    idPost: 0,
+    type: 0,
+    isLiked: false,
+    profileFallback: '',
+    profileUrl: '',
+    name: '',
+    description: '',
+    mediaList: null,
+    createdAt: new Date(),
+    likesQty: 0,
+    isSaved: false,
   },
-  getPostList: getPostList(),
+  postList: [],
+  getPostList: async () => {
+    const posts = await getPostList();
+    set({ postList: posts });
+  },
 }));
 
 export default postStore;

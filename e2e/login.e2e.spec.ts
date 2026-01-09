@@ -14,7 +14,6 @@ test('it should login page with corrected e-mail and password and redirect to da
   await password.fill(VALID_PASSWORD);
 
   const button = page.getByRole('button', { name: 'Entrar' });
-  console.log('button', button);
   await button.click();
 
   const successToast = page.getByText('Login efetuado com sucesso!');
