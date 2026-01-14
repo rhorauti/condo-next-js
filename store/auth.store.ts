@@ -11,6 +11,7 @@ interface ICredential {
 
 interface AuthState {
   credential: ICredential;
+  isDarkMode: boolean;
   setCredential: (credential: ICredential) => void;
   getCredential: () => void;
   clearCredential: () => void;
@@ -26,6 +27,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
     accessLevel: 0,
     photoUrl: 'https://github.com/shadcn.png',
   },
+  isDarkMode: true,
   setCredential: (credential: ICredential) =>
     set({
       credential: {

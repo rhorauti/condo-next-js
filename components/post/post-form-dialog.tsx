@@ -116,15 +116,8 @@ export function PostFormDialog({
   const [postData, setPostData] = useState<IPost>(postInfo ?? initialPostData);
 
   const fallbackName = useMemo(() => {
-    const trimmed = authStore.credential.name?.trim() || '';
-    if (!trimmed) return '';
-    const parts = trimmed.split(' ').filter(Boolean);
-    if (parts.length === 1) {
-      return parts[0][0]?.toUpperCase() ?? '';
-    }
-    const first = parts[0][0] ?? '';
-    const last = parts[parts.length - 1][0] ?? '';
-    return (first + last).toUpperCase();
+    authStore.setFallbackName();
+    return authStore.credential.fallbackName;
   }, [authStore.credential.name]);
 
   const form = useForm<PostFormValues>({
@@ -263,13 +256,13 @@ export function PostFormDialog({
 
           <CardHeader className="pb-3 px-6">
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition">
+              <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold">
                 <AvatarImage src={authStore.credential.photoUrl} />
                 <AvatarFallback>{fallbackName}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-semibold leading-none">
-                  {postData.name}
+                  {authStore.credential.name}
                 </p>
               </div>
             </div>

@@ -72,29 +72,28 @@ export default function Page() {
 
   return (
     <>
-      <div className="flex justify-center overflow-auto w-full">
-        <div className="flex flex-col items-center gap-6">
-          <div className="flex flex-col gap-4 items-center justify-center w-full xs:flex-row">
-            <SearchBar />
-            <Button
-              variant="default"
-              className="w-full xs:w-auto"
-              onClick={() => onShowDialog()}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex flex-col items-center gap-4">
-            {postList.map((post, index) => (
-              <Post
-                key={index}
-                postInfo={post}
-                onShowPostDialog={() => onShowDialog(post)}
-              />
-            ))}
-          </div>
+      <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col gap-4 items-center justify-center w-full xs:flex-row">
+          <SearchBar />
+          <Button
+            variant="default"
+            className="w-full xs:w-auto"
+            onClick={() => onShowDialog()}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="flex flex-col items-center gap-4">
+          {postList.map((post, index) => (
+            <Post
+              key={index}
+              postInfo={post}
+              onShowPostDialog={() => onShowDialog(post)}
+            />
+          ))}
         </div>
       </div>
+
       <PostFormDialog
         showDialog={isPostDialogActive}
         postInfo={postData}
