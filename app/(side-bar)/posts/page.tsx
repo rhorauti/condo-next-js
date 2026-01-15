@@ -9,12 +9,12 @@ import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const postList = [
+const postList: IPost[] = [
   {
     idPost: 12,
+    idUser: 1,
     type: 0,
     profileUrl: '/teste1.jpeg',
-    profileFallback: 'RH',
     name: 'Rafael Horauti 2',
     description:
       'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
@@ -23,13 +23,34 @@ const postList = [
     likesQty: 12,
     isLiked: true,
     isSaved: true,
-    commentsQty: 1,
+    comments: [
+      {
+        idUser: 145,
+        profileUrl: '/teste1.jpeg',
+        name: 'Rafael Horauti 2',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 12,
+        isLiked: false,
+        comment: {
+          idUser: 147,
+          profileUrl: '/teste1.jpeg',
+          name: 'Rafael Horauti 2',
+          description:
+            'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+          createdAt: new Date(),
+          likesQty: 12,
+          isLiked: false,
+        },
+      },
+    ],
   },
   {
     idPost: 12,
+    idUser: 20,
     type: 0,
     profileUrl: '/teste2.jpeg',
-    profileFallback: 'RH',
     name: 'Daniela Horauti 3',
     description:
       'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
@@ -44,7 +65,7 @@ const postList = [
     likesQty: 12,
     isLiked: false,
     isSaved: true,
-    commentsQty: 2,
+    comments: null,
   },
 ];
 
@@ -52,6 +73,7 @@ export default function Page() {
   const [isPostDialogActive, setIsPostDialogActive] = useState(false);
   const initialPostData = {
     idPost: 0,
+    idUser: 0,
     type: 0,
     profileFallback: '',
     profileUrl: '',
@@ -62,6 +84,7 @@ export default function Page() {
     likesQty: 0,
     isLiked: false,
     isSaved: false,
+    comments: null,
   };
   const [postData, setPostData] = useState<IPost>(initialPostData);
 
@@ -73,6 +96,7 @@ export default function Page() {
   return (
     <>
       <div className="flex flex-col items-center gap-6">
+        <h1 className="sm:text-2xl text-lg font-semibold">Posts</h1>
         <div className="flex flex-col gap-4 items-center justify-center w-full xs:flex-row">
           <SearchBar />
           <Button

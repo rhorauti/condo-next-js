@@ -101,6 +101,7 @@ export function PostFormDialog({
 
   const initialPostData = {
     idPost: 0,
+    idUser: 0,
     type: 0,
     profileFallback: '',
     profileUrl: '',
@@ -111,12 +112,13 @@ export function PostFormDialog({
     likesQty: 0,
     isLiked: false,
     isSaved: false,
+    comments: null,
   };
 
   const [postData, setPostData] = useState<IPost>(postInfo ?? initialPostData);
 
   const fallbackName = useMemo(() => {
-    authStore.setFallbackName();
+    authStore.onSetFallbackName();
     return authStore.credential.fallbackName;
   }, [authStore.credential.name]);
 
@@ -157,7 +159,7 @@ export function PostFormDialog({
   }, [api]);
 
   useEffect(() => {
-    authStore.setFallbackName();
+    authStore.onSetFallbackName();
     setPostTypeList(setPostTypeStringList());
     return () => {
       previewUrls.forEach((url) => URL.revokeObjectURL(url));
@@ -238,7 +240,7 @@ export function PostFormDialog({
                 <DialogTitle>
                   {postInfo?.idPost || 0 > 0 ? 'Editar Post' : 'Criar Post'}
                 </DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground">
+                <DialogDescription className="text-sm text-secondary-foreground">
                   Compartilhe um texto e/ou mídias com seus seguidores.
                 </DialogDescription>
               </div>
@@ -246,7 +248,7 @@ export function PostFormDialog({
                 <Button
                   variant="destructive"
                   size="icon"
-                  className="h-6 w-6 rounded-full"
+                  className={cn('absolute top-4 right-4 h-6 w-6 rounded-full')}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -278,7 +280,7 @@ export function PostFormDialog({
                 {...register('description')}
                 placeholder="O que você está pensando?"
                 className={cn(
-                  'min-h-[80px] text-lg focus-visible:ring-0 resize-y px-2 py-1 placeholder:text-muted-foreground/70'
+                  'min-h-[80px] text-lg focus-visible:ring-0 resize-y px-2 py-1 placeholder:text-secondary-foreground'
                 )}
               />
 
@@ -397,7 +399,7 @@ export function PostFormDialog({
               )}
 
               <div className="border rounded-lg p-3 flex items-center justify-between shadow-sm">
-                <span className="text-sm font-semibold text-muted-foreground cursor-default">
+                <span className="text-sm font-semibold text-secondary-foreground cursor-default">
                   Adicione fotos/vídeos
                 </span>
                 <div className="flex gap-1">

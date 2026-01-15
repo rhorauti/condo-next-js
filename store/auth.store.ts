@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 interface ICredential {
+  idUser: number;
   name: string;
   email: string;
   fallbackName: string;
@@ -11,15 +12,16 @@ interface ICredential {
 
 interface AuthState {
   credential: ICredential;
-  isDarkMode: boolean;
-  setCredential: (credential: ICredential) => void;
-  getCredential: () => void;
-  clearCredential: () => void;
-  setFallbackName: () => void;
+  onSetCredential: (credential: ICredential) => void;
+  onGetCredential: () => void;
+  onClearCredential: () => void;
+  onSetFallbackName: () => void;
+  onShowProfile: () => void;
 }
 
 const useAuthStore = create<AuthState>((set, get) => ({
   credential: {
+    idUser: 1,
     name: 'Rafael Kazuo Horauti',
     email: '',
     fallbackName: '',
@@ -28,9 +30,10 @@ const useAuthStore = create<AuthState>((set, get) => ({
     photoUrl: 'https://github.com/shadcn.png',
   },
   isDarkMode: true,
-  setCredential: (credential: ICredential) =>
+  onSetCredential: (credential: ICredential) =>
     set({
       credential: {
+        idUser: credential.idUser,
         name: credential.name,
         email: credential.email,
         fallbackName: credential.fallbackName,
@@ -39,10 +42,11 @@ const useAuthStore = create<AuthState>((set, get) => ({
         photoUrl: credential.photoUrl,
       },
     }),
-  getCredential: () => get().credential,
-  clearCredential: () =>
+  onGetCredential: () => get().credential,
+  onClearCredential: () =>
     set({
       credential: {
+        idUser: 0,
         name: '',
         email: '',
         fallbackName: '',
@@ -51,7 +55,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
         photoUrl: '',
       },
     }),
-  setFallbackName: () => {
+  onSetFallbackName: () => {
     const { credential } = get();
     const trimmed = credential.name?.trim() || '';
 
@@ -83,6 +87,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
       },
     });
   },
+  onShowProfile: () => {},
 }));
 
 export default useAuthStore;

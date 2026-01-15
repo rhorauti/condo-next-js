@@ -21,7 +21,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '../ui/carousel';
-import { IPost } from '@/interfaces/post.interface';
+import { IPost, IPostComment } from '@/interfaces/post.interface';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +34,8 @@ import { Badge } from '../ui/badge';
 import { PostCommentsDialog } from './post-comments-dialog';
 import { onGetPostComments } from '@/http/auth/posts.http';
 import useAuthStore from '@/store/auth.store';
+import PostDescription from './post-description';
+import { PostTime } from './post-time';
 
 interface IProps {
   postInfo: IPost;
@@ -46,35 +48,16 @@ export default function Post({
   onShowPostDialog,
   onDeletePost,
 }: IProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
-  const descriptionRef = useRef<HTMLParagraphElement>(null);
-  const [showToggle, setShowToggle] = useState(false);
-  const [timeDisplay, setTimeDisplay] = useState<string>('');
-  const [isMounted, setIsMounted] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const [isCommentDialogActive, setIsCommentDialogActive] = useState(false);
-  const [comments, setComments] = useState<IPost[]>();
+  const [comments, setComments] = useState<IPostComment[]>();
   const authStore = useAuthStore((state) => state);
 
   useEffect(() => {
-    authStore.setFallbackName();
-    setIsMounted(true);
-    setTimeDisplay(formatTimePassed(postInfo.createdAt));
-  }, [postInfo.createdAt]);
-
-  useEffect(() => {
-    const textRef = descriptionRef.current;
-    if (textRef) {
-      if (isExpanded || textRef.scrollHeight > textRef.clientHeight) {
-        setShowToggle(true);
-      } else {
-        setShowToggle(false);
-      }
-    }
-  }, [isExpanded, postInfo.description]);
+    authStore.onSetFallbackName();
+  }, []);
 
   useEffect(() => {
     if (!api) {
@@ -86,41 +69,6 @@ export default function Post({
       setCurrent(api.selectedScrollSnap() + 1);
     });
   }, [api]);
-
-  const formatTimePassed = (pastDate: Date | string): string => {
-    const date = pastDate instanceof Date ? pastDate : new Date(pastDate);
-    const diffInMs = new Date().getTime() - date.getTime();
-
-    if (diffInMs < 0) {
-      return 'Future';
-    }
-
-    const MS_PER_MINUTE = 60 * 1000;
-    const MS_PER_HOUR = MS_PER_MINUTE * 60;
-    const MS_PER_DAY = MS_PER_HOUR * 24;
-
-    if (diffInMs < MS_PER_MINUTE) {
-      const seconds = Math.floor(diffInMs / 1000);
-      return seconds < 10 ? 'Agora' : `${seconds}s`;
-    } else if (diffInMs < MS_PER_HOUR) {
-      const minutes = Math.floor(diffInMs / MS_PER_MINUTE);
-      return `${minutes}m`;
-    } else if (diffInMs < MS_PER_DAY) {
-      const hours = Math.floor(diffInMs / MS_PER_HOUR);
-      return `${hours}h`;
-    } else {
-      const days = Math.floor(diffInMs / MS_PER_DAY);
-      if (days >= 365) {
-        const years = Math.floor(days / 365);
-        return `${years}y`;
-      }
-      return `${days}d`;
-    }
-  };
-
-  const onToggleText = () => {
-    setIsExpanded(!isExpanded);
-  };
 
   const mediaList = useMemo(() => {
     if (postInfo.mediaList == null) return [];
@@ -134,8 +82,9 @@ export default function Post({
 
   const onShowProfile = () => {};
 
-  const onShowCommentsDialog = async (idPost: number): Promise<void> => {
-    const comments = await onGetPostComments(idPost);
+  const onShowCommentsDialog = async (
+    comments: IPostComment[]
+  ): Promise<void> => {
     setComments(comments);
     setIsCommentDialogActive(true);
   };
@@ -161,10 +110,10 @@ export default function Post({
               >
                 {postInfo.name}
               </span>
-              <span className="text-gray-600" suppressHydrationWarning>
-                {isMounted ? timeDisplay : ''}
-              </span>
-              <Badge variant="default">Avisos</Badge>
+              <PostTime createdAt={postInfo.createdAt} />
+              <Badge variant="default" className={cn('bg-slate-700')}>
+                Avisos
+              </Badge>
             </div>
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
@@ -186,19 +135,7 @@ export default function Post({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <div>
-            <p
-              ref={descriptionRef}
-              className={`transition-all duration-300 text-base ${isExpanded ? 'line-clamp-none' : 'line-clamp-2'}`}
-            >
-              {postInfo.description ?? ''}
-            </p>
-            {showToggle && (
-              <button onClick={onToggleText} className="text-gray-400">
-                {isExpanded ? 'menos' : 'mais'}
-              </button>
-            )}
-          </div>
+          <PostDescription description={postInfo.description} />
         </div>
       </header>
       {mediaList.length > 0 && (
@@ -250,7 +187,7 @@ export default function Post({
           <ToggleGroupItem
             value="post"
             aria-label="Toggle post"
-            onClick={() => onShowCommentsDialog(postInfo.idPost)}
+            onClick={() => onShowCommentsDialog(postInfo.comments || [])}
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500 flex justify-center"
           >
             <MessageCircle />
@@ -282,6 +219,7 @@ export default function Post({
 
       <PostCommentsDialog
         showDialog={isCommentDialogActive}
+        comments={comments ?? null}
         description="Description test for Post page"
         onCloseDialog={() => setIsCommentDialogActive(false)}
       />

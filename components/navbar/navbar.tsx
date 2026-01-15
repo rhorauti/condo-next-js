@@ -6,6 +6,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import useAuthStore from '@/store/auth.store';
 import {
   Bell,
+  CircleX,
+  FileText,
   LogOut,
   Menu,
   MessageSquare,
@@ -13,6 +15,7 @@ import {
   Store,
   Sun,
   User,
+  X,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
@@ -24,26 +27,15 @@ import {
 } from '../ui/dropdown-menu';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
+import { Switch } from '../ui/switch';
 
 export default function Navbar() {
   const authStore = useAuthStore((state) => state);
-  const [isUserBoxActive, setIsUserBoxActive] = useState(false);
-  const userBoxRef = useRef<HTMLDivElement | null>(null);
+  const [isProfileBoxActive, setIsProfileBoxActive] = useState(false);
+  const profileBoxRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
-  const { setTheme } = useTheme();
-
-  const navBarItems = [
-    {
-      title: 'Posts',
-      href: '/posts',
-      description: '',
-    },
-    {
-      title: 'Marketplace',
-      href: '/marketplace',
-      description: '',
-    },
-  ];
+  const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
+  const { setTheme, theme } = useTheme();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => clickOutSideUserBox(e);
@@ -53,45 +45,62 @@ export default function Navbar() {
   }, []);
 
   const clickOutSideUserBox = (e: Event): void => {
-    if (userBoxRef.current && !userBoxRef.current.contains(e.target as Node)) {
-      setIsUserBoxActive(false);
+    if (
+      profileBoxRef.current &&
+      !profileBoxRef.current.contains(e.target as Node)
+    ) {
+      setIsProfileBoxActive(false);
     }
   };
 
   const showUserBox = (): void => {
-    setIsUserBoxActive(!isUserBoxActive);
+    setIsProfileBoxActive(!isProfileBoxActive);
   };
 
   const fallbackName = useMemo(() => {
-    authStore.setFallbackName();
+    authStore.onSetFallbackName();
     return authStore.credential.fallbackName;
   }, [authStore.credential.name]);
 
-  const redirectToProfile = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.stopPropagation();
-    router.push('/profile');
-  };
+  const navBarItems = [
+    {
+      title: 'Dados Cadastrais',
+      href: `/profiles/${authStore.credential.idUser}`,
+      icon: <User />,
+    },
+    {
+      title: 'Minhas postagens',
+      href: '/my-posts',
+      icon: <MessageSquare />,
+    },
+    {
+      title: 'Meu MarketPlace',
+      href: '/my-marketplace',
+      icon: <Store />,
+    },
+    {
+      title: 'Política de uso',
+      href: '/usage-policy',
+      icon: <FileText />,
+    },
+    {
+      title: 'Posts',
+      href: '/posts',
+      icon: <MessageSquare />,
+    },
+    {
+      title: 'Marketplace',
+      href: '/marketplace',
+      icon: <Store />,
+    },
+  ];
 
-  const redirectToMyPosts = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.stopPropagation();
-    router.push('/my-posts');
-  };
-
-  const redirectToMySalesBoard = (
-    e: React.MouseEvent<HTMLButtonElement>
-  ): void => {
-    e.stopPropagation();
-    router.push('/my-marketplace');
-  };
-
-  const redirectToPolicy = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.stopPropagation();
-    router.push('/my-marketplace');
-  };
-
-  const logout = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.stopPropagation();
-    router.push('/login');
+  const onSetTheme = (): void => {
+    if (theme == 'light') {
+      setTheme('dark');
+    } else {
+      setTheme('light');
+    }
   };
 
   return (
@@ -108,19 +117,18 @@ export default function Navbar() {
       </div>
 
       <div className="hidden md:flex items-center md:gap-6 gap-2">
-        {navBarItems.map((item, index) => (
-          <Button variant="primary" size="default">
+        {navBarItems.slice(4).map((item) => (
+          <Button variant="primary" size="sm">
             <Link
-              key={index}
               href={item.href}
-              className="flex gap-2 items-center text-sm sm:text-lg"
-            >
-              {item.title == 'Posts' ? (
-                <MessageSquare size={18} />
-              ) : (
-                <Store size={18} />
+              className={cn(
+                'flex gap-2 justify-start items-center hover:text-white'
               )}
-              <span>{item.title}</span>
+            >
+              {item.icon}
+              <span className="text-sm font-normal sm:text-[1rem]">
+                {item.title}
+              </span>
             </Link>
           </Button>
         ))}
@@ -159,89 +167,119 @@ export default function Navbar() {
           <AvatarFallback>{fallbackName}</AvatarFallback>
         </Avatar>
 
-        {isUserBoxActive && (
+        {isProfileBoxActive && (
           <div
-            ref={userBoxRef}
-            className="absolute text-black top-14 right-0 flex flex-col min-w-52 w-full h-screen sm:h-auto p-2 border border-gray-400 bg-white rounded-lg cursor-pointer"
+            ref={profileBoxRef}
+            className="absolute text-black top-14 right-0 flex flex-col items-start min-w-52 w-full h-screen sm:h-auto p-2 border border-gray-400 bg-white rounded-lg cursor-pointer"
           >
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={(e) => redirectToProfile(e)}
-              className={cn(
-                'flex gap-2 justify-start items-center hover:text-white'
-              )}
-            >
-              <User />
-              <span className="text-sm font-normal sm:text-[1rem]">
-                Dados cadastrais
-              </span>
-            </Button>
-            <div className="flex gap-2 items-center hover:bg-primary hover:text-white hover:rounded-md p-1">
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={(e) => redirectToMyPosts(e)}
-                className={cn(
-                  'flex gap-2 justify-start items-center hover:text-white'
-                )}
-              >
-                <MessageSquare />
-                <span className="text-sm font-normal sm:text-[1rem]">
-                  Minhas postagens
-                </span>
+            {navBarItems.slice(0, 4).map((item) => (
+              <Button variant="primary" size="sm">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'flex gap-2 justify-start items-center hover:text-white'
+                  )}
+                >
+                  {item.icon}
+                  <span className="text-sm font-normal sm:text-[1rem]">
+                    {item.title}
+                  </span>
+                </Link>
               </Button>
-            </div>
-            <div className="flex gap-2 items-center hover:bg-primary hover:text-white hover:rounded-md p-1">
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={(e) => redirectToMySalesBoard(e)}
-                className={cn(
-                  'flex gap-2 justify-start items-center hover:text-white'
-                )}
-              >
-                <Store />
-                <span className="text-sm font-normal sm:text-[1rem]">
-                  Meu marketplace
-                </span>
-              </Button>
-            </div>
-            <div className="flex gap-2 items-center hover:bg-primary hover:text-white hover:rounded-md p-1">
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={(e) => redirectToPolicy(e)}
-                className={cn(
-                  'flex gap-2 justify-start items-center hover:text-white'
-                )}
-              >
-                <Store />
-                <span className="text-sm font-normal sm:text-[1rem]">
-                  Politica de uso
-                </span>
-              </Button>
-            </div>
-            <div className="flex gap-2 items-center hover:bg-primary hover:text-white hover:rounded-md p-1">
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={(e) => logout(e)}
-                className={cn(
-                  'flex gap-2 justify-start items-center hover:text-white'
-                )}
-              >
-                <LogOut />
-                <span className="text-sm font-normal sm:text-[1rem]">Sair</span>
-              </Button>
-            </div>
+            ))}
           </div>
         )}
       </div>
 
-      <Button variant="primary" className="md:hidden">
-        <Menu />
-      </Button>
+      <div className="flex items-center gap-2 md:hidden">
+        <Button variant="primary" size="icon">
+          <Bell className="h-[1.2rem] w-[1.2rem]" />
+        </Button>
+        <Button
+          onClick={() => setIsMobileMenuActive(!isMobileMenuActive)}
+          variant="primary"
+        >
+          <Menu />
+        </Button>
+      </div>
+
+      <div
+        className={`bg-secondary text-foreground md:hidden flex flex-col justify-between fixed top-0 right-0 p-6 w-full h-screen z-[1000] transition-transform duration-300 overflow-auto ${
+          isMobileMenuActive ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <Button
+          onClick={() => setIsMobileMenuActive(false)}
+          variant="destructive"
+          size={'icon'}
+          className={cn('absolute top-6 right-6 rounded-full h-8 w-8')}
+        >
+          <X />
+        </Button>
+        <div className="flex flex-col items-start gap-8">
+          <div className="flex flex-col justify-center items-center gap-2 mx-auto">
+            <Avatar
+              onClick={authStore.onShowProfile}
+              className={cn('h-12 w-12 rounded-full cursor-pointer')}
+            >
+              <AvatarImage
+                src={authStore.credential.photoUrl}
+                alt="Profile Image"
+              />
+              <AvatarFallback className="rounded-lg">
+                {authStore.credential.fallbackName}
+              </AvatarFallback>
+            </Avatar>
+            <span
+              onClick={authStore.onShowProfile}
+              className="font-semibold cursor-pointer hover:underline"
+            >
+              {authStore.credential.name}
+            </span>
+          </div>
+          <div className="flex flex-col justify-center items-center gap-4 w-full">
+            {navBarItems.map((item) => (
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn('block w-full')}
+              >
+                <Link
+                  href={item.href}
+                  className={cn('flex gap-4 justify-start items-center')}
+                >
+                  {item.icon}
+                  <span className="text-sm font-normal sm:text-[1rem]">
+                    {item.title}
+                  </span>
+                </Link>
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn('flex gap-4 justify-start items-center w-full')}
+            >
+              <LogOut />
+              <span className="text-sm font-normal sm:text-[1rem]">Sair</span>
+            </Button>
+          </div>
+        </div>
+        <div className="flex justify-between border border-input bg-background hover:bg-accent hover:text-accent-foreground p-2 rounded-lg">
+          {theme == 'dark' ? (
+            <div className="flex gap-2">
+              <Moon />
+              <span>Escuro</span>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Sun />
+              <span className="text-sm font-normal sm:text-[1rem]">Claro</span>
+            </div>
+          )}
+          <Switch checked={theme == 'dark'} onCheckedChange={onSetTheme} />
+        </div>
+      </div>
     </nav>
   );
 }
