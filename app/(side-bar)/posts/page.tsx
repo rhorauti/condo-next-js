@@ -125,7 +125,140 @@ const postList: IPost[] = [
   {
     idPost: 12,
     idUser: 20,
-    type: 0,
+    type: 1,
+    profileUrl: '/teste2.jpeg',
+    name: 'Daniela Horauti 3',
+    description:
+      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+    mediaList: [
+      '/post.jpg',
+      '/teste1.jpeg',
+      '/teste2.jpeg',
+      '/teste3.jpeg',
+      '/teste4.jpeg',
+    ],
+    createdAt: new Date(),
+    likesQty: 12,
+    isLiked: false,
+    isSaved: true,
+    comments: null,
+  },
+  {
+    idPost: 12,
+    idUser: 1,
+    type: 3,
+    profileUrl: '/teste1.jpeg',
+    name: 'Rafael Horauti 2',
+    description:
+      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+    mediaList: ['/teste1.jpeg'],
+    createdAt: new Date(),
+    likesQty: 12,
+    isLiked: true,
+    isSaved: true,
+    comments: [
+      {
+        idUser: 145,
+        profileUrl: '/teste1.jpeg',
+        name: 'Rafael Horauti 2',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 10,
+        isLiked: false,
+        comments: [
+          {
+            idUser: 147,
+            profileUrl: '/teste2.jpeg',
+            name: 'Daniela Yukalli Nakano',
+            description:
+              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+            createdAt: new Date(),
+            likesQty: 20,
+            isLiked: false,
+          },
+          {
+            idUser: 148,
+            profileUrl: '/teste3.jpeg',
+            name: 'Lucas Ryo Horauti',
+            description:
+              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+            createdAt: new Date(),
+            likesQty: 30,
+            isLiked: false,
+          },
+        ],
+      },
+      {
+        idUser: 149,
+        profileUrl: '/teste2.jpeg',
+        name: 'Rodrigo Horauti',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 50,
+        isLiked: false,
+        comments: [
+          {
+            idUser: 147,
+            profileUrl: '/teste2.jpeg',
+            name: 'Ricardo Horauti',
+            description:
+              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+            createdAt: new Date(),
+            likesQty: 60,
+            isLiked: false,
+          },
+          {
+            idUser: 148,
+            profileUrl: '/teste4.jpeg',
+            name: 'Roberta Horauti',
+            description:
+              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+            createdAt: new Date(),
+            likesQty: 70,
+            isLiked: false,
+          },
+        ],
+      },
+      {
+        idUser: 145,
+        profileUrl: '/teste1.jpeg',
+        name: 'Rafael Horauti 2',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 10,
+        isLiked: false,
+        comments: [
+          {
+            idUser: 147,
+            profileUrl: '/teste2.jpeg',
+            name: 'Daniela Yukalli Nakano',
+            description:
+              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+            createdAt: new Date(),
+            likesQty: 20,
+            isLiked: false,
+          },
+          {
+            idUser: 148,
+            profileUrl: '/teste3.jpeg',
+            name: 'Lucas Ryo Horauti',
+            description:
+              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+            createdAt: new Date(),
+            likesQty: 30,
+            isLiked: false,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    idPost: 12,
+    idUser: 20,
+    type: 2,
     profileUrl: '/teste2.jpeg',
     name: 'Daniela Horauti 3',
     description:
@@ -171,7 +304,7 @@ export default function Page() {
 
   return (
     <>
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-6 mb-6">
         <h1 className="sm:text-2xl text-lg font-semibold">Posts</h1>
         <div className="flex flex-col gap-4 items-center justify-center w-full xs:flex-row">
           <SearchBar />

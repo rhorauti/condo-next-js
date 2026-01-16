@@ -28,6 +28,7 @@ import useAuthStore from '@/store/auth.store';
 import PostDescription from './post-description';
 import { PostTime } from './post-time';
 import PostCarousel from './post-carousel';
+import { translatePostToString } from '@/enum/post.enum';
 
 interface IProps {
   postInfo: IPost;
@@ -42,10 +43,12 @@ export default function Post({
 }: IProps) {
   const [isCommentDialogActive, setIsCommentDialogActive] = useState(false);
   const [comments, setComments] = useState<IPostComment[]>();
+  const [postType, setPostType] = useState('');
   const authStore = useAuthStore((state) => state);
 
   useEffect(() => {
     authStore.onSetFallbackName();
+    setPostType(translatePostToString(postInfo.type || 0));
   }, []);
 
   const onToggleHeartButton = () => {};
@@ -84,7 +87,7 @@ export default function Post({
               </span>
               <PostTime createdAt={postInfo.createdAt} />
               <Badge variant="default" className={cn('bg-slate-700')}>
-                Avisos
+                {postType}
               </Badge>
             </div>
             <DropdownMenu modal={false}>
@@ -110,7 +113,9 @@ export default function Post({
           <PostDescription description={postInfo.description} />
         </div>
       </header>
-      <PostCarousel mediaListProp={postInfo.mediaList} />
+      <section>
+        <PostCarousel mediaListProp={postInfo.mediaList} />
+      </section>
       <footer>
         <ToggleGroup
           type="multiple"

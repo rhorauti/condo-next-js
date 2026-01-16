@@ -20,6 +20,7 @@ export default function PostDescription({ description }: IProps) {
         setShowToggle(false);
       }
     }
+    console.log('showToggle', showToggle);
   }, [isExpanded, description]);
 
   const onToggleText = () => {

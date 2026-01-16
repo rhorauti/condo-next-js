@@ -9,13 +9,13 @@ interface IPostStore {
   getPostList: () => Promise<void>;
 }
 
-const postStore = create<IPostStore>((set, get) => ({
+const usePostStore = create<IPostStore>((set, get) => ({
   title: '',
   post: {
     idPost: 0,
+    idUser: 0,
     type: 0,
     isLiked: false,
-    profileFallback: '',
     profileUrl: '',
     name: '',
     description: '',
@@ -23,6 +23,7 @@ const postStore = create<IPostStore>((set, get) => ({
     createdAt: new Date(),
     likesQty: 0,
     isSaved: false,
+    comments: [],
   },
   postList: [],
   getPostList: async () => {
@@ -31,4 +32,4 @@ const postStore = create<IPostStore>((set, get) => ({
   },
 }));
 
-export default postStore;
+export default usePostStore;

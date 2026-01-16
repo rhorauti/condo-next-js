@@ -6,12 +6,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import useAuthStore from '@/store/auth.store';
 import {
   Bell,
-  CircleX,
   FileText,
   LogOut,
   Menu,
   MessageSquare,
+  MessagesSquare,
   Moon,
+  Newspaper,
   Store,
   Sun,
   User,
@@ -87,7 +88,12 @@ export default function Navbar() {
     {
       title: 'Posts',
       href: '/posts',
-      icon: <MessageSquare />,
+      icon: <Newspaper />,
+    },
+    {
+      title: 'Mensagens',
+      href: '/chats',
+      icon: <MessagesSquare />,
     },
     {
       title: 'Marketplace',
@@ -135,6 +141,7 @@ export default function Navbar() {
         ))}
       </div>
 
+      {/* Desktop menu items */}
       <div className="hidden relative md:flex gap-4">
         <div className="flex items-center gap-2">
           <DropdownMenu>
@@ -156,17 +163,7 @@ export default function Navbar() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="primary" size="icon">
-            <Bell className="h-[1.2rem] w-[1.2rem]" />
-          </Button>
         </div>
-        {/* <Avatar
-          onClick={showUserBox}
-          className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold"
-        >
-          <AvatarImage src={authStore.credential.photoUrl} />
-          <AvatarFallback>{fallbackName}</AvatarFallback>
-        </Avatar> */}
 
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -205,10 +202,8 @@ export default function Navbar() {
         </DropdownMenu>
       </div>
 
+      {/* Mobile Menu Trigger */}
       <div className="flex items-center gap-2 md:hidden">
-        <Button variant="primary" size="icon">
-          <Bell className="h-[1.2rem] w-[1.2rem]" />
-        </Button>
         <Button
           onClick={() => setIsMobileMenuActive(!isMobileMenuActive)}
           variant="primary"
@@ -217,6 +212,7 @@ export default function Navbar() {
         </Button>
       </div>
 
+      {/* Mobile Menu Box */}
       <div
         className={`bg-secondary text-foreground md:hidden flex flex-col justify-between fixed top-0 right-0 p-6 w-full h-screen z-[1000] transition-transform duration-300 overflow-auto ${
           isMobileMenuActive ? 'translate-x-0' : 'translate-x-full'
