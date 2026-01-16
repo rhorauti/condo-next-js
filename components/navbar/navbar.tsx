@@ -28,6 +28,7 @@ import {
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { Switch } from '../ui/switch';
+import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
 
 export default function Navbar() {
   const authStore = useAuthStore((state) => state);
@@ -117,8 +118,8 @@ export default function Navbar() {
       </div>
 
       <div className="hidden md:flex items-center md:gap-6 gap-2">
-        {navBarItems.slice(4).map((item) => (
-          <Button variant="primary" size="sm">
+        {navBarItems.slice(4).map((item, index) => (
+          <Button variant="primary" size="sm" key={index}>
             <Link
               href={item.href}
               className={cn(
@@ -159,36 +160,49 @@ export default function Navbar() {
             <Bell className="h-[1.2rem] w-[1.2rem]" />
           </Button>
         </div>
-        <Avatar
+        {/* <Avatar
           onClick={showUserBox}
           className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold"
         >
           <AvatarImage src={authStore.credential.photoUrl} />
           <AvatarFallback>{fallbackName}</AvatarFallback>
-        </Avatar>
+        </Avatar> */}
 
-        {isProfileBoxActive && (
-          <div
-            ref={profileBoxRef}
-            className="absolute text-black top-14 right-0 flex flex-col items-start min-w-52 w-full h-screen sm:h-auto p-2 border border-gray-400 bg-white rounded-lg cursor-pointer"
-          >
-            {navBarItems.slice(0, 4).map((item) => (
-              <Button variant="primary" size="sm">
-                <Link
-                  href={item.href}
-                  className={cn(
-                    'flex gap-2 justify-start items-center hover:text-white'
-                  )}
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Avatar
+              onClick={showUserBox}
+              className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold"
+            >
+              <AvatarImage src={authStore.credential.photoUrl} />
+              <AvatarFallback>{fallbackName}</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuGroup>
+              {navBarItems.slice(0, 4).map((item, index) => (
+                <DropdownMenuItem
+                  key={index}
+                  className={cn('px-2 py-[0.1rem]')}
                 >
-                  {item.icon}
-                  <span className="text-sm font-normal sm:text-[1rem]">
-                    {item.title}
-                  </span>
-                </Link>
-              </Button>
-            ))}
-          </div>
-        )}
+                  <Button variant="primary" size="sm">
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        'flex gap-2 justify-start items-center hover:text-white'
+                      )}
+                    >
+                      {item.icon}
+                      <span className="text-sm font-normal sm:text-[1rem]">
+                        {item.title}
+                      </span>
+                    </Link>
+                  </Button>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="flex items-center gap-2 md:hidden">
@@ -238,8 +252,9 @@ export default function Navbar() {
             </span>
           </div>
           <div className="flex flex-col justify-center items-center gap-4 w-full">
-            {navBarItems.map((item) => (
+            {navBarItems.map((item, index) => (
               <Button
+                key={index}
                 variant="outline"
                 size="sm"
                 className={cn('block w-full')}

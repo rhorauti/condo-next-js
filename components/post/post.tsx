@@ -2,7 +2,7 @@
 
 import { AvatarImage } from '@radix-ui/react-avatar';
 import { Avatar, AvatarFallback } from '../ui/avatar';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import {
   BookmarkIcon,
@@ -13,14 +13,6 @@ import {
   Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Carousel,
-  CarouselApi,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '../ui/carousel';
 import { IPost, IPostComment } from '@/interfaces/post.interface';
 import {
   DropdownMenu,
@@ -32,10 +24,10 @@ import {
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { PostCommentsDialog } from './post-comments-dialog';
-import { onGetPostComments } from '@/http/auth/posts.http';
 import useAuthStore from '@/store/auth.store';
 import PostDescription from './post-description';
 import { PostTime } from './post-time';
+import PostCarousel from './post-carousel';
 
 interface IProps {
   postInfo: IPost;
@@ -48,9 +40,6 @@ export default function Post({
   onShowPostDialog,
   onDeletePost,
 }: IProps) {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
   const [isCommentDialogActive, setIsCommentDialogActive] = useState(false);
   const [comments, setComments] = useState<IPostComment[]>();
   const authStore = useAuthStore((state) => state);
@@ -58,23 +47,6 @@ export default function Post({
   useEffect(() => {
     authStore.onSetFallbackName();
   }, []);
-
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
-    api.on('select', () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
-
-  const mediaList = useMemo(() => {
-    if (postInfo.mediaList == null) return [];
-    else if (Array.isArray(postInfo.mediaList)) return postInfo.mediaList;
-    else return [postInfo.mediaList];
-  }, [postInfo.mediaList]);
 
   const onToggleHeartButton = () => {};
 
@@ -138,45 +110,7 @@ export default function Post({
           <PostDescription description={postInfo.description} />
         </div>
       </header>
-      {mediaList.length > 0 && (
-        <section className="p-1">
-          <Carousel setApi={setApi} className="max-w-[27rem]">
-            <CarouselContent>
-              {mediaList.map((media, index) => (
-                <CarouselItem key={index}>
-                  <img
-                    src={media}
-                    alt="Image Post"
-                    className="object-cover w-full h-full rounded-md"
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            {count > 1 && (
-              <div>
-                <CarouselPrevious />
-                <CarouselNext />
-              </div>
-            )}
-          </Carousel>
-          {count > 1 && (
-            <div className="flex justify-center gap-2 pt-4">
-              {Array.from({ length: count }).map((_, index) => (
-                <button
-                  key={index}
-                  className={`h-2 w-2 rounded-full transition-all ${
-                    index === current - 1
-                      ? 'bg-primary w-6'
-                      : 'bg-muted-foreground/50'
-                  }`}
-                  onClick={() => api?.scrollTo(index)}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+      <PostCarousel mediaListProp={postInfo.mediaList} />
       <footer>
         <ToggleGroup
           type="multiple"

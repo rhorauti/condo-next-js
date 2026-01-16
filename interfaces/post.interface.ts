@@ -5,7 +5,7 @@ export interface IPost {
   profileUrl: string;
   name: string;
   description: string;
-  mediaList?: string[] | null;
+  mediaList: string[] | null;
   createdAt: Date;
   likesQty: number;
   isLiked: boolean;
@@ -17,9 +17,9 @@ export interface IPostComment {
   idUser: number;
   profileUrl: string;
   name: string;
-  description: string | null;
+  description: string;
   createdAt: Date;
   likesQty: number;
   isLiked: boolean;
-  comment?: IPostComment | null;
+  comments?: IPostComment[] | null;
 }
