@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState, useEffect, useMemo } from 'react';
+import { useId, useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -12,32 +12,18 @@ import {
 } from '../ui/dialog';
 import { IPost } from '@/interfaces/post.interface';
 import z from 'zod';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { ImageIcon, X } from 'lucide-react';
-import { Textarea } from '../ui/textarea';
+import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import {
-  Carousel,
-  CarouselApi,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '../ui/carousel';
 import { cn } from '@/lib/utils';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 import { POST_TYPE, translatePostToString } from '@/enum/post.enum';
 import useAuthStore from '@/store/auth.store';
+import ControlledTextArea from '../text-area/controlled.text-area';
+import { ControlledSelect } from '../select/controlled-select';
+import { CarouselForm } from '../carousel/carousel-form';
 
 interface IProps {
   showDialog: boolean;
@@ -66,7 +52,7 @@ const postSchema = z
       .refine(
         (files) =>
           files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
-        'São permitidos somente arquivos no formato .jpg, .png, and .webp.'
+        'São permitidos somente arquivos no formato .jpg, .png, e .webp.'
       )
       .optional(),
   })
@@ -90,32 +76,8 @@ export function PostFormDialog({
   onCloseDialog,
 }: IProps) {
   const formId = useId();
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
   const [postTypeList, setPostTypeList] = useState<string[]>([]);
   const authStore = useAuthStore((state) => state);
-
-  const initialPostData = {
-    idPost: 0,
-    idUser: 0,
-    type: 0,
-    profileFallback: '',
-    profileUrl: '',
-    name: '',
-    description: '',
-    mediaList: null,
-    createdAt: new Date(),
-    likesQty: 0,
-    isLiked: false,
-    isSaved: false,
-    comments: null,
-  };
-
-  const [postData, setPostData] = useState<IPost>(postInfo ?? initialPostData);
 
   const fallbackName = useMemo(() => {
     authStore.onSetFallbackName();
@@ -132,38 +94,17 @@ export function PostFormDialog({
   });
 
   const {
-    register,
     handleSubmit,
-    setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = form;
 
   const description = watch('description');
   const postType = watch('postType');
 
   useEffect(() => {
-    setPostData(postInfo ?? initialPostData);
-  }, [postInfo]);
-
-  useEffect(() => {
-    setPostData(postInfo ?? initialPostData);
-    if (!api) {
-      return;
-    }
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
-    api.on('select', () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
-
-  useEffect(() => {
     authStore.onSetFallbackName();
     setPostTypeList(setPostTypeStringList());
-    return () => {
-      previewUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
   }, []);
 
   const setPostTypeStringList = (): string[] => {
@@ -171,34 +112,6 @@ export function PostFormDialog({
       (v): v is POST_TYPE => typeof v === 'number'
     );
     return numberList.map((number) => translatePostToString(number));
-  };
-
-  const onHandleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      const newFiles = Array.from(files);
-      const combinedFiles = [...selectedFiles, ...newFiles];
-
-      setSelectedFiles(combinedFiles);
-
-      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
-      setPreviewUrls((prev) => [...prev, ...newPreviews]);
-
-      setValue('media', combinedFiles, { shouldValidate: true });
-    }
-
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const removeImage = (indexToRemove: number) => {
-    URL.revokeObjectURL(previewUrls[indexToRemove]);
-
-    const updatedFiles = selectedFiles.filter((_, i) => i !== indexToRemove);
-    const updatedPreviews = previewUrls.filter((_, i) => i !== indexToRemove);
-
-    setSelectedFiles(updatedFiles);
-    setPreviewUrls(updatedPreviews);
-    setValue('media', updatedFiles, { shouldValidate: true });
   };
 
   const onSubmit = async (data: PostFormValues) => {
@@ -220,8 +133,6 @@ export function PostFormDialog({
 
   const onHandleClose = (): void => {
     form.reset();
-    setSelectedFiles([]);
-    setPreviewUrls([]);
     onCloseDialog();
   };
 
@@ -231,31 +142,30 @@ export function PostFormDialog({
         showCloseButton={false}
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
-        className="sm:max-w-[43rem] p-0 gap-0 overflow-hidden bg-transparent border-none shadow-none"
+        className="bg-transparent border-none shadow-none"
       >
-        <Card className="w-full shadow-md border-border/60">
+        <Card className="w-full border-borde max-h-[80vh] overflow-auto">
           <DialogHeader className="px-6 pt-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-2">
-                <DialogTitle>
+                <DialogTitle className={cn('text-start')}>
                   {postInfo?.idPost || 0 > 0 ? 'Editar Post' : 'Criar Post'}
                 </DialogTitle>
-                <DialogDescription className="text-sm text-secondary-foreground">
-                  Compartilhe um texto e/ou mídias com seus seguidores.
-                </DialogDescription>
+                <DialogDescription
+                  className={cn('text-sm text-start text-secondary-foreground')}
+                ></DialogDescription>
               </div>
               <DialogClose asChild>
                 <Button
                   variant="destructive"
                   size="icon"
-                  className={cn('absolute top-4 right-4 h-6 w-6 rounded-full')}
+                  className={cn('h-6 w-6 rounded-full')}
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </DialogClose>
             </div>
           </DialogHeader>
-
           <CardHeader className="pb-3 px-6">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold">
@@ -276,152 +186,36 @@ export function PostFormDialog({
               onSubmit={handleSubmit(onSubmit)}
               className={cn('flex flex-col gap-3')}
             >
-              <Textarea
-                {...register('description')}
-                placeholder="O que você está pensando?"
-                className={cn(
-                  'min-h-[80px] text-lg focus-visible:ring-0 resize-y px-2 py-1 placeholder:text-secondary-foreground'
-                )}
-              />
-
-              {errors.description && (
-                <p className="text-destructive text-sm">
-                  {errors.description.message}
-                </p>
-              )}
-
-              <Controller
+              <ControlledTextArea
                 control={form.control}
+                name="description"
+                placeholder="O que você está pensando?"
+              />
+              <ControlledSelect<PostFormValues>
                 name="postType"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione um tipo de postagem" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {postTypeList.map((postType, index) => (
-                          <SelectItem key={index} value={postType}>
-                            {postType}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
+                control={form.control}
+                options={postTypeList}
+                placeholder="Selecione um tipo de postagem"
               />
-
-              {errors.postType && (
-                <p className="text-destructive text-sm">
-                  {errors.postType.message}
-                </p>
-              )}
-
-              {previewUrls.length > 0 && (
-                <div className="rounded-md border p-4">
-                  <Carousel
-                    setApi={setApi}
-                    opts={{
-                      align: 'start',
-                      slidesToScroll: 1,
-                    }}
-                    className="w-full max-w-full"
-                  >
-                    <CarouselContent className="-ml-2 md:-ml-4">
-                      {previewUrls.map((url, index) => (
-                        <CarouselItem
-                          key={index}
-                          className="pl-2 md:pl-4 basis-full md:basis-1/3 relative"
-                        >
-                          <img
-                            src={url}
-                            alt="Image Post"
-                            className="object-cover w-full aspect-square rounded-md"
-                          />
-                          <Button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            variant="destructive"
-                            size="icon"
-                            className="absolute right-2 top-2 h-6 w-6 rounded-full"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    {previewUrls.length > 3 && (
-                      <>
-                        <CarouselPrevious
-                          type="button"
-                          className={cn('left-1')}
-                        />
-                        <CarouselNext type="button" className={cn('right-1')} />
-                      </>
-                    )}
-                  </Carousel>
-                  {previewUrls.length > 1 && (
-                    <div className="md:hidden flex justify-center gap-2 pt-4">
-                      {previewUrls.map((_, index) => (
-                        <button
-                          type="button"
-                          key={index}
-                          className={`h-2 w-2 rounded-full transition-all ${
-                            index === current - 1
-                              ? 'bg-primary w-6'
-                              : 'bg-muted-foreground/50'
-                          }`}
-                          onClick={() => api?.scrollTo(index)}
-                          aria-label={`Go to slide ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                className="hidden"
-                ref={(e) => {
-                  register('media');
-                  fileInputRef.current = e;
-                }}
-                onChange={onHandleFileChange}
-              />
-
-              {errors.media && (
-                <p className="text-destructive text-sm">
-                  {errors.media.message as string}
-                </p>
-              )}
-
-              <div className="border rounded-lg p-3 flex items-center justify-between shadow-sm">
-                <span className="text-sm font-semibold text-secondary-foreground cursor-default">
-                  Adicione fotos/vídeos
-                </span>
-                <div className="flex gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="text-green-600 hover:bg-green-50 hover:text-green-700"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <ImageIcon className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
+              <CarouselForm name="media" control={form.control} />
             </form>
           </CardContent>
 
-          <CardFooter className="pt-2 px-6 pb-6">
+          <CardFooter className="flex gap-4 justify-center pt-2 px-auto pb-6">
+            <Button
+              onClick={onCloseDialog}
+              variant={'outline'}
+              type="button"
+              form={`post-form-close-btn-${formId}`}
+              className="w-full sm:w-[6rem] font-semibold"
+            >
+              Fechar
+            </Button>
+
             <Button
               type="submit"
               form={`form-${formId}`}
-              className="w-full font-semibold"
+              className="w-full sm:w-[6rem] font-semibold"
               disabled={
                 isSubmitting || !description?.trim() || !postType?.trim()
               }

@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 export default function PostResponseBox() {
-  const [textAreaValue, setValue] = useState('');
+  const [textAreaValue, setTextAreaValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const router = useRouter();
   const authStore = useAuthStore((state) => state);
@@ -34,6 +34,8 @@ export default function PostResponseBox() {
     el.style.height = el.scrollHeight + 'px';
   }, [textAreaValue]);
 
+  const onSubmitComment = (): void => {};
+
   return (
     <div className="flex gap-2 w-full bg-background">
       <Avatar
@@ -45,7 +47,7 @@ export default function PostResponseBox() {
           {authStore.credential.fallbackName}
         </AvatarFallback>
       </Avatar>
-      <div className="flex flex-col w-full">
+      <form onSubmit={onSubmitComment} className="flex flex-col w-full">
         <Textarea
           id={pageId}
           ref={textareaRef}
@@ -53,7 +55,7 @@ export default function PostResponseBox() {
             'min-h-[0px] focus-visible:ring-0 dark:border-white focus-visible:ring-transparent resize-none bg-transparent text-sm overflow-hidden border-b-0 rounded-t-lg rounded-b-none'
           )}
           value={textAreaValue}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => setTextAreaValue(e.target.value)}
           rows={1}
           placeholder="Escreva uma resposta..."
         />
@@ -74,7 +76,9 @@ export default function PostResponseBox() {
             >
               <EmojiPicker
                 className={cn('p-0 min-w-[8rem] max-h-[14rem]')}
-                onEmojiSelect={({ emoji }) => setValue((prev) => prev + emoji)}
+                onEmojiSelect={({ emoji }) =>
+                  setTextAreaValue((prev) => prev + emoji)
+                }
               >
                 <EmojiPickerContent />
               </EmojiPicker>
@@ -91,7 +95,7 @@ export default function PostResponseBox() {
             <SendHorizontal className="h-4 w-4" />
           </Button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

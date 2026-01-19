@@ -13,6 +13,7 @@ export default function PostDescription({ description }: IProps) {
 
   useEffect(() => {
     const textRef = descriptionRef.current;
+    if (!textRef) return;
     if (textRef) {
       if (isExpanded || textRef.scrollHeight > textRef.clientHeight) {
         setShowToggle(true);
@@ -20,7 +21,6 @@ export default function PostDescription({ description }: IProps) {
         setShowToggle(false);
       }
     }
-    console.log('showToggle', showToggle);
   }, [isExpanded, description]);
 
   const onToggleText = () => {
@@ -36,7 +36,7 @@ export default function PostDescription({ description }: IProps) {
         {description ?? ''}
       </p>
       {showToggle && (
-        <button onClick={onToggleText} className="text-gray-400">
+        <button onClick={onToggleText} className="text-gray-400 ">
           {isExpanded ? 'menos' : 'mais'}
         </button>
       )}

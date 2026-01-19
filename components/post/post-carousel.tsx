@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import {
   Carousel,
   CarouselApi,
@@ -24,6 +24,7 @@ export default function PostCarousel({
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const carouselId = useId();
 
   useEffect(() => {
     if (!api) {
@@ -49,7 +50,7 @@ export default function PostCarousel({
           <Carousel setApi={setApi} className="max-w-[27rem]">
             <CarouselContent>
               {mediaList.map((media, index) => (
-                <CarouselItem key={index}>
+                <CarouselItem key={'post-carousel' + carouselId + index}>
                   <img
                     src={media}
                     alt="Image Post"

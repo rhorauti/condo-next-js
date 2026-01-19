@@ -38,12 +38,17 @@ export default function Navbar() {
   const router = useRouter();
   const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
   const { setTheme, theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => clickOutSideUserBox(e);
 
     window.addEventListener('mousedown', handler);
     return () => window.removeEventListener('mousedown', handler);
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   const clickOutSideUserBox = (e: Event): void => {
@@ -72,12 +77,12 @@ export default function Navbar() {
     },
     {
       title: 'Minhas postagens',
-      href: '/my-posts',
+      href: '/posts/my-posts',
       icon: <MessageSquare />,
     },
     {
       title: 'Meu MarketPlace',
-      href: '/my-marketplace',
+      href: '/marketplaces/my-marketplace',
       icon: <Store />,
     },
     {
@@ -87,7 +92,7 @@ export default function Navbar() {
     },
     {
       title: 'Posts',
-      href: '/posts',
+      href: '/posts/all',
       icon: <Newspaper />,
     },
     {
@@ -97,7 +102,7 @@ export default function Navbar() {
     },
     {
       title: 'Marketplace',
-      href: '/marketplace',
+      href: '/marketplaces/my-marketplace',
       icon: <Store />,
     },
   ];
@@ -111,7 +116,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 shadow-sm z-[100]">
+    <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 shadow-sm z-[9999]">
       <div className="flex-shrink-0">
         <Link href="/" className="flex items-center space-x-2 group">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
@@ -141,28 +146,33 @@ export default function Navbar() {
         ))}
       </div>
 
-      {/* Desktop menu items */}
       <div className="hidden relative md:flex gap-4">
         <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="primary" size="icon">
-                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme('light')}>
-                Claro
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('dark')}>
-                Escuro
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('system')}>
-                Sistema
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {!mounted ? (
+            <Button variant="primary" size="icon">
+              <Sun className="h-[1.2rem] w-[1.2rem]" />
+            </Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="primary" size="icon">
+                  <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                  <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setTheme('light')}>
+                  Claro
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('dark')}>
+                  Escuro
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('system')}>
+                  Sistema
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <DropdownMenu modal={false}>
@@ -276,20 +286,24 @@ export default function Navbar() {
             </Button>
           </div>
         </div>
-        <div className="flex justify-between border border-input bg-background hover:bg-accent hover:text-accent-foreground p-2 rounded-lg">
-          {theme == 'dark' ? (
-            <div className="flex gap-2">
-              <Moon />
-              <span>Escuro</span>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <Sun />
-              <span className="text-sm font-normal sm:text-[1rem]">Claro</span>
-            </div>
-          )}
-          <Switch checked={theme == 'dark'} onCheckedChange={onSetTheme} />
-        </div>
+        {mounted && (
+          <div className="flex justify-between border border-input bg-background hover:bg-accent hover:text-accent-foreground p-2 rounded-lg">
+            {theme === 'dark' ? (
+              <div className="flex gap-2">
+                <Moon />
+                <span>Escuro</span>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Sun />
+                <span className="text-sm font-normal sm:text-[1rem]">
+                  Claro
+                </span>
+              </div>
+            )}
+            <Switch checked={theme === 'dark'} onCheckedChange={onSetTheme} />
+          </div>
+        )}
       </div>
     </nav>
   );
