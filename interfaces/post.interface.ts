@@ -4,22 +4,23 @@ export interface IPost {
   type?: number;
   profileUrl: string;
   name: string;
+  fallbackName: string;
   description: string;
   mediaList: string[] | null;
   createdAt: Date;
   likesQty: number;
+  commentsQty: number;
   isLiked: boolean;
   isSaved: boolean;
-  comments: IPostComment[] | null;
 }
 
-export interface IPostComment {
-  idUser: number;
-  profileUrl: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  likesQty: number;
-  isLiked: boolean;
-  comments?: IPostComment[] | null;
+export interface IPostComment
+  extends Omit<IPost, 'isSaved' | 'type' | 'commentsQty'> {
+  idComment: number;
+  subComments: IPostSubComment[];
+}
+
+export interface IPostSubComment
+  extends Omit<IPostComment, 'idPost' | 'idComment' | 'subComments'> {
+  idSubComment: number;
 }

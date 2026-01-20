@@ -79,11 +79,6 @@ export function PostFormDialog({
   const [postTypeList, setPostTypeList] = useState<string[]>([]);
   const authStore = useAuthStore((state) => state);
 
-  const fallbackName = useMemo(() => {
-    authStore.onSetFallbackName();
-    return authStore.credential.fallbackName;
-  }, [authStore.credential.name]);
-
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
     defaultValues: {
@@ -106,6 +101,10 @@ export function PostFormDialog({
     authStore.onSetFallbackName();
     setPostTypeList(setPostTypeStringList());
   }, []);
+
+  // const fallbackName = useMemo(() => {
+  //   authStore.onSetFallbackName();
+  // }, [authStore.credential.name]);
 
   const setPostTypeStringList = (): string[] => {
     const numberList = Object.values(POST_TYPE).filter(
@@ -142,7 +141,10 @@ export function PostFormDialog({
         showCloseButton={false}
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
-        className="bg-transparent border-none shadow-none"
+        className={cn(
+          'bg-transparent border-none shadow-none',
+          !showDialog && 'hidden'
+        )}
       >
         <Card className="w-full border-borde max-h-[80vh] overflow-auto">
           <DialogHeader className="px-6 pt-6">
@@ -170,7 +172,7 @@ export function PostFormDialog({
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold">
                 <AvatarImage src={authStore.credential.photoUrl} />
-                <AvatarFallback>{fallbackName}</AvatarFallback>
+                <AvatarFallback>{authStore.credential.name}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-semibold leading-none">
@@ -203,7 +205,7 @@ export function PostFormDialog({
 
           <CardFooter className="flex gap-4 justify-center pt-2 px-auto pb-6">
             <Button
-              onClick={onCloseDialog}
+              onClick={onHandleClose}
               variant={'outline'}
               type="button"
               form={`post-form-close-btn-${formId}`}

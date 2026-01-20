@@ -14,11 +14,12 @@ import { useEffect, useState } from 'react';
 
 const postList: IPost[] = [
   {
-    idPost: 12,
+    idPost: 1,
     idUser: 1,
     type: 0,
     profileUrl: '/teste1.jpeg',
     name: 'Rafael Horauti 2',
+    fallbackName: 'RH',
     description:
       'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
     mediaList: ['/teste1.jpeg'],
@@ -26,111 +27,15 @@ const postList: IPost[] = [
     likesQty: 12,
     isLiked: true,
     isSaved: true,
-    comments: [
-      {
-        idUser: 145,
-        profileUrl: '/teste1.jpeg',
-        name: 'Rafael Horauti 2',
-        description:
-          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-        createdAt: new Date(),
-        likesQty: 10,
-        isLiked: false,
-        comments: [
-          {
-            idUser: 147,
-            profileUrl: '/teste2.jpeg',
-            name: 'Daniela Yukalli Nakano',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 20,
-            isLiked: false,
-          },
-          {
-            idUser: 148,
-            profileUrl: '/teste3.jpeg',
-            name: 'Lucas Ryo Horauti',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 30,
-            isLiked: false,
-          },
-        ],
-      },
-      {
-        idUser: 149,
-        profileUrl: '/teste2.jpeg',
-        name: 'Rodrigo Horauti',
-        description:
-          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-        createdAt: new Date(),
-        likesQty: 50,
-        isLiked: false,
-        comments: [
-          {
-            idUser: 147,
-            profileUrl: '/teste2.jpeg',
-            name: 'Ricardo Horauti',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 60,
-            isLiked: false,
-          },
-          {
-            idUser: 148,
-            profileUrl: '/teste4.jpeg',
-            name: 'Roberta Horauti',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 70,
-            isLiked: false,
-          },
-        ],
-      },
-      {
-        idUser: 145,
-        profileUrl: '/teste1.jpeg',
-        name: 'Rafael Horauti 2',
-        description:
-          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-        createdAt: new Date(),
-        likesQty: 10,
-        isLiked: false,
-        comments: [
-          {
-            idUser: 147,
-            profileUrl: '/teste2.jpeg',
-            name: 'Daniela Yukalli Nakano',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 20,
-            isLiked: false,
-          },
-          {
-            idUser: 148,
-            profileUrl: '/teste3.jpeg',
-            name: 'Lucas Ryo Horauti',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 30,
-            isLiked: false,
-          },
-        ],
-      },
-    ],
+    commentsQty: 3,
   },
   {
-    idPost: 12,
+    idPost: 2,
     idUser: 20,
     type: 1,
     profileUrl: '/teste2.jpeg',
     name: 'Daniela Horauti 3',
+    fallbackName: 'DH',
     description:
       'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
     mediaList: [
@@ -144,140 +49,7 @@ const postList: IPost[] = [
     likesQty: 12,
     isLiked: false,
     isSaved: true,
-    comments: null,
-  },
-  {
-    idPost: 12,
-    idUser: 1,
-    type: 3,
-    profileUrl: '/teste1.jpeg',
-    name: 'Rafael Horauti 2',
-    description:
-      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-    mediaList: ['/teste1.jpeg'],
-    createdAt: new Date(),
-    likesQty: 12,
-    isLiked: true,
-    isSaved: true,
-    comments: [
-      {
-        idUser: 145,
-        profileUrl: '/teste1.jpeg',
-        name: 'Rafael Horauti 2',
-        description:
-          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-        createdAt: new Date(),
-        likesQty: 10,
-        isLiked: false,
-        comments: [
-          {
-            idUser: 147,
-            profileUrl: '/teste2.jpeg',
-            name: 'Daniela Yukalli Nakano',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 20,
-            isLiked: false,
-          },
-          {
-            idUser: 148,
-            profileUrl: '/teste3.jpeg',
-            name: 'Lucas Ryo Horauti',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 30,
-            isLiked: false,
-          },
-        ],
-      },
-      {
-        idUser: 149,
-        profileUrl: '/teste2.jpeg',
-        name: 'Rodrigo Horauti',
-        description:
-          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-        createdAt: new Date(),
-        likesQty: 50,
-        isLiked: false,
-        comments: [
-          {
-            idUser: 147,
-            profileUrl: '/teste2.jpeg',
-            name: 'Ricardo Horauti',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 60,
-            isLiked: false,
-          },
-          {
-            idUser: 148,
-            profileUrl: '/teste4.jpeg',
-            name: 'Roberta Horauti',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 70,
-            isLiked: false,
-          },
-        ],
-      },
-      {
-        idUser: 145,
-        profileUrl: '/teste1.jpeg',
-        name: 'Rafael Horauti 2',
-        description:
-          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-        createdAt: new Date(),
-        likesQty: 10,
-        isLiked: false,
-        comments: [
-          {
-            idUser: 147,
-            profileUrl: '/teste2.jpeg',
-            name: 'Daniela Yukalli Nakano',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 20,
-            isLiked: false,
-          },
-          {
-            idUser: 148,
-            profileUrl: '/teste3.jpeg',
-            name: 'Lucas Ryo Horauti',
-            description:
-              'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-            createdAt: new Date(),
-            likesQty: 30,
-            isLiked: false,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    idPost: 12,
-    idUser: 20,
-    type: 2,
-    profileUrl: '/teste2.jpeg',
-    name: 'Daniela Horauti 3',
-    description:
-      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
-    mediaList: [
-      '/post.jpg',
-      '/teste1.jpeg',
-      '/teste2.jpeg',
-      '/teste3.jpeg',
-      '/teste4.jpeg',
-    ],
-    createdAt: new Date(),
-    likesQty: 12,
-    isLiked: false,
-    isSaved: true,
-    comments: null,
+    commentsQty: 0,
   },
 ];
 
@@ -287,12 +59,13 @@ type Props = {
 
 export default function PostsPageClient({ filter }: Props) {
   const [isPostDialogActive, setIsPostDialogActive] = useState(false);
+  const [isMyPosts, setIsMyPosts] = useState(false);
   const authStore = useAuthStore();
-  const initialPostData = {
+  const initialPostData: IPost = {
     idPost: 0,
     idUser: 0,
     type: 0,
-    profileFallback: '',
+    fallbackName: '',
     profileUrl: '',
     name: '',
     description: '',
@@ -301,9 +74,13 @@ export default function PostsPageClient({ filter }: Props) {
     likesQty: 0,
     isLiked: false,
     isSaved: false,
-    comments: null,
+    commentsQty: 0,
   };
   const [postData, setPostData] = useState<IPost>(initialPostData);
+
+  useEffect(() => {
+    setIsMyPosts(filter == 'my-posts');
+  }, [filter]);
 
   // const filteredPosts =
   //   filter === 'my-posts'
@@ -314,10 +91,6 @@ export default function PostsPageClient({ filter }: Props) {
     setPostData(post ?? initialPostData);
     setIsPostDialogActive(true);
   };
-
-  useEffect(() => {
-    console.log('filter', filter);
-  }, []);
 
   return (
     <>
@@ -344,6 +117,7 @@ export default function PostsPageClient({ filter }: Props) {
               {postList.map((post, index) => (
                 <Post
                   key={index}
+                  isMyPosts={isMyPosts}
                   postInfo={post}
                   onShowPostDialog={() => onShowDialog(post)}
                 />

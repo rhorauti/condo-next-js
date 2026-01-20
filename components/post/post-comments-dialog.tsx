@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import {
@@ -21,17 +23,145 @@ import { FileText, HeartIcon, X } from 'lucide-react';
 import PostResponseBox from './post-response-box';
 import PostDescription from './post-description';
 
+const comments: IPostComment[] = [
+  {
+    idUser: 145,
+    idPost: 1,
+    idComment: 564,
+    profileUrl: '/teste1.jpeg',
+    name: 'Rafael Horauti 2',
+    mediaList: null,
+    fallbackName: 'RH',
+    description:
+      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+    createdAt: new Date(),
+    likesQty: 10,
+    isLiked: false,
+    subComments: [
+      {
+        idUser: 147,
+        idSubComment: 1,
+        profileUrl: '/teste2.jpeg',
+        mediaList: null,
+        name: 'Daniela Yukalli Nakano',
+        fallbackName: 'RH',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 20,
+        isLiked: false,
+      },
+      {
+        idUser: 148,
+        idSubComment: 2,
+        profileUrl: '/teste3.jpeg',
+        mediaList: ['açslkdjaslçf'],
+        name: 'Lucas Ryo Horauti',
+        fallbackName: 'DH',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 30,
+        isLiked: false,
+      },
+    ],
+  },
+  {
+    idUser: 145,
+    idPost: 1,
+    idComment: 564,
+    profileUrl: '/teste1.jpeg',
+    name: 'Rafael Horauti 2',
+    mediaList: null,
+    fallbackName: 'RH',
+    description:
+      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+    createdAt: new Date(),
+    likesQty: 10,
+    isLiked: false,
+    subComments: [
+      {
+        idUser: 147,
+        idSubComment: 1,
+        profileUrl: '/teste2.jpeg',
+        mediaList: null,
+        name: 'Daniela Yukalli Nakano',
+        fallbackName: 'RH',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 20,
+        isLiked: false,
+      },
+      {
+        idUser: 148,
+        idSubComment: 2,
+        profileUrl: '/teste3.jpeg',
+        mediaList: ['açslkdjaslçf'],
+        name: 'Lucas Ryo Horauti',
+        fallbackName: 'DH',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 30,
+        isLiked: false,
+      },
+    ],
+  },
+  {
+    idUser: 145,
+    idPost: 1,
+    idComment: 564,
+    profileUrl: '/teste1.jpeg',
+    name: 'Rafael Horauti 2',
+    mediaList: null,
+    fallbackName: 'RH',
+    description:
+      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+    createdAt: new Date(),
+    likesQty: 10,
+    isLiked: false,
+    subComments: [
+      {
+        idUser: 147,
+        idSubComment: 1,
+        profileUrl: '/teste2.jpeg',
+        mediaList: null,
+        name: 'Daniela Yukalli Nakano',
+        fallbackName: 'RH',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 20,
+        isLiked: false,
+      },
+      {
+        idUser: 148,
+        idSubComment: 2,
+        profileUrl: '/teste3.jpeg',
+        mediaList: ['açslkdjaslçf'],
+        name: 'Lucas Ryo Horauti',
+        fallbackName: 'DH',
+        description:
+          'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+        createdAt: new Date(),
+        likesQty: 30,
+        isLiked: false,
+      },
+    ],
+  },
+];
+
 interface IProps {
+  idPost: number;
   showDialog: boolean;
-  description: string;
-  comments: IPostComment[] | null;
   onCloseDialog: () => void;
 }
 
 export function PostCommentsDialog({
+  idPost,
   showDialog,
   onCloseDialog,
-  comments,
 }: IProps) {
   const router = useRouter();
   const authStore = useAuthStore((state) => state);
@@ -127,7 +257,7 @@ export function PostCommentsDialog({
                   </div>
                 </div>
 
-                {comment.comments?.map((subComment) => (
+                {comment.subComments?.map((subComment) => (
                   <div key={subComment.idUser} className="ml-10">
                     <div className="flex justify-start-start gap-2">
                       <Avatar

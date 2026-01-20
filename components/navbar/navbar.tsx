@@ -82,7 +82,7 @@ export default function Navbar() {
     },
     {
       title: 'Meu MarketPlace',
-      href: '/marketplaces/my-marketplace',
+      href: '/marketplace/my-marketplace',
       icon: <Store />,
     },
     {
@@ -102,7 +102,7 @@ export default function Navbar() {
     },
     {
       title: 'Marketplace',
-      href: '/marketplaces/my-marketplace',
+      href: '/marketplace',
       icon: <Store />,
     },
   ];
@@ -190,14 +190,18 @@ export default function Navbar() {
               {navBarItems.slice(0, 4).map((item, index) => (
                 <DropdownMenuItem
                   key={index}
-                  className={cn('px-2 py-[0.1rem]')}
+                  className={cn('py-[0.1rem] px-0')}
                 >
-                  <Button variant="primary" size="sm">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className={cn(
+                      'flex gap-2 justify-start items-center w-full'
+                    )}
+                  >
                     <Link
                       href={item.href}
-                      className={cn(
-                        'flex gap-2 justify-start items-center hover:text-white'
-                      )}
+                      className={cn('flex gap-2 justify-start items-center')}
                     >
                       {item.icon}
                       <span className="text-sm font-normal sm:text-[1rem]">
@@ -207,6 +211,18 @@ export default function Navbar() {
                   </Button>
                 </DropdownMenuItem>
               ))}
+              <DropdownMenuItem className={cn('py-[0.1rem] px-0')}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className={cn('flex gap-2 justify-start items-center w-full')}
+                >
+                  <LogOut />
+                  <span className="text-sm font-normal sm:text-[1rem]">
+                    Sair
+                  </span>
+                </Button>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -257,7 +273,7 @@ export default function Navbar() {
               {authStore.credential.name}
             </span>
           </div>
-          <div className="flex flex-col justify-center items-center gap-4 w-full">
+          <div className="flex flex-col justify-start items-center gap-4 w-full">
             {navBarItems.map((item, index) => (
               <Button
                 key={index}

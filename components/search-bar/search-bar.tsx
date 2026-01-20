@@ -1,3 +1,5 @@
+'use client';
+
 import { Plus, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useId } from 'react';
