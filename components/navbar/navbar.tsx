@@ -11,6 +11,7 @@ import {
   Menu,
   MessageSquare,
   MessagesSquare,
+  Monitor,
   Moon,
   Newspaper,
   Store,
@@ -161,14 +162,56 @@ export default function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme('light')}>
-                  Claro
+                <DropdownMenuItem
+                  onClick={() => setTheme('light')}
+                  className={cn('py-[0.2rem]')}
+                >
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className={cn(
+                      'flex gap-2 justify-start items-center w-full hover:text-white'
+                    )}
+                  >
+                    <Sun className="h-[1.2rem] w-[1.2rem]" />
+                    <span className="text-sm font-normal sm:text-[1rem]">
+                      Claro
+                    </span>
+                  </Button>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('dark')}>
-                  Escuro
+                <DropdownMenuItem
+                  onClick={() => setTheme('dark')}
+                  className={cn('py-[0.2rem]')}
+                >
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className={cn(
+                      'flex gap-2 justify-start items-center w-full hover:text-white'
+                    )}
+                  >
+                    <Moon className="h-[1.2rem] w-[1.2rem]" />
+                    <span className="text-sm font-normal sm:text-[1rem]">
+                      Escuro
+                    </span>
+                  </Button>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('system')}>
-                  Sistema
+                <DropdownMenuItem
+                  onClick={() => setTheme('system')}
+                  className={cn('py-[0.2rem]')}
+                >
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className={cn(
+                      'flex gap-2 justify-start items-center w-full hover:text-white'
+                    )}
+                  >
+                    <Monitor className="h-[1.2rem] w-[1.2rem]" />
+                    <span className="text-sm font-normal sm:text-[1rem]">
+                      Sistema
+                    </span>
+                  </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -196,7 +239,7 @@ export default function Navbar() {
                     variant="primary"
                     size="sm"
                     className={cn(
-                      'flex gap-2 justify-start items-center w-full'
+                      'flex gap-2 justify-start items-center w-full hover:text-white'
                     )}
                   >
                     <Link
@@ -215,7 +258,9 @@ export default function Navbar() {
                 <Button
                   variant="primary"
                   size="sm"
-                  className={cn('flex gap-2 justify-start items-center w-full')}
+                  className={cn(
+                    'flex gap-2 justify-start items-center w-full hover:text-white'
+                  )}
                 >
                   <LogOut />
                   <span className="text-sm font-normal sm:text-[1rem]">
