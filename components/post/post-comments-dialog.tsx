@@ -22,8 +22,10 @@ import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { FileText, HeartIcon, X } from 'lucide-react';
 import PostResponseBox from './post-response-box';
 import PostDescription from './post-description';
+import { getPostCommentList } from '@/http/post/posts.http';
+import { set } from 'date-fns';
 
-const comments: IPostComment[] = [
+const commentsTest: IPostComment[] = [
   {
     idUser: 145,
     idPost: 1,
@@ -82,7 +84,7 @@ const comments: IPostComment[] = [
     subComments: [
       {
         idUser: 147,
-        idSubComment: 1,
+        idSubComment: 3,
         profileUrl: '/teste2.jpeg',
         mediaList: null,
         name: 'Daniela Yukalli Nakano',
@@ -95,7 +97,7 @@ const comments: IPostComment[] = [
       },
       {
         idUser: 148,
-        idSubComment: 2,
+        idSubComment: 4,
         profileUrl: '/teste3.jpeg',
         mediaList: ['açslkdjaslçf'],
         name: 'Lucas Ryo Horauti',
@@ -124,7 +126,7 @@ const comments: IPostComment[] = [
     subComments: [
       {
         idUser: 147,
-        idSubComment: 1,
+        idSubComment: 5,
         profileUrl: '/teste2.jpeg',
         mediaList: null,
         name: 'Daniela Yukalli Nakano',
@@ -137,7 +139,7 @@ const comments: IPostComment[] = [
       },
       {
         idUser: 148,
-        idSubComment: 2,
+        idSubComment: 6,
         profileUrl: '/teste3.jpeg',
         mediaList: ['açslkdjaslçf'],
         name: 'Lucas Ryo Horauti',
@@ -165,6 +167,44 @@ export function PostCommentsDialog({
 }: IProps) {
   const router = useRouter();
   const authStore = useAuthStore((state) => state);
+  const [comments, setCommments] = useState<IPostComment[]>();
+
+  useEffect(() => {
+    onGetComments(idPost);
+  }, []);
+
+  const onGetComments = async (idPost: number): Promise<void> => {
+    // const commentList = await getPostCommentList(idPost);
+    // setCommments(commentList.data);
+    setCommments(commentsTest);
+  };
+
+  const onLikeComment = (idComment: number): void => {};
+
+  const onLikeSubComment = (idComment: number, idSubComment: number): void => {
+    setCommments((prev) => {
+      if (!prev) return prev;
+
+      return prev.map((comment) => {
+        if (comment.idComment !== idComment) return comment;
+
+        return {
+          ...comment,
+          subComments: comment.subComments?.map((sub) => {
+            if (sub.idSubComment !== idSubComment) return sub;
+
+            const isLiked = !sub.isLiked;
+
+            return {
+              ...sub,
+              isLiked,
+              likesQty: isLiked ? sub.likesQty + 1 : sub.likesQty - 1,
+            };
+          }),
+        };
+      });
+    });
+  };
 
   return (
     <Dialog open={showDialog} onOpenChange={onCloseDialog}>
@@ -202,7 +242,10 @@ export function PostCommentsDialog({
         ) : (
           <div className="mt-2 flex-1 overflow-auto">
             {comments?.map((comment, index) => (
-              <div className="flex flex-col items-start gap-1" key={index}>
+              <div
+                className="flex flex-col items-start gap-1"
+                key={'comment' + index}
+              >
                 <div className="flex justify-start-start gap-2">
                   <Avatar
                     onClick={() => router.push(`/profiles/${comment.idUser}`)}
@@ -236,10 +279,8 @@ export function PostCommentsDialog({
                         <ToggleGroupItem
                           value="heart"
                           aria-label="Toggle heart"
-                          // onClick={onToggleHeartButton}
-                          className={cn(
-                            'p-1 data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-red-500 data-[state=on]:*:[svg]:stroke-red-500 flex justify-center'
-                          )}
+                          onClick={() => onLikeComment(comment.idComment)}
+                          className={cn('p-1 flex justify-center')}
                         >
                           <HeartIcon
                             fill="red"
@@ -257,8 +298,8 @@ export function PostCommentsDialog({
                   </div>
                 </div>
 
-                {comment.subComments?.map((subComment) => (
-                  <div key={subComment.idUser} className="ml-10">
+                {comment.subComments?.map((subComment, index) => (
+                  <div key={'subComment' + index} className="ml-10">
                     <div className="flex justify-start-start gap-2">
                       <Avatar
                         onClick={() =>
@@ -299,14 +340,16 @@ export function PostCommentsDialog({
                             <ToggleGroupItem
                               value="heart"
                               aria-label="Toggle heart"
-                              // onClick={onToggleHeartButton}
-                              className={cn(
-                                'p-1 data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-red-500 data-[state=on]:*:[svg]:stroke-red-500 flex justify-center'
-                              )}
+                              onClick={() =>
+                                onLikeSubComment(
+                                  comment.idComment,
+                                  subComment.idSubComment
+                                )
+                              }
+                              className={cn('p-1 flex justify-center')}
                             >
                               <HeartIcon
-                                fill="red"
-                                stroke={`${subComment.isLiked ? 'red' : ''}`}
+                                className={` ${subComment.isLiked ? 'fill-red-500 text-red-500' : 'fill-transparent text-black dark:text-white'}`}
                               />
                               <span className="font-normal">
                                 {subComment.likesQty}

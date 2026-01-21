@@ -1,54 +1,78 @@
-import { IPost, IPostComment } from '@/interfaces/post.interface';
+import {
+  IPost,
+  IPostComment,
+  IPostSubComment,
+} from '@/interfaces/post.interface';
 import { httpRequest } from '../http-request';
+import { IFetchResponse } from '@/interfaces/response.interface';
 
-export const getPostList = async (): Promise<IPost[]> => {
+export const getPostList = async (): Promise<IFetchResponse<IPost[]>> => {
   return await httpRequest({ endpoint: '/posts', method: 'GET' });
 };
 
-export const getPost = async (idPost: number): Promise<IPost> => {
+export const getPost = async (
+  idPost: number
+): Promise<IFetchResponse<IPost>> => {
   return await httpRequest({ endpoint: `/posts/${idPost}`, method: 'GET' });
 };
 
-export const savePost = async (post: IPost): Promise<IPost> => {
+export const savePost = async (post: IPost): Promise<IFetchResponse<IPost>> => {
   return await httpRequest({ endpoint: '/posts', method: 'POST', data: post });
 };
 
-export const deletePost = async (idPost: number): Promise<void> => {
+export const deletePost = async (idPost: number): Promise<IFetchResponse> => {
   return await httpRequest({ endpoint: `/posts/${idPost}`, method: 'DELETE' });
 };
 
-export const savePostComment = async (
-  comment: IPostComment
-): Promise<IPost> => {
+export const getPostCommentList = async (
+  idPost: number
+): Promise<IFetchResponse<IPostComment[]>> => {
   return await httpRequest({
-    endpoint: `/comments`,
+    endpoint: `posts/${idPost}/comments`,
+    method: 'GET',
+  });
+};
+
+export const savePostComment = async (
+  idPost: number,
+  comment: IPostComment
+): Promise<IFetchResponse<IPost>> => {
+  return await httpRequest({
+    endpoint: `posts/${idPost}/comments`,
     method: 'POST',
     data: comment,
   });
 };
 
-export const deletePostComment = async (idComment: number): Promise<void> => {
+export const deletePostComment = async (
+  idPost: number,
+  idComment: number
+): Promise<IFetchResponse> => {
   return await httpRequest({
-    endpoint: `/comments/${idComment}`,
+    endpoint: `posts/${idPost}/comments/${idComment}`,
     method: 'DELETE',
   });
 };
 
 export const savePostSubComment = async (
+  idPost: number,
+  idComment: number,
   subComment: IPostComment
-): Promise<IPost> => {
+): Promise<IFetchResponse<IPostSubComment>> => {
   return await httpRequest({
-    endpoint: `/sub-comments`,
+    endpoint: `posts/${idPost}/comments/${idComment}/sub-comments`,
     method: 'POST',
     data: subComment,
   });
 };
 
 export const deletePostSubComment = async (
+  idPost: number,
+  idComment: number,
   idSubComment: number
-): Promise<void> => {
+): Promise<IFetchResponse> => {
   return await httpRequest({
-    endpoint: `/sub-comments/${idSubComment}`,
+    endpoint: `posts/${idPost}/comments/${idComment}/sub-comments/${idSubComment}`,
     method: 'DELETE',
   });
 };

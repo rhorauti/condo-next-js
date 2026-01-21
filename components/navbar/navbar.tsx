@@ -34,7 +34,7 @@ import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
 
 export default function Navbar() {
   const authStore = useAuthStore((state) => state);
-  const [isProfileBoxActive, setIsProfileBoxActive] = useState(false);
+  // const [isProfileBoxActive, setIsProfileBoxActive] = useState(false);
   const profileBoxRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
   const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
@@ -42,28 +42,8 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => clickOutSideUserBox(e);
-
-    window.addEventListener('mousedown', handler);
-    return () => window.removeEventListener('mousedown', handler);
-  }, []);
-
-  useEffect(() => {
     setMounted(true);
   }, []);
-
-  const clickOutSideUserBox = (e: Event): void => {
-    if (
-      profileBoxRef.current &&
-      !profileBoxRef.current.contains(e.target as Node)
-    ) {
-      setIsProfileBoxActive(false);
-    }
-  };
-
-  const showUserBox = (): void => {
-    setIsProfileBoxActive(!isProfileBoxActive);
-  };
 
   const fallbackName = useMemo(() => {
     authStore.onSetFallbackName();
@@ -220,10 +200,7 @@ export default function Navbar() {
 
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Avatar
-              onClick={showUserBox}
-              className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold"
-            >
+            <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold">
               <AvatarImage src={authStore.credential.photoUrl} />
               <AvatarFallback>{fallbackName}</AvatarFallback>
             </Avatar>
@@ -233,28 +210,26 @@ export default function Navbar() {
               {navBarItems.slice(0, 4).map((item, index) => (
                 <DropdownMenuItem
                   key={index}
+                  asChild
                   className={cn('py-[0.1rem] px-0')}
                 >
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className={cn(
-                      'flex gap-2 justify-start items-center w-full hover:text-white'
-                    )}
-                  >
-                    <Link
-                      href={item.href}
-                      className={cn('flex gap-2 justify-start items-center')}
+                  <Link href={item.href} className={cn('w-full')}>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className={cn(
+                        'flex gap-2 justify-start items-center w-full hover:text-white'
+                      )}
                     >
                       {item.icon}
                       <span className="text-sm font-normal sm:text-[1rem]">
                         {item.title}
                       </span>
-                    </Link>
-                  </Button>
+                    </Button>
+                  </Link>
                 </DropdownMenuItem>
               ))}
-              <DropdownMenuItem className={cn('py-[0.1rem] px-0')}>
+              <DropdownMenuItem className={cn('py-[0.1rem] px-0')} asChild>
                 <Button
                   variant="primary"
                   size="sm"
@@ -321,6 +296,7 @@ export default function Navbar() {
           <div className="flex flex-col justify-start items-center gap-4 w-full">
             {navBarItems.map((item, index) => (
               <Button
+                onClick={() => setIsMobileMenuActive(false)}
                 key={index}
                 variant="outline"
                 size="sm"
@@ -338,6 +314,7 @@ export default function Navbar() {
               </Button>
             ))}
             <Button
+              onClick={() => setIsMobileMenuActive(false)}
               variant="outline"
               size="sm"
               className={cn('flex gap-4 justify-start items-center w-full')}

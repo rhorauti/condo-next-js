@@ -141,7 +141,7 @@ export default function Post({
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-red-500 data-[state=on]:*:[svg]:stroke-red-500 flex justify-center"
           >
             <HeartIcon
-              className={`dark:text-white ${isPostLiked ? 'fill-red-500 text-transparent' : 'fill-transparent text-black'}`}
+              className={` ${isPostLiked ? 'fill-red-500 text-red-500' : 'fill-transparent text-black dark:text-white'}`}
             />
             <span>{postInfo.likesQty}</span>
           </ToggleGroupItem>
@@ -152,7 +152,7 @@ export default function Post({
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500 flex justify-center"
           >
             <BookmarkIcon
-              className={`dark:text-white ${isPostSaved ? 'fill-gray-500 text-transparent' : 'fill-transparent text-black'}`}
+              className={`${isPostSaved ? 'fill-gray-500 text-gray-500' : 'fill-transparent text-black dark:text-white'}`}
             />
             <span>{postInfo.isSaved}</span>
           </ToggleGroupItem>

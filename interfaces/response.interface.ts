@@ -1,4 +1,4 @@
-export interface IFetchResponse<T> {
+export interface IFetchResponse<T = void> {
   status: boolean;
   date: string;
   message: string;

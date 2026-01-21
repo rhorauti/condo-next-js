@@ -105,15 +105,15 @@ export function CarouselForm<TFieldValues extends FieldValues>({
               onChange={handleAddFiles}
             />
 
-            <div className="border rounded-lg p-3 flex items-center justify-between shadow-sm dark:border-white">
-              <span className="text-sm font-semibold text-secondary-foreground cursor-default">
+            <div className="border rounded-lg px-3 py-1 flex items-center justify-between shadow-sm dark:border-white">
+              <span className="text-sm text-secondary-foreground cursor-default">
                 Adicione fotos/vídeos
               </span>
               <div className="flex gap-1">
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon"
+                  size="sm"
                   className="text-primary hover:bg-blue-800 hover:text-white"
                   onClick={() => {
                     if (fileInputRef.current) {
