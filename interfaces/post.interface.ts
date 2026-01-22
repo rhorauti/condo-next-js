@@ -2,7 +2,7 @@ export interface IPost {
   idUser: number;
   idPost: number;
   type?: number;
-  profileUrl: string;
+  profileUrl: string | null;
   name: string;
   fallbackName: string;
   description: string;
@@ -16,11 +16,11 @@ export interface IPost {
 
 export interface IPostComment
   extends Omit<IPost, 'isSaved' | 'type' | 'commentsQty'> {
-  idComment: number;
-  subComments: IPostSubComment[];
+  idComment: number | null;
+  subComments: IPostSubComment[] | null;
 }
 
 export interface IPostSubComment
-  extends Omit<IPostComment, 'idPost' | 'idComment' | 'subComments'> {
-  idSubComment: number;
+  extends Omit<IPostComment, 'idPost' | 'subComments'> {
+  idParent: number | null;
 }

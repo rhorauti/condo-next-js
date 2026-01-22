@@ -10,7 +10,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <main className="flex flex-col min-h-screen justify-center items-center bg-gradient-to-b from-blue-900 to-blue-500 p-4">
         {children}
       </main>
-      <Toaster position="top-center" richColors={true} theme="light" />
     </>
   );
 }

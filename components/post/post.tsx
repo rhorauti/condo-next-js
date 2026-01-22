@@ -10,10 +10,11 @@ import {
   HeartIcon,
   MessageCircle,
   Pencil,
+  Share2,
   Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { IPost, IPostComment } from '@/interfaces/post.interface';
+import { IPost } from '@/interfaces/post.interface';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +31,8 @@ import { PostTime } from './post-time';
 import PostCarousel from './post-carousel';
 import { translatePostToString } from '@/enum/post.enum';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import Link from 'next/link';
 
 interface IProps {
   isMyPosts: boolean;
@@ -46,8 +49,8 @@ export default function Post({
 }: IProps) {
   const [isCommentDialogActive, setIsCommentDialogActive] = useState(false);
   const [postTypeTranslated, setPostTypeTranslated] = useState('');
-  const [isPostLiked, setIsPostLiked] = useState(postInfo.isLiked);
-  const [isPostSaved, setIsPostSaved] = useState(postInfo.isSaved);
+  const [isPostLiked, setIsPostLike] = useState(postInfo.isLiked);
+  const [likeQty, setLikeQty] = useState(postInfo.likesQty);
   const authStore = useAuthStore((state) => state);
   const router = useRouter();
 
@@ -57,34 +60,57 @@ export default function Post({
   }, []);
 
   const onLikePost = () => {
-    setIsPostLiked(!isPostLiked);
+    const next = !isPostLiked;
+
+    setIsPostLike(next);
+    setLikeQty((prev) => prev + (next ? 1 : -1));
+
+    if (next) {
+      toast.success('Post curtido!', {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
+    } else {
+      toast.success('Curtida removida!', {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
+    }
   };
 
-  const onSavePost = () => {
-    setIsPostSaved(!isPostSaved);
-  };
+  const onSharePost = () => {};
 
   return (
     <article className="flex flex-col items-center gap-2 max-w-[32.5rem] w-full justify-start border border-gray-400 rounded-md p-4">
       <header className="flex gap-3 w-full">
-        <Avatar
-          onClick={() => router.push(`/profiles/${postInfo.idUser}`)}
-          className="h-12 w-12 rounded-full cursor-pointer"
-        >
-          <AvatarImage src={postInfo.profileUrl} alt="Profile Image" />
-          <AvatarFallback className="rounded-lg">
-            {authStore.credential.fallbackName}
-          </AvatarFallback>
-        </Avatar>
+        <Link href={`/profiles/${postInfo.idUser}`}>
+          <Avatar className="h-12 w-12 rounded-full cursor-pointer">
+            <AvatarImage src={postInfo.profileUrl || ''} alt="Profile Image" />
+            <AvatarFallback className="rounded-lg">
+              {authStore.credential.fallbackName}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
+
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
             <div className="flex flex-wrap sm:gap-4 gap-2 pr-4">
-              <span
-                onClick={() => router.push(`/profiles/${postInfo.idUser}`)}
+              <Link
+                href={`/profiles/${postInfo.idUser}`}
                 className="font-semibold cursor-pointer hover:underline"
               >
                 {postInfo.name}
-              </span>
+              </Link>
               <PostTime createdAt={postInfo.createdAt} />
               <Badge variant="default" className={cn('bg-slate-700')}>
                 {postTypeTranslated}
@@ -143,18 +169,15 @@ export default function Post({
             <HeartIcon
               className={` ${isPostLiked ? 'fill-red-500 text-red-500' : 'fill-transparent text-black dark:text-white'}`}
             />
-            <span>{postInfo.likesQty}</span>
+            <span>{likeQty}</span>
           </ToggleGroupItem>
           <ToggleGroupItem
-            value="bookmark"
-            aria-label="Toggle bookmark"
-            onClick={onSavePost}
+            value="share"
+            aria-label="Share post"
+            onClick={onSharePost}
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500 flex justify-center"
           >
-            <BookmarkIcon
-              className={`${isPostSaved ? 'fill-gray-500 text-gray-500' : 'fill-transparent text-black dark:text-white'}`}
-            />
-            <span>{postInfo.isSaved}</span>
+            <Share2 />
           </ToggleGroupItem>
         </ToggleGroup>
       </footer>

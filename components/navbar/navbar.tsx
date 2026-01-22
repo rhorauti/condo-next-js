@@ -127,6 +127,7 @@ export default function Navbar() {
         ))}
       </div>
 
+      {/* Theme menu */}
       <div className="hidden relative md:flex gap-4">
         <div className="flex items-center gap-2">
           {!mounted ? (
@@ -198,6 +199,7 @@ export default function Navbar() {
           )}
         </div>
 
+        {/* Desktop profile menu */}
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold">
@@ -230,18 +232,20 @@ export default function Navbar() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuItem className={cn('py-[0.1rem] px-0')} asChild>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className={cn(
-                    'flex gap-2 justify-start items-center w-full hover:text-white'
-                  )}
-                >
-                  <LogOut />
-                  <span className="text-sm font-normal sm:text-[1rem]">
-                    Sair
-                  </span>
-                </Button>
+                <button className="w-full">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className={cn(
+                      'flex gap-2 justify-start items-center w-full hover:text-white'
+                    )}
+                  >
+                    <LogOut />
+                    <span className="text-sm font-normal sm:text-[1rem]">
+                      Sair
+                    </span>
+                  </Button>
+                </button>
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

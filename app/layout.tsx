@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { ThemeProvider } from '@/components/theme-provider/theme-provider';
 import '../styles/global.scss';
+import { Toaster } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -14,6 +16,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           {children}
         </ThemeProvider>
+        <Toaster
+          position="top-center"
+          richColors={true}
+          theme="light"
+          className={cn('z-[9999]')}
+        />
       </body>
     </html>
   );

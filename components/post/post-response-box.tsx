@@ -12,7 +12,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from '@/components/ui/popover';
-import { SendHorizontal, Smile } from 'lucide-react';
+import { SendHorizontal, Smile, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -20,7 +20,19 @@ import useAuthStore from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
-export default function PostResponseBox() {
+interface IProps {
+  idPost: number;
+  idParent?: number | null;
+  isResponse: boolean;
+  className?: string;
+}
+
+export default function PostResponseBox({
+  idPost: number,
+  idParent = null,
+  isResponse = false,
+  className,
+}: IProps) {
   const [textAreaValue, setTextAreaValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const router = useRouter();
@@ -37,7 +49,7 @@ export default function PostResponseBox() {
   const onSubmitComment = (): void => {};
 
   return (
-    <div className="flex gap-2 w-full bg-background">
+    <div className={cn('flex gap-2 w-full bg-background', className)}>
       <Avatar
         onClick={() => router.push(`/profiles/${authStore.credential.idUser}`)}
         className="h-8 w-8 rounded-full cursor-pointer"
@@ -57,7 +69,9 @@ export default function PostResponseBox() {
           value={textAreaValue}
           onChange={(e) => setTextAreaValue(e.target.value)}
           rows={1}
-          placeholder="Escreva uma resposta..."
+          placeholder={
+            isResponse ? 'Responda o comentário ' : 'Escreva um novo comentário'
+          }
         />
 
         <div className="flex flex-none justify-between dark:border-white border-x border-b rounded-b-lg items-center gap-1 pb-1 px-1 w-full">
@@ -84,7 +98,6 @@ export default function PostResponseBox() {
               </EmojiPicker>
             </PopoverContent>
           </Popover>
-
           <Button
             type="button"
             variant={'ghost'}

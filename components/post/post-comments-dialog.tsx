@@ -24,6 +24,11 @@ import PostResponseBox from './post-response-box';
 import PostDescription from './post-description';
 import { getPostCommentList } from '@/http/post/posts.http';
 import { set } from 'date-fns';
+import { toast } from 'sonner';
+import { comment } from 'postcss';
+import { cp } from 'fs';
+import { Alert, AlertDescription } from '../ui/alert';
+import Link from 'next/link';
 
 const commentsTest: IPostComment[] = [
   {
@@ -31,18 +36,19 @@ const commentsTest: IPostComment[] = [
     idPost: 1,
     idComment: 564,
     profileUrl: '/teste1.jpeg',
-    name: 'Rafael Horauti 2',
+    name: 'Daniela Nakano',
     mediaList: null,
     fallbackName: 'RH',
     description:
-      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
+      'Post teste lorem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçl rem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçl rem ipsulon alçskdjfçaslkj açslkjslçakjfçslakdflça ALSKJÇ ÇLKASJLKSJAÇ açlskdaslç jkasçljd asçlkd fçlsak çljskkj sçkf s',
     createdAt: new Date(),
     likesQty: 10,
     isLiked: false,
     subComments: [
       {
         idUser: 147,
-        idSubComment: 1,
+        idComment: 1,
+        idParent: 564,
         profileUrl: '/teste2.jpeg',
         mediaList: null,
         name: 'Daniela Yukalli Nakano',
@@ -55,7 +61,8 @@ const commentsTest: IPostComment[] = [
       },
       {
         idUser: 148,
-        idSubComment: 2,
+        idComment: 2,
+        idParent: 564,
         profileUrl: '/teste3.jpeg',
         mediaList: ['açslkdjaslçf'],
         name: 'Lucas Ryo Horauti',
@@ -71,9 +78,9 @@ const commentsTest: IPostComment[] = [
   {
     idUser: 145,
     idPost: 1,
-    idComment: 564,
+    idComment: 565,
     profileUrl: '/teste1.jpeg',
-    name: 'Rafael Horauti 2',
+    name: 'Rafael Horauti',
     mediaList: null,
     fallbackName: 'RH',
     description:
@@ -84,7 +91,8 @@ const commentsTest: IPostComment[] = [
     subComments: [
       {
         idUser: 147,
-        idSubComment: 3,
+        idComment: 3,
+        idParent: 565,
         profileUrl: '/teste2.jpeg',
         mediaList: null,
         name: 'Daniela Yukalli Nakano',
@@ -97,7 +105,8 @@ const commentsTest: IPostComment[] = [
       },
       {
         idUser: 148,
-        idSubComment: 4,
+        idComment: 4,
+        idParent: 565,
         profileUrl: '/teste3.jpeg',
         mediaList: ['açslkdjaslçf'],
         name: 'Lucas Ryo Horauti',
@@ -113,9 +122,9 @@ const commentsTest: IPostComment[] = [
   {
     idUser: 145,
     idPost: 1,
-    idComment: 564,
+    idComment: 566,
     profileUrl: '/teste1.jpeg',
-    name: 'Rafael Horauti 2',
+    name: 'Lucas Horauti',
     mediaList: null,
     fallbackName: 'RH',
     description:
@@ -126,7 +135,8 @@ const commentsTest: IPostComment[] = [
     subComments: [
       {
         idUser: 147,
-        idSubComment: 5,
+        idComment: 5,
+        idParent: 566,
         profileUrl: '/teste2.jpeg',
         mediaList: null,
         name: 'Daniela Yukalli Nakano',
@@ -139,7 +149,8 @@ const commentsTest: IPostComment[] = [
       },
       {
         idUser: 148,
-        idSubComment: 6,
+        idComment: 6,
+        idParent: 566,
         profileUrl: '/teste3.jpeg',
         mediaList: ['açslkdjaslçf'],
         name: 'Lucas Ryo Horauti',
@@ -168,6 +179,8 @@ export function PostCommentsDialog({
   const router = useRouter();
   const authStore = useAuthStore((state) => state);
   const [comments, setCommments] = useState<IPostComment[]>();
+  const [isResponseBoxActive, setIsResponseBoxActive] = useState(false);
+  const [name, setName] = useState('');
 
   useEffect(() => {
     onGetComments(idPost);
@@ -179,9 +192,56 @@ export function PostCommentsDialog({
     setCommments(commentsTest);
   };
 
-  const onLikeComment = (idComment: number): void => {};
+  const onLikeComment = (idComment: number): void => {
+    const next = !comments?.find((comment) => comment.idComment == idComment)
+      ?.isLiked;
+    setCommments((prev) => {
+      if (!prev) return prev;
+      return prev.map((comment) => {
+        if (comment.idComment != idComment) return comment;
+        else
+          return {
+            ...comment,
+            isLiked: next,
+            likesQty: next ? comment.likesQty + 1 : comment.likesQty - 1,
+          };
+      });
+    });
+    if (next) {
+      toast.success('Comentário curtido.', {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
+    } else {
+      toast.success('Curtida removida.', {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
+    }
+  };
 
   const onLikeSubComment = (idComment: number, idSubComment: number): void => {
+    let currentValue = false;
+    const targetComment = comments?.find(
+      (comment) => comment.idComment == idComment
+    );
+    if (targetComment) {
+      currentValue =
+        (targetComment.subComments || []).find(
+          (subComment) => subComment && subComment.idComment == idSubComment
+        )?.isLiked ?? false;
+    }
+    const next = !currentValue;
     setCommments((prev) => {
       if (!prev) return prev;
 
@@ -190,20 +250,54 @@ export function PostCommentsDialog({
 
         return {
           ...comment,
-          subComments: comment.subComments?.map((sub) => {
-            if (sub.idSubComment !== idSubComment) return sub;
-
-            const isLiked = !sub.isLiked;
+          subComments: (comment.subComments || []).map((sub) => {
+            if (sub.idComment !== idSubComment) return sub;
 
             return {
               ...sub,
-              isLiked,
-              likesQty: isLiked ? sub.likesQty + 1 : sub.likesQty - 1,
+              isLiked: next,
+              likesQty: next ? sub.likesQty + 1 : sub.likesQty - 1,
             };
           }),
         };
       });
     });
+    if (next) {
+      toast.success('Post curtido!', {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
+    } else {
+      toast.success('Post removido!', {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
+    }
+  };
+
+  const onShowResponseBox = (idComment: number): void => {
+    const comment = comments?.find(
+      (comment) => (comment.idComment || 0) == idComment
+    );
+    if (comment) {
+      setName(comment.name);
+      setIsResponseBoxActive(true);
+    }
+  };
+
+  const onCloseResponseBox = (): void => {
+    setName('');
+    setIsResponseBoxActive(false);
   };
 
   return (
@@ -240,32 +334,32 @@ export function PostCommentsDialog({
             <span>Não existem comentários ainda.</span>
           </div>
         ) : (
-          <div className="mt-2 flex-1 overflow-auto">
+          <div className="flex flex-col gap-3 mt-2 overflow-auto">
             {comments?.map((comment, index) => (
               <div
                 className="flex flex-col items-start gap-1"
                 key={'comment' + index}
               >
                 <div className="flex justify-start-start gap-2">
-                  <Avatar
-                    onClick={() => router.push(`/profiles/${comment.idUser}`)}
-                    className="h-8 w-8 rounded-full cursor-pointer"
-                  >
-                    <AvatarImage src={comment.profileUrl} alt="Profile Image" />
-                    <AvatarFallback className="rounded-lg">
-                      {authStore.credential.fallbackName}
-                    </AvatarFallback>
-                  </Avatar>
+                  <Link href={`/profiles/${comment.idUser}`}>
+                    <Avatar className="h-8 w-8 rounded-full cursor-pointer">
+                      <AvatarImage
+                        src={comment.profileUrl || ''}
+                        alt="Profile Image"
+                      />
+                      <AvatarFallback className="rounded-lg">
+                        {authStore.credential.fallbackName}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
                   <div className="flex flex-col">
                     <div className="flex flex-col gap-1 bg-secondary px-2 py-1 rounded-lg">
-                      <p
-                        onClick={() =>
-                          router.push(`/profiles/${comment.idUser}`)
-                        }
+                      <Link
+                        href={`/profiles/${comment.idUser}`}
                         className="font-semibold text-sm cursor-pointer hover:underline"
                       >
                         {comment.name}
-                      </p>
+                      </Link>
                       <PostDescription description={comment.description} />
                     </div>
                     <div className="text-xs flex gap-2 items-center">
@@ -279,95 +373,127 @@ export function PostCommentsDialog({
                         <ToggleGroupItem
                           value="heart"
                           aria-label="Toggle heart"
-                          onClick={() => onLikeComment(comment.idComment)}
+                          onClick={() => onLikeComment(comment.idComment || 0)}
                           className={cn('p-1 flex justify-center')}
                         >
                           <HeartIcon
-                            fill="red"
-                            stroke={`${comment.isLiked ? 'red' : ''}`}
+                            className={` ${comment.isLiked ? 'fill-red-500 text-red-500' : 'fill-transparent text-black dark:text-white'}`}
                           />
                           <span className="font-normal">
                             {comment.likesQty}
                           </span>
                         </ToggleGroupItem>
                       </ToggleGroup>
-                      <span className="hover:bg-secondary p-1 cursor-pointer">
+                      <span
+                        onClick={() =>
+                          onShowResponseBox(comment.idComment || 0)
+                        }
+                        className="hover:bg-secondary p-1 cursor-pointer"
+                      >
                         Responder
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {comment.subComments?.map((subComment, index) => (
-                  <div key={'subComment' + index} className="ml-10">
-                    <div className="flex justify-start-start gap-2">
-                      <Avatar
-                        onClick={() =>
-                          router.push(`/profiles/${subComment.idUser}`)
-                        }
-                        className="h-8 w-8 rounded-full cursor-pointer"
-                      >
-                        <AvatarImage
-                          src={subComment.profileUrl}
-                          alt="Profile Image"
-                        />
-                        <AvatarFallback className="rounded-lg">
-                          {authStore.credential.fallbackName}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col">
-                        <div className="flex flex-col gap-1 bg-secondary  px-2 py-1 rounded-lg">
-                          <p
-                            onClick={() =>
-                              router.push(`/profiles/${subComment.idUser}`)
-                            }
-                            className="font-semibold text-sm cursor-pointer hover:underline"
-                          >
-                            {subComment.name}
-                          </p>
-                          <PostDescription
-                            description={subComment.description}
-                          />
-                        </div>
-                        <div className="text-xs flex gap-2 items-center">
-                          <PostTime createdAt={subComment.createdAt} />
-                          <ToggleGroup
-                            type="multiple"
-                            variant="default"
-                            className={cn('justify-evenly')}
-                            size="sm"
-                          >
-                            <ToggleGroupItem
-                              value="heart"
-                              aria-label="Toggle heart"
-                              onClick={() =>
-                                onLikeSubComment(
-                                  comment.idComment,
-                                  subComment.idSubComment
-                                )
-                              }
-                              className={cn('p-1 flex justify-center')}
+                <div className="flex flex-col gap-3 mt-3">
+                  {comment.subComments?.map((subComment, index) => (
+                    <div
+                      key={'subComment' + index}
+                      className="flex flex-col items-start gap-2 ml-10"
+                    >
+                      <div className="flex justify-start gap-2 ">
+                        <Link href={`/profiles/${subComment.idUser}`}>
+                          <Avatar className="h-8 w-8 rounded-full cursor-pointer">
+                            <AvatarImage
+                              src={subComment.profileUrl || ''}
+                              alt="Profile Image"
+                            />
+                            <AvatarFallback className="rounded-lg">
+                              {authStore.credential.fallbackName}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Link>
+                        <div className="flex flex-col">
+                          <div className="flex flex-col gap-1 bg-secondary  px-2 py-1 rounded-lg">
+                            <Link
+                              href={`/profiles/${subComment.idUser}`}
+                              className="font-semibold text-sm cursor-pointer hover:underline"
                             >
-                              <HeartIcon
-                                className={` ${subComment.isLiked ? 'fill-red-500 text-red-500' : 'fill-transparent text-black dark:text-white'}`}
-                              />
-                              <span className="font-normal">
-                                {subComment.likesQty}
-                              </span>
-                            </ToggleGroupItem>
-                          </ToggleGroup>
+                              {subComment.name}
+                            </Link>
+                            <PostDescription
+                              description={subComment.description}
+                            />
+                          </div>
+                          <div className="text-xs flex gap-2 items-center">
+                            <PostTime createdAt={subComment.createdAt} />
+                            <ToggleGroup
+                              type="multiple"
+                              variant="default"
+                              className={cn('justify-evenly')}
+                              size="sm"
+                            >
+                              <ToggleGroupItem
+                                value="heart"
+                                aria-label="Toggle heart"
+                                onClick={() =>
+                                  onLikeSubComment(
+                                    comment.idComment || 0,
+                                    subComment.idComment || 0
+                                  )
+                                }
+                                className={cn('p-1 flex justify-center')}
+                              >
+                                <HeartIcon
+                                  className={` ${subComment.isLiked ? 'fill-red-500 text-red-500' : 'fill-transparent text-black dark:text-white'}`}
+                                />
+                                <span className="font-normal">
+                                  {subComment.likesQty}
+                                </span>
+                              </ToggleGroupItem>
+                            </ToggleGroup>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             ))}
           </div>
         )}
 
         <DialogFooter>
-          <PostResponseBox />
+          <div className="flex flex-col gap-2 w-full">
+            <Alert
+              className={cn(
+                ' bg-secondary overflow-hidden border transition-[max-height] duration-500 ease-out',
+                isResponseBoxActive
+                  ? 'max-h-[80px] p-3'
+                  : 'max-h-0 p-0 border-transparent'
+              )}
+            >
+              {isResponseBoxActive && (
+                <div className="flex justify-between">
+                  <AlertDescription>
+                    <p>
+                      Respondendo a <span className="font-medium">{name}</span>
+                    </p>
+                  </AlertDescription>
+                  <Button
+                    onClick={onCloseResponseBox}
+                    variant="destructive"
+                    size="icon"
+                    className={cn('h-5 w-5 rounded-full')}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </Alert>
+            <PostResponseBox idPost={idPost} isResponse={isResponseBoxActive} />
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
