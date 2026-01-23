@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import useAuthStore from '@/store/auth.store';
 import {
+  BarChart3,
   Bell,
   FileText,
   LogOut,
@@ -16,6 +17,7 @@ import {
   Newspaper,
   Store,
   Sun,
+  ThumbsUp,
   User,
   X,
 } from 'lucide-react';
@@ -82,9 +84,19 @@ export default function Navbar() {
       icon: <MessagesSquare />,
     },
     {
+      title: 'Recomendações',
+      href: '/recommendations',
+      icon: <ThumbsUp />,
+    },
+    {
       title: 'Marketplace',
-      href: '/marketplace',
+      href: '/marketplace/all',
       icon: <Store />,
+    },
+    {
+      title: 'Relatórios',
+      href: '/reports',
+      icon: <BarChart3 />,
     },
   ];
 
@@ -97,7 +109,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 shadow-sm z-[9999]">
+    <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 shadow-sm z-[500] overflow-auto">
       <div className="flex-shrink-0">
         <Link href="/" className="flex items-center space-x-2 group">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
@@ -119,7 +131,7 @@ export default function Navbar() {
               )}
             >
               {item.icon}
-              <span className="text-sm font-normal sm:text-[1rem]">
+              <span className="text-sm font-normal sm:text-[1rem] hidden lg:inline">
                 {item.title}
               </span>
             </Link>
@@ -224,7 +236,7 @@ export default function Navbar() {
                       )}
                     >
                       {item.icon}
-                      <span className="text-sm font-normal sm:text-[1rem]">
+                      <span className="text-sm font-normal sm:text-[1rem] hidden sm:block">
                         {item.title}
                       </span>
                     </Button>
@@ -232,7 +244,7 @@ export default function Navbar() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuItem className={cn('py-[0.1rem] px-0')} asChild>
-                <button className="w-full">
+                <div className="w-full">
                   <Button
                     variant="primary"
                     size="sm"
@@ -245,7 +257,7 @@ export default function Navbar() {
                       Sair
                     </span>
                   </Button>
-                </button>
+                </div>
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

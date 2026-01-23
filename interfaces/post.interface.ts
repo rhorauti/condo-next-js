@@ -1,7 +1,9 @@
+import { POST_TYPE } from '@/enum/post.enum';
+
 export interface IPost {
   idUser: number;
   idPost: number;
-  type?: number;
+  type?: POST_TYPE;
   profileUrl: string | null;
   name: string;
   fallbackName: string;
@@ -11,7 +13,6 @@ export interface IPost {
   likesQty: number;
   commentsQty: number;
   isLiked: boolean;
-  isSaved: boolean;
 }
 
 export interface IPostComment

@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, useEffect, useMemo } from 'react';
+import { useId, useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -11,19 +11,20 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import { IPost } from '@/interfaces/post.interface';
-import z from 'zod';
+import z, { set } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { X } from 'lucide-react';
-import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { POST_TYPE, translatePostToString } from '@/enum/post.enum';
 import useAuthStore from '@/store/auth.store';
 import ControlledTextArea from '../text-area/controlled.text-area';
 import { ControlledSelect } from '../select/controlled-select';
 import { CarouselForm } from '../carousel/carousel-form';
+import { AskDialog } from '../dialog/ask-dialog';
+import { IAskDialog } from '@/interfaces/modal.interface';
 
 interface IProps {
   showDialog: boolean;
@@ -73,11 +74,16 @@ type PostFormValues = z.infer<typeof postSchema>;
 export function PostFormDialog({
   showDialog,
   postInfo,
-  onCloseDialog,
+  onCloseDialog: onClosePostDialog,
 }: IProps) {
   const formId = useId();
   const [postTypeList, setPostTypeList] = useState<string[]>([]);
   const authStore = useAuthStore((state) => state);
+  const [askDialog, setAskDialog] = useState<IAskDialog>({
+    description: '',
+    isActive: false,
+    title: '',
+  });
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
@@ -91,6 +97,7 @@ export function PostFormDialog({
   const {
     handleSubmit,
     watch,
+    getValues,
     formState: { isSubmitting },
   } = form;
 
@@ -101,10 +108,6 @@ export function PostFormDialog({
     authStore.onSetFallbackName();
     setPostTypeList(setPostTypeStringList());
   }, []);
-
-  // const fallbackName = useMemo(() => {
-  //   authStore.onSetFallbackName();
-  // }, [authStore.credential.name]);
 
   const setPostTypeStringList = (): string[] => {
     const numberList = Object.values(POST_TYPE).filter(
@@ -132,7 +135,33 @@ export function PostFormDialog({
 
   const onHandleClose = (): void => {
     form.reset();
-    onCloseDialog();
+    onClosePostDialog();
+    setAskDialog((prev) => {
+      return {
+        ...prev,
+        isActive: false,
+      };
+    });
+  };
+
+  const onCheckCloseDialog = (): void => {
+    const { postType, description, media } = getValues();
+    if (
+      (postType && postType.length > 0) ||
+      (description && description.length > 0) ||
+      (media && media?.length > 0)
+    ) {
+      setAskDialog((prev) => {
+        return {
+          ...prev,
+          isActive: true,
+          title: 'Formulário de postagem',
+          description: 'Deseja mesmo sair sem salvar? Os dados serão perdidos.',
+        };
+      });
+    } else {
+      onHandleClose();
+    }
   };
 
   return (
@@ -205,7 +234,7 @@ export function PostFormDialog({
 
           <CardFooter className="flex gap-4 justify-center pt-2 px-auto pb-6">
             <Button
-              onClick={onHandleClose}
+              onClick={onCheckCloseDialog}
               variant={'outline'}
               type="button"
               form={`post-form-close-btn-${formId}`}
@@ -227,6 +256,17 @@ export function PostFormDialog({
           </CardFooter>
         </Card>
       </DialogContent>
+      <AskDialog
+        isActive={askDialog.isActive}
+        description={askDialog.description}
+        title={askDialog.title}
+        onActionNok={() =>
+          setAskDialog((prev) => {
+            return { ...prev, isActive: false };
+          })
+        }
+        onActionOk={onHandleClose}
+      />
     </Dialog>
   );
 }

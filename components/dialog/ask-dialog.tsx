@@ -9,42 +9,42 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Check, CircleX } from 'lucide-react';
 import { Button } from '../ui/button';
+import { Info } from 'lucide-react';
 
-export interface IInfoDialogProps {
+export interface IAskDialogProps {
   isActive: boolean;
   title: string;
-  isDialogFailure: boolean;
   description: string;
-  onOpenChange: () => void;
+  onActionNok: () => void;
+  onActionOk: () => void;
 }
 
-export function InfoDialog({
+export function AskDialog({
   isActive = false,
-  isDialogFailure = true,
   title,
   description,
-  onOpenChange,
-}: IInfoDialogProps) {
+  onActionNok,
+  onActionOk,
+}: IAskDialogProps) {
   return (
-    <Dialog open={isActive} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isActive}>
+      <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
         <DialogHeader className="flex flex-col items-center gap-2">
-          {isDialogFailure ? (
-            <CircleX className="text-destructive rounded-full" size={30} />
-          ) : (
-            <Check
-              className="bg-success text-success-foreground p-1 rounded-full"
-              size={30}
-            />
-          )}
+          <Info className="text-blue-800 dark:text-blue-500 h-6 w-6" />
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="secondary">Fechar</Button>
+            <Button onClick={onActionNok} variant="secondary">
+              Fechar
+            </Button>
+          </DialogClose>
+          <DialogClose>
+            <Button onClick={onActionOk} variant="default">
+              Sim
+            </Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

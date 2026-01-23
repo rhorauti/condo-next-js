@@ -478,7 +478,7 @@ export function PostCommentsDialog({
                 <div className="flex justify-between">
                   <AlertDescription>
                     <p>
-                      Respondendo a <span className="font-medium">{name}</span>
+                      Responder para <span className="font-medium">{name}</span>
                     </p>
                   </AlertDescription>
                   <Button
