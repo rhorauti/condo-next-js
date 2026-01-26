@@ -7,6 +7,8 @@ import useAuthStore from '@/store/auth.store';
 import {
   BarChart3,
   Bell,
+  BellIcon,
+  CircleQuestionMark,
   FileText,
   LogOut,
   Menu,
@@ -33,6 +35,7 @@ import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { Switch } from '../ui/switch';
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 export default function Navbar() {
   const authStore = useAuthStore((state) => state);
@@ -78,16 +81,11 @@ export default function Navbar() {
       href: '/posts/all',
       icon: <Newspaper />,
     },
-    {
-      title: 'Mensagens',
-      href: '/chats',
-      icon: <MessagesSquare />,
-    },
-    {
-      title: 'Recomendações',
-      href: '/recommendations',
-      icon: <ThumbsUp />,
-    },
+    // {
+    //   title: 'Recomendações',
+    //   href: '/recommendations',
+    //   icon: <ThumbsUp />,
+    // },
     {
       title: 'Marketplace',
       href: '/marketplace/all',
@@ -109,7 +107,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 shadow-sm z-[500] overflow-auto">
+    <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 shadow-sm z-[40] overflow-auto">
       <div className="flex-shrink-0">
         <Link href="/" className="flex items-center space-x-2 group">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
@@ -148,12 +146,19 @@ export default function Navbar() {
             </Button>
           ) : (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="primary" size="icon">
-                  <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                  <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                </Button>
-              </DropdownMenuTrigger>
+              <Tooltip>
+                <DropdownMenuTrigger asChild>
+                  <TooltipTrigger asChild>
+                    <Button variant="primary" size="icon">
+                      <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                      <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                    </Button>
+                  </TooltipTrigger>
+                </DropdownMenuTrigger>
+                <TooltipContent>
+                  <p>Tema de fundo</p>
+                </TooltipContent>
+              </Tooltip>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => setTheme('light')}
@@ -209,6 +214,31 @@ export default function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => setIsMobileMenuActive(false)}
+                variant="primary"
+                size="sm"
+              >
+                <BellIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Notificações</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="primary" size="sm">
+                <CircleQuestionMark />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Faq</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Desktop profile menu */}
@@ -266,6 +296,20 @@ export default function Navbar() {
 
       {/* Mobile Menu Trigger */}
       <div className="flex items-center gap-2 md:hidden">
+        <Button
+          onClick={() => setIsMobileMenuActive(false)}
+          variant="primary"
+          size="sm"
+        >
+          <BellIcon />
+        </Button>
+        <Button
+          onClick={() => setIsMobileMenuActive(false)}
+          variant="primary"
+          size="sm"
+        >
+          <BellIcon />
+        </Button>
         <Button
           onClick={() => setIsMobileMenuActive(!isMobileMenuActive)}
           variant="primary"

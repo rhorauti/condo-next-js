@@ -171,14 +171,14 @@ export default function Post({
             />
             <span>{likeQty}</span>
           </ToggleGroupItem>
-          <ToggleGroupItem
+          {/* <ToggleGroupItem
             value="share"
             aria-label="Share post"
             onClick={onSharePost}
             className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500 flex justify-center"
           >
             <Share2 />
-          </ToggleGroupItem>
+          </ToggleGroupItem> */}
         </ToggleGroup>
       </footer>
 

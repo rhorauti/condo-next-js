@@ -1,5 +1,4 @@
 import Navbar from '@/components/navbar/navbar';
-import { Toaster } from 'sonner';
 
 type HomeLayoutProps = {
   children?: React.ReactNode;

@@ -4,9 +4,9 @@ export interface IPost {
   idUser: number;
   idPost: number;
   type?: POST_TYPE;
-  profileUrl: string | null;
-  name: string;
-  fallbackName: string;
+  profileUrl?: string | null;
+  name?: string;
+  fallbackName?: string;
   description: string;
   mediaList: string[] | null;
   createdAt: Date;

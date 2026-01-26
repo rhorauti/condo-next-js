@@ -3,6 +3,7 @@ import { ThemeProvider } from '@/components/theme-provider/theme-provider';
 import '../styles/global.scss';
 import { Toaster } from 'sonner';
 import { cn } from '@/lib/utils';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -14,7 +15,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <TooltipProvider delayDuration={100}>{children}</TooltipProvider>
         </ThemeProvider>
         <Toaster
           position="top-center"

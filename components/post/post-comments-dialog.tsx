@@ -306,7 +306,7 @@ export function PostCommentsDialog({
         showCloseButton={false}
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
-        className="sm:max-w-[42rem] max-h-[85%] flex flex-col"
+        className="sm:max-w-[42rem] max-h-[90%] flex flex-col"
       >
         <DialogHeader>
           <div className={cn('flex justify-between')}>

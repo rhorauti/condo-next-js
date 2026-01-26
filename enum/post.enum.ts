@@ -2,8 +2,9 @@ export enum POST_TYPE {
   QUESTION_FEEDBACK = 0,
   BULLETIN_BOARD = 1,
   COMPLAINS = 2,
-  INDICATION = 3,
-  OTHERS = 4,
+  RECOMMENDATIONS = 3,
+  DECLUTTER = 4,
+  OTHERS = 5,
 }
 
 export const translatePostToString = (post: POST_TYPE): string => {
@@ -18,9 +19,12 @@ export const translatePostToString = (post: POST_TYPE): string => {
       return 'Reclamações';
     }
     case 3: {
-      return 'Indicações';
+      return 'Recomendações';
     }
     case 4: {
+      return 'Desapegos';
+    }
+    case 5: {
       return 'Outros';
     }
   }
@@ -38,9 +42,15 @@ export const translatePostToNumber = (post: string): POST_TYPE => {
     case 'Reclamações': {
       return 2;
     }
-    case 'Outros': {
+    case 'Recomendações': {
       return 3;
     }
+    case 'Desapegos': {
+      return 4;
+    }
+    case 'Outros': {
+      return 5;
+    }
   }
-  return 3;
+  return 5;
 };
