@@ -25,6 +25,8 @@ import { ControlledSelect } from '../select/controlled-select';
 import { CarouselForm } from '../carousel/carousel-form';
 import { AskDialog } from '../dialog/ask-dialog';
 import { IAskDialog } from '@/interfaces/modal.interface';
+import { toast } from 'sonner';
+import { savePost } from '@/http/post/posts.http';
 
 interface IProps {
   showDialog: boolean;
@@ -42,6 +44,7 @@ const ACCEPTED_IMAGE_TYPES = [
 
 const postSchema = z
   .object({
+    idUser: z.number(),
     description: z.string().optional(),
     postType: z.string().nonempty('Selecione um tipo de postagem'),
     media: z
@@ -88,6 +91,7 @@ export function PostFormDialog({
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
     defaultValues: {
+      idUser: postInfo?.idUser,
       description: '',
       postType: '',
       media: [],
@@ -117,20 +121,24 @@ export function PostFormDialog({
   };
 
   const onSubmit = async (data: PostFormValues) => {
-    console.log('submit', data);
-    // const formData = new FormData();
-    // formData.append('description', data.description || '');
-    // formData.append('postType', data.postType || '');
+    // console.log('submit', data);
+    const formData = new FormData();
+    formData.append('description', data.description || '');
+    formData.append('postType', data.postType || '');
 
-    // if (data.media) {
-    //   data.media.forEach((file) => {
-    //     formData.append('files', file);
-    //   });
-    // }
+    if (data.idUser) {
+      formData.append('idUser', String(data.idUser));
+    }
 
-    // toast.success('Post criado com sucesso!');
+    if (data.media) {
+      data.media.forEach((file) => {
+        formData.append('files', file);
+      });
+    }
 
-    // onHandleClose();
+    await savePost(formData);
+    toast.success('Post criado com sucesso!');
+    onHandleClose();
   };
 
   const onHandleClose = (): void => {

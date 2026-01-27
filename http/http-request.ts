@@ -65,20 +65,29 @@ export async function httpRequest({
     }
   }
 
+  console.log('NEXT_PUBLIC_API_URL', process.env.NEXT_PUBLIC_API_URL);
   const url = `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`;
 
+  const isFormData =
+    typeof FormData !== 'undefined' && data instanceof FormData;
+
+  const headers: HeadersInit = {
+    ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
+    ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
+  };
+
+  if (!isFormData) {
+    headers['Content-Type'] = contentType;
+  }
+
   const options: RequestInit = {
-    method: method,
+    method,
     credentials: 'include',
-    headers: {
-      'Content-Type': contentType,
-      ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
-      ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
-    },
+    headers,
   };
 
   if (data) {
-    options.body = JSON.stringify(data);
+    options.body = isFormData ? (data as FormData) : JSON.stringify(data);
   }
 
   try {

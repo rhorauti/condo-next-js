@@ -81,11 +81,11 @@ export default function Navbar() {
       href: '/posts/all',
       icon: <Newspaper />,
     },
-    // {
-    //   title: 'Recomendações',
-    //   href: '/recommendations',
-    //   icon: <ThumbsUp />,
-    // },
+    {
+      title: 'Recomendações',
+      href: '/recommendations',
+      icon: <ThumbsUp />,
+    },
     {
       title: 'Marketplace',
       href: '/marketplace/all',
@@ -303,12 +303,8 @@ export default function Navbar() {
         >
           <BellIcon />
         </Button>
-        <Button
-          onClick={() => setIsMobileMenuActive(false)}
-          variant="primary"
-          size="sm"
-        >
-          <BellIcon />
+        <Button variant="primary" size="sm">
+          <CircleQuestionMark />
         </Button>
         <Button
           onClick={() => setIsMobileMenuActive(!isMobileMenuActive)}

@@ -16,8 +16,14 @@ export const getPost = async (
   return await httpRequest({ endpoint: `/posts/${idPost}`, method: 'GET' });
 };
 
-export const savePost = async (post: IPost): Promise<IFetchResponse<IPost>> => {
-  return await httpRequest({ endpoint: '/posts', method: 'POST', data: post });
+export const savePost = async (
+  formData: FormData
+): Promise<IFetchResponse<IPost>> => {
+  return await httpRequest({
+    endpoint: 'posts',
+    method: 'POST',
+    data: formData,
+  });
 };
 
 export const deletePost = async (idPost: number): Promise<IFetchResponse> => {
