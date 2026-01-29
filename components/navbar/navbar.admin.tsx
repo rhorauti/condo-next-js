@@ -10,8 +10,10 @@ import {
   BellIcon,
   Calendar,
   CircleQuestionMark,
+  FileQuestionMark,
   FileText,
   LogOut,
+  LucideHouse,
   Menu,
   MessageSquare,
   MessagesSquare,
@@ -22,6 +24,7 @@ import {
   Sun,
   ThumbsUp,
   User,
+  User2,
   X,
 } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -38,7 +41,7 @@ import { Switch } from '../ui/switch';
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
-export default function Navbar() {
+export default function AdminNavbar() {
   const authStore = useAuthStore((state) => state);
   // const [isProfileBoxActive, setIsProfileBoxActive] = useState(false);
   const profileBoxRef = useRef<HTMLDivElement | null>(null);
@@ -58,19 +61,14 @@ export default function Navbar() {
 
   const navBarItems = [
     {
-      title: 'Dados Cadastrais',
-      href: `/profiles/${authStore.credential.idUser}`,
-      icon: <User />,
+      title: 'Condominios',
+      href: 'admin/condo',
+      icon: <LucideHouse />,
     },
     {
-      title: 'Minhas postagens',
-      href: '/posts/my-posts',
-      icon: <MessageSquare />,
-    },
-    {
-      title: 'Meu MarketPlace',
-      href: '/marketplace/my-marketplace',
-      icon: <Store />,
+      title: 'Usuários',
+      href: '/admin/users',
+      icon: <User2 />,
     },
     {
       title: 'Calendário de eventos',
@@ -78,24 +76,14 @@ export default function Navbar() {
       icon: <Calendar />,
     },
     {
+      title: 'Faq',
+      href: '/admin/faq',
+      icon: <FileQuestionMark />,
+    },
+    {
       title: 'Política de uso',
       href: '/usage-policy',
       icon: <FileText />,
-    },
-    {
-      title: 'Posts',
-      href: '/posts/all',
-      icon: <Newspaper />,
-    },
-    {
-      title: 'Recomendações',
-      href: '/recommendations',
-      icon: <ThumbsUp />,
-    },
-    {
-      title: 'Marketplace',
-      href: '/marketplace/all',
-      icon: <Store />,
     },
     {
       title: 'Relatórios',
@@ -113,7 +101,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 shadow-sm z-[40] overflow-auto">
+    <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 z-[50] shadow-sm overflow-auto">
       <div className="flex-shrink-0">
         <Link href="/" className="flex items-center space-x-2 group">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
@@ -126,19 +114,27 @@ export default function Navbar() {
       </div>
 
       <div className="hidden md:flex items-center md:gap-6 gap-2">
-        {navBarItems.slice(5).map((item, index) => (
-          <Button variant="ghost" size="sm" key={index}>
-            <Link
-              href={item.href}
-              className={cn('flex gap-2 justify-start items-center')}
-            >
-              {item.icon}
-              <span className="text-sm font-normal sm:text-[1rem] hidden lg:inline">
-                {item.title}
-              </span>
-            </Link>
-          </Button>
-        ))}
+        <DropdownMenu>
+          {navBarItems.slice(0).map((item, index) => (
+            <Tooltip key={item.href}>
+              <DropdownMenuTrigger asChild>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" key={index}>
+                    <Link
+                      href={item.href}
+                      className={cn('flex gap-2 justify-start items-center')}
+                    >
+                      {item.icon}
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+              </DropdownMenuTrigger>
+              <TooltipContent>
+                <p>{item.title}</p>
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        </DropdownMenu>
       </div>
 
       {/* Theme menu */}
@@ -232,17 +228,6 @@ export default function Navbar() {
               <p>Notificações</p>
             </TooltipContent>
           </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <CircleQuestionMark />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Faq</p>
-            </TooltipContent>
-          </Tooltip>
         </div>
 
         {/* Desktop profile menu */}
@@ -255,9 +240,9 @@ export default function Navbar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
-              {navBarItems.slice(0, 5).map((item, index) => (
+              {navBarItems.slice(0).map((item, index) => (
                 <DropdownMenuItem
-                  key={index}
+                  key={item.href}
                   asChild
                   className={cn('py-[0.1rem] px-0')}
                 >
@@ -357,7 +342,7 @@ export default function Navbar() {
             {navBarItems.map((item, index) => (
               <Button
                 onClick={() => setIsMobileMenuActive(false)}
-                key={index}
+                key={item.href}
                 variant="outline"
                 size="sm"
                 className={cn('block w-full')}

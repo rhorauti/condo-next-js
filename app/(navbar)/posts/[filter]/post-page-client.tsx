@@ -8,7 +8,7 @@ import { IPost } from '@/interfaces/post.interface';
 import { cn } from '@/lib/utils';
 import useAuthStore from '@/store/auth.store';
 import { FileText, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // const postList: IPost[] = [];
 
@@ -26,7 +26,6 @@ const postList: IPost[] = [
     createdAt: new Date(),
     likesQty: 12,
     isLiked: true,
-    isSaved: true,
     commentsQty: 3,
   },
   {
@@ -48,7 +47,6 @@ const postList: IPost[] = [
     createdAt: new Date(),
     likesQty: 12,
     isLiked: false,
-    isSaved: true,
     commentsQty: 0,
   },
 ];
@@ -60,6 +58,7 @@ type Props = {
 export default function PostsPageClient({ filter }: Props) {
   const [isPostDialogActive, setIsPostDialogActive] = useState(false);
   const [isMyPosts, setIsMyPosts] = useState(false);
+  const [searchBarValue, setSearchBarValue] = useState<string>();
   const authStore = useAuthStore();
   const initialPostData: IPost = {
     idPost: 0,
@@ -73,7 +72,6 @@ export default function PostsPageClient({ filter }: Props) {
     createdAt: new Date(),
     likesQty: 0,
     isLiked: false,
-    isSaved: false,
     commentsQty: 0,
   };
   const [postData, setPostData] = useState<IPost>(initialPostData);
@@ -92,6 +90,8 @@ export default function PostsPageClient({ filter }: Props) {
     setIsPostDialogActive(true);
   };
 
+  const onFilter = (): void => {};
+
   return (
     <>
       <div className="flex flex-col items-center gap-6 mb-6 overflow-auto">
@@ -104,7 +104,10 @@ export default function PostsPageClient({ filter }: Props) {
         ) : (
           <>
             <div className="flex flex-col gap-4 items-center justify-center w-full xs:flex-row">
-              <SearchBar />
+              <SearchBar
+                onInputText={(value) => setSearchBarValue(value)}
+                onClick={onFilter}
+              />
               <Button
                 variant="default"
                 className="w-full xs:w-auto"

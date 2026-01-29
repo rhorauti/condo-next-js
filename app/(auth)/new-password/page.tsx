@@ -114,16 +114,23 @@ export default function NewPassword() {
 
   return (
     <>
-      <Card className={cn(' w-full sm:w-[350px]')}>
+      <Card
+        className={cn(
+          ' w-full sm:w-[30rem] bg-slate-700 border-none shadow-lg text-white'
+        )}
+      >
         <CardHeader className={cn('gap-2')}>
-          <Image
+          {/* <Image
             className="self-center w-auto h-auto"
             src="/Logo_fundo_branco.jpg"
             alt="Logo"
             width={140}
             height={100}
             priority
-          />
+          /> */}
+          <div className="bg-gradient-to-r w-36 mx-auto h-12 from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
+            <span className="font-bold text-lg">ConectaCondo</span>
+          </div>
           <CardTitle className={cn('text-center')}>Nova senha</CardTitle>
         </CardHeader>
         <CardContent>

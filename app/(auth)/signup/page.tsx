@@ -142,16 +142,23 @@ export default function SignUp() {
 
   return (
     <>
-      <Card className={cn(' w-full sm:w-[350px]')}>
-        <CardHeader className={cn('gap-2')}>
-          <Image
+      <Card
+        className={cn(
+          ' w-full sm:w-[30rem] bg-slate-700 border-none shadow-lg text-white'
+        )}
+      >
+        <CardHeader className={cn('flex flex-col gap-4')}>
+          {/* <Image
             className="self-center w-auto h-auto"
             src="/Logo_fundo_branco.jpg"
             alt="Logo"
             width={140}
             height={100}
             priority
-          />
+          /> */}
+          <div className="bg-gradient-to-r w-36 mx-auto h-12 from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
+            <span className="font-bold text-lg">ConectaCondo</span>
+          </div>
           <CardTitle className={cn('text-center')}>Novo usuário</CardTitle>
         </CardHeader>
         <CardContent>
@@ -325,7 +332,9 @@ export default function SignUp() {
                         onCheckedChange={field.onChange}
                         disabled={isSubmitting}
                         className={cn(
-                          fieldState.invalid && 'border-destructive'
+                          fieldState.invalid
+                            ? 'border-destructive'
+                            : 'border-none bg-white'
                         )}
                       />
                       <div className="grid gap-1.5">
@@ -336,7 +345,7 @@ export default function SignUp() {
                           Li e aceito os{' '}
                           <Link
                             href="/terms"
-                            className="underline text-primary hover:text-primary/80"
+                            className="underline"
                             target="_blank"
                           >
                             Termos de Uso
@@ -344,7 +353,7 @@ export default function SignUp() {
                           e{' '}
                           <Link
                             href="/privacy"
-                            className="underline text-primary hover:text-primary/80"
+                            className="underline "
                             target="_blank"
                           >
                             Política de Privacidade
@@ -364,14 +373,14 @@ export default function SignUp() {
                 )}
               />
               <Field>
-                <p className="flex gap-2 justify-center items-center">
-                  <span>Já possui conta?</span>
+                <p className="flex gap-2 justify-center items-center font-medium">
+                  <span className="font-normal">Já possui conta?</span>
                   {!isSubmitting ? (
-                    <Link href="/login" className="underline text-primary">
+                    <Link href="/login" className="underline">
                       Clique aqui
                     </Link>
                   ) : (
-                    <span className="underline text-primary">Clique aqui</span>
+                    <span className="underline">Clique aqui</span>
                   )}
                 </p>
               </Field>
