@@ -31,7 +31,7 @@ import { pageInfo } from './mock';
 
 export default function Page() {
   const params = useParams();
-  const qtyPerPage = 5;
+  const qtyPerPage = 1;
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchBarValue, setSearchBarValue] = useState<string>();
@@ -81,14 +81,11 @@ export default function Page() {
   };
 
   const startSlicedItem = useMemo(() => {
-    console.log('startSlicedItem', currentPage * qtyPerPage - 1);
     if (currentPage == 1) return 0;
     return (currentPage - 1) * qtyPerPage;
   }, [currentPage, qtyPerPage]);
 
   const lastSlicedItem = useMemo(() => {
-    console.log('lastSlicedItem', currentPage * qtyPerPage + qtyPerPage);
-
     return currentPage * qtyPerPage;
   }, [currentPage, qtyPerPage]);
 
@@ -96,16 +93,37 @@ export default function Page() {
 
   const onShowAskDialog = (name: string): void => {
     setAskDialog((prev) => {
-      return {
-        ...prev,
-        title: 'Desativar usuário',
-        description: `Deseja desativar o usuário ${name}`,
-        isActive: true,
-      };
+      if (prev.isActive) {
+        return {
+          ...prev,
+          title: 'Desativar usuário',
+          description: `Deseja desativar o usuário ${name}`,
+          isActive: false,
+        };
+      } else {
+        return {
+          ...prev,
+          title: 'Ativar usuário',
+          description: `Deseja ativar o usuário ${name}`,
+          isActive: true,
+        };
+      }
     });
   };
 
   const onChangeUserActiveState = (): void => {
+    setAdminUsersPageInfo((prev) => {
+      if (!prev) return;
+      return {
+        ...prev,
+        users: prev?.users.map((user) => {
+          return {
+            ...user,
+            isActive: !user.isActive,
+          };
+        }),
+      };
+    });
     setAskDialog((prev) => {
       return { ...prev, isActive: false };
     });
@@ -291,6 +309,7 @@ export default function Page() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
+                          onClick={() => onShowAskDialog(user.name)}
                           variant="default"
                           size={'icon'}
                           className="bg-red-800 hover:bg-red-700"
