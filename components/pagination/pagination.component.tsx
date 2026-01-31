@@ -8,7 +8,12 @@ import {
   PaginationEllipsis,
 } from '@/components/ui/pagination';
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  CircleArrowLeft,
+  CircleArrowRight,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PaginationLinkItem } from './pagination-link';
 
@@ -45,6 +50,8 @@ export function PaginationComponent({
   const pagesArray = useMemo(() => {
     if (totalPages < 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
+    } else if (totalPages > 7 && currentPage < 5) {
+      return [1, 2, 3, 4, 5, 'start-ellipsis', totalPages - 1, totalPages];
     } else if (totalPages > 7 && currentPage < totalPages - 3) {
       return [
         1,
@@ -74,52 +81,73 @@ export function PaginationComponent({
   return (
     <Pagination>
       <PaginationContent className={cn('text-sm')}>
-        <PaginationItem>
-          <PaginationLinkItem
-            href={createPageUrl(Math.max(1, currentPage - 1))}
-            aria-disabled={currentPage === 1}
-            className={cn('flex items-center font-medium p-1 gap-1')}
-          >
-            <ChevronLeft className="h-4 w-4" />
+        {currentPage == 1 ? (
+          <div className="flex gap-2 p-1 items-center font-semibold text-gray-400">
+            <CircleArrowLeft className="h-4 w-4" />
             <span className="hidden md:inline">Anterior</span>
-          </PaginationLinkItem>
-        </PaginationItem>
+          </div>
+        ) : (
+          <PaginationItem>
+            <PaginationLinkItem
+              href={createPageUrl(Math.max(1, currentPage - 1))}
+              aria-disabled={currentPage === 1}
+              className={cn('flex items-center font-medium p-1 gap-2')}
+            >
+              <CircleArrowLeft className="h-4 w-4" />
+              <span className="hidden md:inline">Anterior</span>
+            </PaginationLinkItem>
+          </PaginationItem>
+        )}
 
-        {pagesArray.map((page, index) => {
-          {
-            if (page == 'start-ellipsis' || page == 'end-ellipsis') {
-              return (
-                <PaginationItem key={`ellipsis-${index}`}>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              );
-            } else {
-              if (typeof page == 'number') {
+        <div className="hidden md:flex items-center">
+          {pagesArray.map((page, index) => {
+            {
+              if (page == 'start-ellipsis' || page == 'end-ellipsis') {
                 return (
-                  <PaginationItem key={`number-${index}`}>
-                    <PaginationLinkItem
-                      href={createPageUrl(page)}
-                      isActive={page === currentPage}
-                    >
-                      {page}
-                    </PaginationLinkItem>
+                  <PaginationItem key={`ellipsis-${index}`}>
+                    <PaginationEllipsis />
                   </PaginationItem>
                 );
+              } else {
+                if (typeof page == 'number') {
+                  return (
+                    <PaginationItem key={`number-${index}`}>
+                      <PaginationLinkItem
+                        href={createPageUrl(page)}
+                        isActive={page === currentPage}
+                      >
+                        {page}
+                      </PaginationLinkItem>
+                    </PaginationItem>
+                  );
+                }
               }
             }
-          }
-        })}
+          })}
+        </div>
 
-        <PaginationItem>
-          <PaginationLinkItem
-            href={createPageUrl(Math.min(totalPages, currentPage + 1))}
-            aria-disabled={currentPage === totalPages}
-            className={cn('flex items-center font-medium p-1 gap-1')}
-          >
+        <div className="md:hidden">
+          {currentPage} de {totalPages}
+        </div>
+
+        {currentPage === totalPages ? (
+          <div className="flex gap-2 p-1 items-center font-semibold text-gray-400">
+            {' '}
             <span className="hidden md:inline">Próximo</span>
-            <ChevronRight className="h-4 w-4" />
-          </PaginationLinkItem>
-        </PaginationItem>
+            <CircleArrowRight className="h-4 w-4" />
+          </div>
+        ) : (
+          <PaginationItem>
+            <PaginationLinkItem
+              href={createPageUrl(Math.min(totalPages, currentPage + 1))}
+              aria-disabled={currentPage === totalPages}
+              className={cn('flex items-center font-medium p-1 gap-2')}
+            >
+              <span className="hidden md:inline">Próximo</span>
+              <CircleArrowRight className="h-4 w-4" />
+            </PaginationLinkItem>
+          </PaginationItem>
+        )}
       </PaginationContent>
     </Pagination>
   );

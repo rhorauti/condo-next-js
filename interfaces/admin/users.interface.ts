@@ -5,10 +5,10 @@ export interface IAdminUsersPageInfo {
     blockUnit: string;
     lotUnit: string;
   };
-  users: IAdminUsers[];
+  users: IAdminUser[];
 }
 
-export interface IAdminUsers {
+export interface IAdminUser {
   idUser: number;
   createdAt: string;
   name: string;

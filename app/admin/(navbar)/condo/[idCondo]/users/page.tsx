@@ -11,34 +11,37 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { onGetAdminUsersPageInfo } from '@/http/admin/users.http';
-import { IAdminUsersPageInfo } from '@/interfaces/admin/users.interface';
+import {
+  IAdminUser,
+  IAdminUsersPageInfo,
+} from '@/interfaces/admin/users.interface';
 import { IAskDialog } from '@/interfaces/modal.interface';
 import { cn } from '@/lib/utils';
-import { formatDateTime } from '@/utils/misc';
 import {
   Check,
   CircleAlert,
-  Mail,
   Pencil,
   Plus,
   UserCheck,
   UserLock,
-  Users,
 } from 'lucide-react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { pageInfo } from './mock';
+import { toast } from 'sonner';
 
 export default function Page() {
   const params = useParams();
-  const qtyPerPage = 1;
+  const qtyPerPage = 8;
   const searchParams = useSearchParams();
+  const pageQueryParams = searchParams.get('page');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchBarValue, setSearchBarValue] = useState<string>();
   const [headers, setHeaders] = useState<string[]>([]);
   const [idCondo, setIdCondo] = useState('');
   const [adminUsersPageInfo, setAdminUsersPageInfo] =
     useState<IAdminUsersPageInfo>();
+  const [userData, setUserData] = useState<IAdminUser>();
   const [askDialog, setAskDialog] = useState<IAskDialog>({
     description: '',
     isActive: false,
@@ -48,9 +51,9 @@ export default function Page() {
   const gridCols = 'md:grid-cols-[1fr_1fr_4fr_4fr_4fr_1fr_1fr_1fr_4fr]';
 
   useEffect(() => {
-    const page = searchParams.get('page');
-    setCurrentPage(Number(page) ?? 1);
-  }, [searchParams]);
+    const pageFromQuery = Number(pageQueryParams);
+    setCurrentPage(!pageFromQuery || pageFromQuery < 1 ? 1 : pageFromQuery);
+  }, [pageQueryParams]);
 
   useEffect(() => {
     const id = (params.idCondo as string) ?? '';
@@ -72,9 +75,7 @@ export default function Page() {
         'Telefone',
         pageInfo.condo.blockUnit,
         pageInfo.condo.lotUnit,
-        // adminUsersPageInfo ? adminUsersPageInfo.condo.blockUnit : '',
-        // adminUsersPageInfo ? adminUsersPageInfo.condo.lotUnit : '',
-        'E-mail confirmado?',
+        'E-mail validado?',
         'Ações',
       ]);
     }
@@ -89,22 +90,25 @@ export default function Page() {
     return currentPage * qtyPerPage;
   }, [currentPage, qtyPerPage]);
 
-  const onFilter = (): void => {};
+  const onFilter = (): void => {
+    console.log('value', searchBarValue);
+  };
 
-  const onShowAskDialog = (name: string): void => {
+  const onShowAskDialog = (user: IAdminUser): void => {
+    setUserData(user);
     setAskDialog((prev) => {
-      if (prev.isActive) {
+      if (user.isActive) {
         return {
           ...prev,
           title: 'Desativar usuário',
-          description: `Deseja desativar o usuário ${name}`,
-          isActive: false,
+          description: `Deseja desativar o usuário ${user.name}`,
+          isActive: true,
         };
       } else {
         return {
           ...prev,
           title: 'Ativar usuário',
-          description: `Deseja ativar o usuário ${name}`,
+          description: `Deseja ativar o usuário ${user.name}`,
           isActive: true,
         };
       }
@@ -117,22 +121,36 @@ export default function Page() {
       return {
         ...prev,
         users: prev?.users.map((user) => {
-          return {
-            ...user,
-            isActive: !user.isActive,
-          };
+          if (user.idUser != userData?.idUser) {
+            return user;
+          } else {
+            return {
+              ...user,
+              isActive: !user.isActive,
+            };
+          }
         }),
       };
     });
     setAskDialog((prev) => {
       return { ...prev, isActive: false };
     });
+    toast.success(
+      `Usuário ${userData?.name} ${userData?.isActive ? 'desativado' : 'ativado'} com sucesso!`,
+      {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {},
+        },
+      }
+    );
   };
 
   return (
     <div className="flex flex-col gap-5 w-full">
       <h1 className="font-medium md:text-2xl text-center">
-        Usuários do condomínio {pageInfo.condo.name}
+        Usuários do condomínio {adminUsersPageInfo?.condo.name}
       </h1>
       <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-2 h-full overflow-auto">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -177,7 +195,7 @@ export default function Page() {
             ))}
           </div>
         </div>
-        {pageInfo.users
+        {adminUsersPageInfo?.users
           .slice(startSlicedItem, lastSlicedItem)
           .map((user, index) => (
             <div
@@ -263,11 +281,25 @@ export default function Page() {
                   user.isActive ? '' : 'opacity-40'
                 )}
               >
-                <span className="md:hidden">E-mail confirmado?:</span>
+                <span className="md:hidden">E-mail validado?</span>
                 {user.isEmailConfirmed ? (
-                  <Check className="bg-green-800 rounded-full p-1 text-white" />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Check className="bg-green-800 rounded-full p-1 text-white" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Validado</p>
+                    </TooltipContent>
+                  </Tooltip>
                 ) : (
-                  <CircleAlert className="bg-red-700 rounded-full p-1 text-white" />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <CircleAlert className="bg-red-700 rounded-full p-1 text-white" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Não validado</p>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
               <div className="flex justify-center gap-3 my-2 md:my-1">
@@ -290,7 +322,7 @@ export default function Page() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          onClick={() => onShowAskDialog(user.name)}
+                          onClick={() => onShowAskDialog(user)}
                           variant="default"
                           size={'icon'}
                           className="bg-green-800 hover:bg-green-700"
@@ -309,7 +341,7 @@ export default function Page() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          onClick={() => onShowAskDialog(user.name)}
+                          onClick={() => onShowAskDialog(user)}
                           variant="default"
                           size={'icon'}
                           className="bg-red-800 hover:bg-red-700"
@@ -346,7 +378,7 @@ export default function Page() {
             </div>
           ))}
         <PaginationComponent
-          dataLength={pageInfo.users.length}
+          dataLength={adminUsersPageInfo?.users.length ?? 1}
           qtyPerPage={qtyPerPage}
         />
       </div>
