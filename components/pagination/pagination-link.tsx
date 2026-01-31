@@ -11,7 +11,7 @@ export function PaginationLinkItem({
       href={href || '#'}
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-400 text-sm',
+        'inline-flex h-7 w-7 items-center justify-center rounded-lg border border-gray-400 text-sm',
         isActive && 'bg-primary text-primary-foreground'
       )}
       {...props}

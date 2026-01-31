@@ -30,7 +30,11 @@ const PaginationItem = React.forwardRef<
   HTMLLIElement,
   React.ComponentProps<'li'>
 >(({ className, ...props }, ref) => (
-  <li ref={ref} className={cn('p-1 hover:bg-accent', className)} {...props} />
+  <li
+    ref={ref}
+    className={cn('p-1 hover:bg-accent rounded-lg', className)}
+    {...props}
+  />
 ));
 PaginationItem.displayName = 'PaginationItem';
 

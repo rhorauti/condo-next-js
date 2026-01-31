@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 interface ISearchBarProps {
   placeholder?: string;
   onInputText: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
   onClick: () => void;
   className?: string;
 }
@@ -15,6 +16,7 @@ interface ISearchBarProps {
 export default function SearchBar({
   placeholder = 'Procurar uma palavra...',
   onInputText,
+  onKeyDown,
   onClick,
   className,
 }: ISearchBarProps) {
@@ -27,6 +29,8 @@ export default function SearchBar({
   return (
     <div className={cn('flex w-full', className)}>
       <input
+        type="search"
+        onKeyDown={onKeyDown}
         onInput={handleInput}
         id={`search-bar-${id}`}
         className="border border-r-0 rounded-l-md border-gray-400 px-4 py-1 outline-none text-base grow"

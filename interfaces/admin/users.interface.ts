@@ -1,11 +1,13 @@
 export interface IAdminUsersPageInfo {
-  condo: {
-    idCondo: number;
-    name: string;
-    blockUnit: string;
-    lotUnit: string;
-  };
+  condo: ICondoInfo;
   users: IAdminUser[];
+}
+
+export interface ICondoInfo {
+  idCondo: number;
+  name: string;
+  blockUnit: string;
+  lotUnit: string;
 }
 
 export interface IAdminUser {

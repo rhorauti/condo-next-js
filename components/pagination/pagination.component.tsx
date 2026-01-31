@@ -82,7 +82,7 @@ export function PaginationComponent({
     <Pagination>
       <PaginationContent className={cn('text-sm')}>
         {currentPage == 1 ? (
-          <div className="flex gap-2 p-1 items-center font-semibold text-gray-400">
+          <div className="flex gap-2 p-1 items-center font-semibold text-gray-400 dark:text-gray-500">
             <CircleArrowLeft className="h-4 w-4" />
             <span className="hidden md:inline">Anterior</span>
           </div>
@@ -131,7 +131,7 @@ export function PaginationComponent({
         </div>
 
         {currentPage === totalPages ? (
-          <div className="flex gap-2 p-1 items-center font-semibold text-gray-400">
+          <div className="flex gap-2 p-1 items-center font-semibold text-gray-400 dark:text-gray-500">
             {' '}
             <span className="hidden md:inline">Próximo</span>
             <CircleArrowRight className="h-4 w-4" />

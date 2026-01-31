@@ -28,7 +28,7 @@ export const pageInfo: IAdminUsersPageInfo = {
     {
       idUser: 2,
       createdAt: '2025-02-28',
-      name: 'Rafael Horauti 2 asdfas fasd asf as fas d',
+      name: 'Daniela Nakano',
       phone: '5511941221211',
       email: 'rafael_h44@hotmail.com',
       photoUrl: 'https://github.com/shadcn.png',
@@ -45,7 +45,7 @@ export const pageInfo: IAdminUsersPageInfo = {
     {
       idUser: 3,
       createdAt: '2025-02-28',
-      name: 'Rafael Horauti 3',
+      name: 'Lucas Ryo',
       phone: '5511941221211',
       email: 'rafael_h44@hotmail.com',
       photoUrl: 'https://github.com/shadcn.png',
@@ -62,7 +62,7 @@ export const pageInfo: IAdminUsersPageInfo = {
     {
       idUser: 4,
       createdAt: '2025-02-28',
-      name: 'Rafael Horauti 4',
+      name: 'Lucas Ryo Horauti',
       phone: '5511941221211',
       email: 'rafael_h44@hotmail.com',
       photoUrl: 'https://github.com/shadcn.png',
@@ -79,7 +79,7 @@ export const pageInfo: IAdminUsersPageInfo = {
     {
       idUser: 5,
       createdAt: '2025-02-28',
-      name: 'Rafael Horauti 1',
+      name: 'Assunção',
       phone: '5511941221211',
       email: 'rafael_h44@hotmail.com',
       photoUrl: 'https://github.com/shadcn.png',
@@ -97,7 +97,7 @@ export const pageInfo: IAdminUsersPageInfo = {
       idUser: 6,
       createdAt: '2025-02-28',
       phone: '5511941221211',
-      name: 'Rafael Horauti 2 asdfas fasd asf as fas d',
+      name: 'Fátima',
       email: 'rafael_h44@hotmail.com',
       photoUrl: 'https://github.com/shadcn.png',
       fallbackName: 'RH',
