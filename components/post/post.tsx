@@ -14,7 +14,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { IPost } from '@/interfaces/post.interface';
+import { IPost } from '@/interfaces/web/post.interface';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,14 +25,14 @@ import {
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { PostCommentsDialog } from './post-comments-dialog';
-import useAuthStore from '@/store/auth.store';
 import PostDescription from './post-description';
 import { PostTime } from './post-time';
 import PostCarousel from './post-carousel';
-import { translatePostToString } from '@/enum/post.enum';
+import { translatePostToString } from '@/enum/web/post.enum';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import useAuthStore from '@/store/web/auth.store';
 
 interface IProps {
   isMyPosts: boolean;

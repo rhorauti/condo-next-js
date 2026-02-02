@@ -10,12 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { onGetAdminUsersPageInfo } from '@/http/admin/users.http';
-import {
-  IAdminUser,
-  IAdminUsersPageInfo,
-  ICondoInfo,
-} from '@/interfaces/admin/users.interface';
+import { IAdminUserHome } from '@/interfaces/admin/users.interface';
 import { IAskDialog } from '@/interfaces/modal.interface';
 import { cn } from '@/lib/utils';
 import {
@@ -37,6 +32,10 @@ import { pageInfo } from './mock';
 import { toast } from 'sonner';
 import { ITableHeaders } from '@/interfaces/admin/table.interface';
 import { usersTableHeaders } from './tableHeaders';
+import { IAdminCondoUserHome } from '@/interfaces/admin/condo.interface';
+import { formatTelephoneNumber } from '@/utils/misc';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Page() {
   const pathname = usePathname();
@@ -50,10 +49,10 @@ export default function Page() {
   const [tableHeaders, setTableHeaders] =
     useState<ITableHeaders[]>(usersTableHeaders);
   const [idCondo, setIdCondo] = useState('');
-  const [condoInfo, setCondoInfo] = useState<ICondoInfo>();
-  const [initialUserList, setInitialUserList] = useState<IAdminUser[]>();
-  const [userList, setUserList] = useState<IAdminUser[]>();
-  const [userData, setUserData] = useState<IAdminUser>();
+  const [condoInfo, setCondoInfo] = useState<IAdminCondoUserHome>();
+  const [initialUserList, setInitialUserList] = useState<IAdminUserHome[]>();
+  const [userList, setUserList] = useState<IAdminUserHome[]>();
+  const [userData, setUserData] = useState<IAdminUserHome>();
   const [askDialog, setAskDialog] = useState<IAskDialog>({
     description: '',
     isActive: false,
@@ -105,7 +104,7 @@ export default function Page() {
     return currentPage * qtyPerPage;
   }, [currentPage, qtyPerPage]);
 
-  const onFilter = (list: IAdminUser[]): void => {
+  const onFilter = (list: IAdminUserHome[]): void => {
     const term = searchBarValue?.toLocaleLowerCase().trim() ?? '';
 
     if (!term) {
@@ -151,7 +150,7 @@ export default function Page() {
     }
   };
 
-  const onShowAskDialog = (user: IAdminUser): void => {
+  const onShowAskDialog = (user: IAdminUserHome): void => {
     setUserData(user);
     setAskDialog((prev) => {
       if (user.isActive) {
@@ -218,6 +217,7 @@ export default function Page() {
           />
         </div>
         <Button
+          onClick={() => router.push(`/admin/condo/${idCondo}/users/${0}`)}
           variant="default"
           size={'sm'}
           className={cn('flex gap-2 h-full py-2 sm:py-0')}
@@ -297,11 +297,30 @@ export default function Page() {
             </div>
             <div
               className={cn(
-                'text-sm text-wrap break-words text-center md:text-start',
+                'flex gap-2 text-sm text-wrap break-words text-center md:text-start',
                 user.isActive ? '' : 'opacity-40'
               )}
             >
-              {user.phone}
+              <span>{formatTelephoneNumber(user.phone)}</span>
+              {user.isWhatsapp && user.isActive && (
+                <Link href={`https://wa.me/${user.phone}`}>
+                  <Image
+                    src="/whatsapp.png"
+                    alt="whatsapp image"
+                    width={16}
+                    height={16}
+                    className="cursor-pointer"
+                  />
+                </Link>
+              )}
+              {user.isWhatsapp && !user.isActive && (
+                <Image
+                  src="/whatsapp.png"
+                  alt="whatsapp image"
+                  width={16}
+                  height={16}
+                />
+              )}
             </div>
             <div
               className={cn(

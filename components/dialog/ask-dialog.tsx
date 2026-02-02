@@ -41,7 +41,7 @@ export function AskDialog({
               Fechar
             </Button>
           </DialogClose>
-          <DialogClose>
+          <DialogClose asChild>
             <Button onClick={onActionOk} variant="default">
               Sim
             </Button>

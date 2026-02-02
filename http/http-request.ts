@@ -1,5 +1,5 @@
 import { IFetchResponse } from '@/interfaces/response.interface';
-import { ICSRFTokenResponse } from '@/interfaces/auth.interface';
+import { ICSRFTokenResponse } from '@/interfaces/web/auth.interface';
 
 interface HttpConfig {
   endpoint: string;
@@ -65,7 +65,6 @@ export async function httpRequest({
     }
   }
 
-  console.log('NEXT_PUBLIC_API_URL', process.env.NEXT_PUBLIC_API_URL);
   const url = `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`;
 
   const isFormData =

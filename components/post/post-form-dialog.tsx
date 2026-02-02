@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
-import { IPost } from '@/interfaces/post.interface';
+import { IPost } from '@/interfaces/web/post.interface';
 import z, { set } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,15 +18,15 @@ import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { POST_TYPE, translatePostToString } from '@/enum/post.enum';
-import useAuthStore from '@/store/auth.store';
+import { POST_TYPE, translatePostToString } from '@/enum/web/post.enum';
 import ControlledTextArea from '../text-area/controlled.text-area';
 import { ControlledSelect } from '../select/controlled-select';
 import { CarouselForm } from '../carousel/carousel-form';
 import { AskDialog } from '../dialog/ask-dialog';
 import { IAskDialog } from '@/interfaces/modal.interface';
 import { toast } from 'sonner';
-import { savePost } from '@/http/post/posts.http';
+import useAuthStore from '@/store/web/auth.store';
+import { savePost } from '@/http/web/post/posts.http';
 
 interface IProps {
   showDialog: boolean;

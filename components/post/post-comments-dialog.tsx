@@ -11,24 +11,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
-import { IPostComment } from '@/interfaces/post.interface';
+import { IPostComment } from '@/interfaces/web/post.interface';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useRouter } from 'next/navigation';
-import useAuthStore from '@/store/auth.store';
 import { Textarea } from '../ui/textarea';
 import { PostTime } from './post-time';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { FileText, HeartIcon, X } from 'lucide-react';
 import PostResponseBox from './post-response-box';
 import PostDescription from './post-description';
-import { getPostCommentList } from '@/http/post/posts.http';
 import { set } from 'date-fns';
 import { toast } from 'sonner';
 import { comment } from 'postcss';
 import { cp } from 'fs';
 import { Alert, AlertDescription } from '../ui/alert';
 import Link from 'next/link';
+import useAuthStore from '@/store/web/auth.store';
 
 const commentsTest: IPostComment[] = [
   {
@@ -290,7 +289,7 @@ export function PostCommentsDialog({
       (comment) => (comment.idComment || 0) == idComment
     );
     if (comment) {
-      setName(comment.name);
+      setName(comment.name || '');
       setIsResponseBoxActive(true);
     }
   };

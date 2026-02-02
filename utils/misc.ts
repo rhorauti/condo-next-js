@@ -115,15 +115,22 @@ export function isTelephoneNumberValid(telefone: string) {
   return /\(\d{2}\)\s{1}\d{4,5}-\d{4}/.test(telefone);
 }
 
-export function formatDateTime(date: string | Date) {
-  return new Date(date).toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'America/Sao_Paulo',
-  });
+export function formatDateTime(date: string | Date, showHours = false) {
+  if (showHours) {
+    return new Date(date).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } else {
+    return new Date(date).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  }
 }
 
 export function isNullOrWhitespace(info: string | null) {
@@ -142,19 +149,51 @@ export function formatCpfOrCnpj(value: string): string {
   return '';
 }
 
-export function formatTelephoneNumber(number: string): string {
-  const telNumber = number.replace(/\D/g, '');
-  if (!telNumber) return '';
+export function formatTelephoneNumber(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
 
-  if (telNumber.length <= 2) {
-    return `(${telNumber}`;
-  } else if (telNumber.length <= 6) {
-    return `(${telNumber.substring(0, 2)}) ${telNumber.substring(2)}`;
-  } else if (telNumber.length <= 10) {
-    return `(${telNumber.substring(0, 2)}) ${telNumber.substring(2, 6)}-${telNumber.substring(6)}`;
-  } else {
-    return `(${telNumber.substring(0, 2)}) ${telNumber.substring(2, 7)}-${telNumber.substring(7)}`;
+  if (!digits) return '';
+
+  // remove DDI 55 se vier
+  const withoutDDI = digits.startsWith('55') ? digits.slice(2) : digits;
+
+  // precisa ter pelo menos DDD (2) + número (8 ou 9)
+  if (withoutDDI.length < 10) return '';
+
+  const ddd = withoutDDI.slice(0, 2);
+  const local = withoutDDI.slice(2); // 8 ou 9 dígitos
+
+  if (local.length === 8) {
+    // fixo: 8 dígitos -> nnnn-nnnn
+    const first = local.slice(0, 4);
+    const last = local.slice(4);
+    return `+55 (${ddd}) ${first}-${last}`;
   }
+
+  if (local.length === 9) {
+    // celular: 9 dígitos -> nnnnn-nnnn
+    const first = local.slice(0, 5);
+    const last = local.slice(5);
+    return `+55 (${ddd}) ${first}-${last}`;
+  }
+
+  // se vier com mais coisas, pega só os últimos 8 ou 9 como número
+  const local8 = local.slice(-8);
+  const local9 = local.slice(-9);
+
+  if (local8.length === 8) {
+    const first = local8.slice(0, 4);
+    const last = local8.slice(4);
+    return `+55 (${ddd}) ${first}-${last}`;
+  }
+
+  if (local9.length === 9) {
+    const first = local9.slice(0, 5);
+    const last = local9.slice(5);
+    return `+55 (${ddd}) ${first}-${last}`;
+  }
+
+  return '';
 }
 
 export const isUTCDate = (value: Date | number | string): boolean => {

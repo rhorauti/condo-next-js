@@ -82,13 +82,13 @@ export default function Page() {
             <nav className="hidden gap-4 md:flex">
               <div className="flex items-center gap-2">
                 {!mounted ? (
-                  <Button variant="primary" size="icon">
+                  <Button variant="default" size="icon">
                     <Sun className="h-[1.2rem] w-[1.2rem]" />
                   </Button>
                 ) : (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="primary" size="icon">
+                      <Button variant="default" size="icon">
                         <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
                         <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
                       </Button>
@@ -99,7 +99,7 @@ export default function Page() {
                         className={cn('py-[0.2rem]')}
                       >
                         <Button
-                          variant="primary"
+                          variant="default"
                           size="sm"
                           className={cn(
                             'flex gap-2 justify-start items-center w-full hover:text-white'
@@ -116,7 +116,7 @@ export default function Page() {
                         className={cn('py-[0.2rem]')}
                       >
                         <Button
-                          variant="primary"
+                          variant="default"
                           size="sm"
                           className={cn(
                             'flex gap-2 justify-start items-center w-full hover:text-white'
@@ -133,7 +133,7 @@ export default function Page() {
                         className={cn('py-[0.2rem]')}
                       >
                         <Button
-                          variant="primary"
+                          variant="default"
                           size="sm"
                           className={cn(
                             'flex gap-2 justify-start items-center w-full hover:text-white'

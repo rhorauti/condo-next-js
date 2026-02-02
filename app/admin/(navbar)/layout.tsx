@@ -1,4 +1,4 @@
-import AdminNavbar from '@/components/navbar/navbar.admin';
+import AdminNavbar from '@/components/navbar/navbar-admin';
 
 type AdminHomeLayoutProps = {
   children?: React.ReactNode;

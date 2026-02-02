@@ -16,9 +16,9 @@ import { SendHorizontal, Smile, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import useAuthStore from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import useAuthStore from '@/store/web/auth.store';
 
 interface IProps {
   idPost: number;
