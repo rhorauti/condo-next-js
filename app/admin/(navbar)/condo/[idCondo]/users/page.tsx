@@ -10,7 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { IAdminUserHome } from '@/interfaces/admin/users.interface';
+import { IAdminUserHome } from '@/interfaces/admin/admin-users.interface';
 import { IAskDialog } from '@/interfaces/modal.interface';
 import { cn } from '@/lib/utils';
 import {

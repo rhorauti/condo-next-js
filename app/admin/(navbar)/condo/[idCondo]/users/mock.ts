@@ -1,4 +1,4 @@
-import { IAdminUsersHome } from '@/interfaces/admin/users.interface';
+import { IAdminUsersHome } from '@/interfaces/admin/admin-users.interface';
 
 export const pageInfo: IAdminUsersHome = {
   condo: {

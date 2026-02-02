@@ -1,10 +1,10 @@
 import {
-  IAdminUserDetail,
   IAdminUserHome,
   IAdminUsersHome,
-} from '@/interfaces/admin/users.interface';
+} from '@/interfaces/admin/admin-users.interface';
 import { httpRequest } from '../../http-request';
 import { IFetchResponse } from '@/interfaces/response.interface';
+import { IUserDetail } from '@/interfaces/user.interface';
 
 export const onGetAdminUsersPageInfo = async (
   idCondo: number
@@ -28,7 +28,7 @@ export const onChangeUserActivationStatus = async (
 export const onGetAdminUserInfo = async (
   idCondo: number,
   idUser: number
-): Promise<IFetchResponse<IAdminUserDetail>> => {
+): Promise<IFetchResponse<IUserDetail>> => {
   return await httpRequest({
     endpoint: `admin/condo/${idCondo}/users/${idUser}`,
     method: 'GET',
