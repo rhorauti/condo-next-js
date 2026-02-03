@@ -29,7 +29,7 @@ export function InfoDialog({
 }: IInfoDialogProps) {
   return (
     <Dialog open={isActive} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[30rem]">
         <DialogHeader className="flex flex-col items-center gap-2">
           {isDialogFailure ? (
             <CircleX className="h-10 w-10 p-2 bg-destructive text-white rounded-full" />

@@ -49,7 +49,7 @@ export function DeleteDialog({
 
   return (
     <Dialog open={isActive}>
-      <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
+      <DialogContent className="sm:max-w-[30rem]" showCloseButton={false}>
         <DialogHeader className="flex flex-col items-center gap-2">
           <Trash className="bg-destructive h-10 w-10 p-2 text-white rounded-full text-foreground" />
           <DialogTitle>{title}</DialogTitle>

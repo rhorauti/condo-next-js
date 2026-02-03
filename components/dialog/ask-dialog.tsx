@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
-import { Info, Trash } from 'lucide-react';
+import { Info, Trash, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export type AskDialogIconType = 'info' | 'danger';
@@ -19,6 +19,7 @@ export interface IAskDialogProps {
   isActive: boolean;
   title: string;
   description: string;
+  showCloseButton?: boolean;
   type?: AskDialogIconType;
   onActionNok: () => void;
   onActionOk: () => void;
@@ -28,6 +29,7 @@ export function AskDialog({
   isActive = false,
   title,
   description,
+  showCloseButton = false,
   type = 'info',
   onActionNok,
   onActionOk,
@@ -38,8 +40,11 @@ export function AskDialog({
   }, [isActive]);
 
   return (
-    <Dialog open={isActive}>
-      <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
+    <Dialog open={isActive} onOpenChange={onActionNok}>
+      <DialogContent
+        className="sm:max-w-[30rem]"
+        showCloseButton={showCloseButton}
+      >
         <DialogHeader className="flex flex-col items-center gap-2">
           {dialogType == 'info' ? (
             <Info className="bg-blue-800 dark:bg-blue-500 text-white h-10 w-10 p-2 rounded-full" />
@@ -53,7 +58,7 @@ export function AskDialog({
         <DialogFooter>
           <DialogClose asChild>
             <Button onClick={onActionNok} variant="secondary">
-              Fechar
+              Não
             </Button>
           </DialogClose>
           <DialogClose asChild>

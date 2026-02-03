@@ -1,5 +1,5 @@
 export const userDetailsMock = {
-  idUser: 1,
+  idUser: 0,
   createdAt: '2025-05-10',
   name: 'Rafael Horauti',
   birthDate: new Date(),
@@ -8,7 +8,7 @@ export const userDetailsMock = {
   media: null,
   fallbackName: 'RH',
   isActive: true,
-  isEmailConfirmed: true,
+  isEmailConfirmed: false,
   isWhatsapp: true,
   accessLevel: 1,
   address: {

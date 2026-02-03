@@ -1,6 +1,9 @@
 'use client';
 
-import { onGetAdminUserInfo } from '@/http/admin/auth/users-admin.http';
+import {
+  onGetAdminUserInfo,
+  onSendEmailToCreateUser,
+} from '@/http/admin/auth/users-admin.http';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useId, useState } from 'react';
 import { z } from 'zod';
@@ -14,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { Popover } from '@radix-ui/react-popover';
 import { PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { formatDateTime } from '@/utils/misc';
+import { formatDateTime, onRemoveMask } from '@/utils/misc';
 import { Switch } from '@/components/ui/switch';
 import { InputMask, format } from '@react-input/mask';
 import { ProfileImgUpload } from '@/components/file-upload/profile-img-upload';
@@ -57,9 +60,19 @@ const adminUserSchema = z.object({
   email: z
     .email('Formato de e-mail inválido.')
     .nonempty('O email é obrigatório.'),
-  phone: z.string().refine((v) => v.replace(/\D/g, '').length >= 13, {
-    message: 'Número de telefone incompleto.',
-  }),
+  phone: z
+    .string()
+    .optional()
+    .refine(
+      (v) => {
+        if (!v || !v.trim()) return true;
+        const digits = v.replace(/[\D]/g, '').trim();
+        return digits.length == 12 || digits.length == 13;
+      },
+      {
+        message: 'Número de telefone incompleto.',
+      }
+    ),
   mediaFile: z.instanceof(File).optional().nullable(),
   mediaUrl: z
     .object({
@@ -73,7 +86,19 @@ const adminUserSchema = z.object({
   accessLevel: z.number(),
   address: z.object({
     idAddress: z.number().optional(),
-    postalCode: z.string().optional(),
+    postalCode: z
+      .string()
+      .optional()
+      .refine(
+        (v) => {
+          if (!v || !v.trim()) return true;
+          const digits = v.replace(/[\D]/g, '').trim();
+          return digits.length == 8;
+        },
+        {
+          message: 'CEP incompleto.',
+        }
+      ),
     type: z.string().nullable(),
     street: z.string().nullable(),
     number: z.string().nullable(),
@@ -184,6 +209,9 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
 
   const onSetAddressViaCEPValues = async (): Promise<void> => {
     const postalCode = getValues('address.postalCode');
+    if (!postalCode || onRemoveMask(postalCode).length != 8) {
+      return;
+    }
     const response = await getAddressFromCep(postalCode ?? '');
     if (response) {
       setValue('address.street', response.logradouro);
@@ -202,7 +230,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         type: 'danger',
         title: `Excluir ${getValues('name')}?`,
         description:
-          'Deseja excluir permanentemente este registro? Todos os posts, comentários, publicações em marketplace, etc vão ser excluidos e não é possível retornar com os dados.',
+          'Deseja excluir permanentemente este usuário? Todas as publicações deste usuário serão excluidas e não será possível retornar com os dados.',
         isActive: true,
       };
     });
@@ -236,7 +264,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   };
 
   const onDeleteRegister = (): void => {
-    onCloseDeleteDialog();
     toast.success(`${getValues('name')} excluido com sucesso.`, {
       duration: 2000,
       action: {
@@ -244,18 +271,8 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         onClick: () => {},
       },
     });
+    onCloseDeleteDialog();
     router.push(previousUrl);
-  };
-
-  const onShowAskDialogForSendSignUpEmail = (): void => {
-    setAskDialogForDeleteProfile((prev) => {
-      return {
-        ...prev,
-        title: 'Envio de e-mail de cadastro',
-        description: `Deseja enviar email de cadastro para ${getValues('name')}?`,
-        isActive: true,
-      };
-    });
   };
 
   const onCloseAskDialogForSendSignUpEmail = (): void => {
@@ -264,7 +281,65 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     });
   };
 
-  const onSubmit = (): void => {};
+  const onSendSignUpEmail = (): void => {
+    onSendEmailToCreateUser(getValues('email'));
+    toast.success('Login efetuado com sucesso!', {
+      duration: 2000,
+      action: {
+        label: 'Fechar',
+        onClick: () => {},
+      },
+    });
+  };
+
+  const finalData = {
+    idUser: 0,
+    name: '',
+    birthDate: '',
+    email: '',
+    phone: '',
+    mediaUrl: null,
+    mediaFile: null,
+    isActive: false,
+    address: {
+      idAddress: 0,
+      postalCode: '',
+      type: '',
+      street: '',
+      number: '',
+      district: '',
+      city: '',
+      state: '',
+      block: '',
+      lot: '',
+    },
+  };
+
+  const setFinalData = () => {
+    finalData.idUser = getValues('idUser');
+    finalData.name = getValues('name');
+    finalData.birthDate = getValues('birthDate').toISOString();
+    finalData.email = getValues('email');
+    finalData.phone = onRemoveMask(getValues('phone') ?? '');
+    // finalData.mediaUrl = getValues('mediaUrl');
+    finalData.isActive = getValues('isActive');
+    finalData.address.idAddress = getValues('address.idAddress') ?? 0;
+    finalData.address.postalCode = onRemoveMask(
+      getValues('address.postalCode') ?? ''
+    );
+    finalData.address.street = getValues('address.street') ?? '';
+    finalData.address.number = getValues('address.number') ?? '';
+    finalData.address.district = getValues('address.district') ?? '';
+    finalData.address.city = getValues('address.city') ?? '';
+    finalData.address.state = getValues('address.state') ?? '';
+    finalData.address.block = getValues('address.block') ?? '';
+    finalData.address.lot = getValues('address.lot') ?? '';
+  };
+
+  const onSubmit = (): void => {
+    setFinalData();
+    console.log('finalData', finalData);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -700,6 +775,16 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
           <p className="font-medium md:text-lg">Ações</p>
         </div>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          {!getValues('isEmailConfirmed') && (
+            <Button
+              onClick={onSendSignUpEmail}
+              variant={'outline'}
+              className="w-full sm:w-auto"
+              disabled={formState.isSubmitting || !isActive}
+            >
+              Enviar e-mail de cadastro
+            </Button>
+          )}
           <Button
             onClick={onShowAskDialogForDeleteProfile}
             variant={'destructive'}
@@ -709,7 +794,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
             Excluir
           </Button>
           <Button
-            onClick={onShowAskDialogForSendSignUpEmail}
+            type="submit"
             variant={'default'}
             className="w-full sm:w-auto"
             disabled={formState.isSubmitting}
@@ -723,7 +808,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         isActive={askDialogForDeleteProfile.isActive}
         description={askDialogForDeleteProfile.description}
         title={askDialogForDeleteProfile.title}
-        type={askDialogForDeleteProfile.type}
+        type={askDialogForDeleteProfile.type || 'danger'}
         onActionNok={onCloseAskDialogForDeleteProfile}
         onActionOk={onShowDeleteDialogForDeleteProfile}
       />
@@ -732,8 +817,12 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         isActive={askDialogForSendSignUpEmail.isActive}
         description={askDialogForSendSignUpEmail.description}
         title={askDialogForSendSignUpEmail.title}
+        showCloseButton={true}
         onActionNok={onCloseAskDialogForSendSignUpEmail}
-        onActionOk={onSubmit}
+        onActionOk={() => {
+          form.handleSubmit(onSubmit)();
+          onCloseAskDialogForSendSignUpEmail();
+        }}
       />
 
       <DeleteDialog

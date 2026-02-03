@@ -39,7 +39,7 @@ export const onSendEmailToCreateUser = async (
   email: string
 ): Promise<IFetchResponse<void>> => {
   return await httpRequest({
-    endpoint: 'signup-email',
+    endpoint: 'admin/signup-email',
     method: 'POST',
     data: email,
   });
