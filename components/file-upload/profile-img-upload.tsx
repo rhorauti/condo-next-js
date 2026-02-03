@@ -18,6 +18,7 @@ type ImageUploadProps<T extends FieldValues> = {
   fileName: FieldPath<T>;
   setValue: UseFormSetValue<T>;
   urlName: FieldPath<T>;
+  isDisabled?: boolean;
 };
 
 export function ProfileImgUpload<T extends FieldValues>({
@@ -25,6 +26,7 @@ export function ProfileImgUpload<T extends FieldValues>({
   fileName,
   urlName,
   setValue,
+  isDisabled = false,
 }: ImageUploadProps<T>) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const file = useWatch({ control, name: fileName });
@@ -57,6 +59,7 @@ export function ProfileImgUpload<T extends FieldValues>({
         type="file"
         accept="image/*"
         hidden
+        disabled={isDisabled}
         onChange={(e) => {
           const selected = e.target.files?.[0];
           if (!selected) return;
@@ -72,7 +75,12 @@ export function ProfileImgUpload<T extends FieldValues>({
         <Button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="w-[8rem] h-[8rem] md:w-[9rem] md:h-[9rem] bg-transparent hover:bg-gray-100 hover:dark:bg-gray-900 text-foreground border border-border"
+          className={cn(
+            'w-[8rem] h-[8rem] md:w-[9rem] md:h-[9rem] bg-transparent border border-border',
+            isDisabled
+              ? 'text-gray-400 cursor-default hover:bg-transparent'
+              : 'text-foreground hover:bg-gray-100 hover:dark:bg-gray-900'
+          )}
         >
           Upload da foto
         </Button>

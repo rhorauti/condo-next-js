@@ -17,6 +17,7 @@ export const userDetailsMock = {
     type: 'HOUSE',
     street: 'Rua Geraldo Pachedo Valente',
     number: '452',
+    district: 'Horto Florestal',
     city: 'Sorocaba',
     state: 'SP',
     blockType: 'Quadra',

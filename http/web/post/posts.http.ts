@@ -3,8 +3,8 @@ import {
   IPostComment,
   IPostSubComment,
 } from '@/interfaces/web/post.interface';
-import { httpRequest } from '../http-request';
 import { IFetchResponse } from '@/interfaces/response.interface';
+import { httpRequest } from '@/http/http-request';
 
 export const getPostList = async (): Promise<IFetchResponse<IPost[]>> => {
   return await httpRequest({ endpoint: '/posts', method: 'GET' });

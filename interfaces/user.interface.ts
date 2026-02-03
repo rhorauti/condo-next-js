@@ -19,6 +19,7 @@ export interface IUserDetail {
     type: string | null;
     street: string | null;
     number: string | null;
+    district: string | null;
     city: string | null;
     state: string | null;
     blockType: string | null;

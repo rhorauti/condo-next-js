@@ -2,7 +2,8 @@ import { IFetchResponse } from '@/interfaces/response.interface';
 import { ICSRFTokenResponse } from '@/interfaces/web/auth.interface';
 
 interface HttpConfig {
-  endpoint: string;
+  apiUrl?: string;
+  endpoint?: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   contentType?: string;
   jwtToken?: string;
@@ -50,14 +51,19 @@ async function getOrFetchCsrfToken(): Promise<string> {
  * @returns The JSON response data
  */
 export async function httpRequest({
+  apiUrl,
   endpoint,
   method = 'GET',
   contentType = 'application/json',
   jwtToken,
   data,
 }: HttpConfig): Promise<any> {
+  const isExternal = apiUrl;
   let csrfToken: string | undefined;
-  if (method == 'POST' || method == 'PUT' || method == 'DELETE') {
+  if (
+    !isExternal &&
+    (method == 'POST' || method == 'PUT' || method == 'DELETE')
+  ) {
     try {
       csrfToken = await getOrFetchCsrfToken();
     } catch {
@@ -65,14 +71,16 @@ export async function httpRequest({
     }
   }
 
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`;
+  const url = endpoint
+    ? `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`
+    : (apiUrl ?? '/');
 
   const isFormData =
     typeof FormData !== 'undefined' && data instanceof FormData;
 
   const headers: HeadersInit = {
-    ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
-    ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
+    ...(!isExternal && jwtToken && { Authorization: `Bearer ${jwtToken}` }),
+    ...(!isExternal && csrfToken && { 'X-CSRF-Token': csrfToken }),
   };
 
   if (!isFormData) {
@@ -81,7 +89,7 @@ export async function httpRequest({
 
   const options: RequestInit = {
     method,
-    credentials: 'include',
+    credentials: isExternal ? 'omit' : 'include',
     headers,
   };
 

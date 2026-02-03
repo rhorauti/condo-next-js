@@ -32,7 +32,7 @@ import Link from 'next/link';
 import { useId, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
+import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { onCreateUser } from '@/http/web/auth/auth.http';
@@ -66,7 +66,21 @@ export const FORM_ERRORS = {
 };
 
 const signUpSchema = z.object({
-  name: z.string().nonempty(FORM_ERRORS.name),
+  name: z
+    .string()
+    .nonempty(FORM_ERRORS.name)
+    .refine(
+      (value: string) => {
+        const parts = value.trim().split(/\s+/);
+        if (parts.length < 2) return false;
+        if (parts[0].length < 2) return false;
+        return true;
+      },
+      {
+        message:
+          'Informe nome e sobrenome, com o primeiro nome tendo pelo menos 2 letras.',
+      }
+    ),
   password: z
     .string()
     .min(6, FORM_ERRORS.password.min)

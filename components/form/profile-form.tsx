@@ -3,7 +3,7 @@
 import { onGetAdminUserInfo } from '@/http/admin/auth/users-admin.http';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useId, useState } from 'react';
-import z from 'zod';
+import { z } from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
@@ -19,8 +19,14 @@ import { Switch } from '@/components/ui/switch';
 import { InputMask, format } from '@react-input/mask';
 import { ProfileImgUpload } from '@/components/file-upload/profile-img-upload';
 import { IUserDetail } from '@/interfaces/user.interface';
+import { getAddressFromCep } from '@/http/web/third-part/third-part.http';
+import { AskDialog } from '../dialog/ask-dialog';
+import { IAskDialog, IDeleteDialog } from '@/interfaces/modal.interface';
+import { DeleteDialog } from '../dialog/delete-dialog';
+import { toast } from 'sonner';
 
 interface ProfileProps {
+  previousUrl: string;
   userData?: IUserDetail;
 }
 
@@ -28,21 +34,32 @@ const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
 
 const adminUserSchema = z.object({
-  idUser: z.number().optional(),
+  idUser: z.number(),
   createdAt: z.date().optional(),
-  name: z.string().nonempty(),
+  name: z
+    .string()
+    .nonempty('O nome não pode estar vazio.')
+    .refine(
+      (value: string) => {
+        const parts = value.trim().split(/\s+/);
+        if (parts.length < 2) return false;
+        if (parts[0].length < 2) return false;
+        return true;
+      },
+      {
+        message:
+          'Informe nome e sobrenome, com o primeiro nome tendo pelo menos 2 letras.',
+      }
+    ),
   birthDate: z
     .date('Data inválida.')
     .max(eighteenYearsAgo, { message: 'Você deve ter pelo menos 18 anos.' }),
   email: z
     .email('Formato de e-mail inválido.')
     .nonempty('O email é obrigatório.'),
-  phone: z
-    .string()
-    .min(10, 'Número de telefone inválido')
-    .refine((v) => v.replace(/\D/g, '').length >= 10, {
-      message: 'Número de telefone incompleto.',
-    }),
+  phone: z.string().refine((v) => v.replace(/\D/g, '').length >= 13, {
+    message: 'Número de telefone incompleto.',
+  }),
   mediaFile: z.instanceof(File).optional().nullable(),
   mediaUrl: z
     .object({
@@ -60,6 +77,7 @@ const adminUserSchema = z.object({
     type: z.string().nullable(),
     street: z.string().nullable(),
     number: z.string().nullable(),
+    district: z.string().nullable(),
     city: z.string().nullable(),
     state: z.string().nullable(),
     blockType: z.string().nullable(),
@@ -71,9 +89,29 @@ const adminUserSchema = z.object({
 
 export type AdminUserSchema = z.infer<typeof adminUserSchema>;
 
-export default function ProfileForm({ userData }: ProfileProps) {
+export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   const adminUserPageId = useId();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [askDialogForDeleteProfile, setAskDialogForDeleteProfile] =
+    useState<IAskDialog>({
+      description: '',
+      isActive: false,
+      type: 'danger',
+      title: '',
+    });
+  const [askDialogForSendSignUpEmail, setAskDialogForSendSignUpEmail] =
+    useState<IAskDialog>({
+      description: '',
+      isActive: false,
+      type: 'info',
+      title: '',
+    });
+  const [deleteDialog, setDeleteDialog] = useState<IDeleteDialog>({
+    registerName: '',
+    isActive: false,
+    title: '',
+  });
   const form = useForm<AdminUserSchema>({
     resolver: zodResolver(adminUserSchema),
     defaultValues: {
@@ -94,6 +132,7 @@ export default function ProfileForm({ userData }: ProfileProps) {
         type: '',
         street: '',
         number: '',
+        district: '',
         city: '',
         state: '',
         blockType: '',
@@ -104,7 +143,7 @@ export default function ProfileForm({ userData }: ProfileProps) {
     },
   });
 
-  const { reset, setValue, control, formState, watch } = form;
+  const { reset, setValue, getValues, control, formState, watch } = form;
   const isActive = watch('isActive');
 
   useEffect(() => {
@@ -143,6 +182,88 @@ export default function ProfileForm({ userData }: ProfileProps) {
     });
   }, [userData, reset]);
 
+  const onSetAddressViaCEPValues = async (): Promise<void> => {
+    const postalCode = getValues('address.postalCode');
+    const response = await getAddressFromCep(postalCode ?? '');
+    if (response) {
+      setValue('address.street', response.logradouro);
+      setValue('address.district', response.bairro);
+      setValue('address.city', response.localidade);
+      setValue('address.state', response.uf);
+    } else {
+      return;
+    }
+  };
+
+  const onShowAskDialogForDeleteProfile = (): void => {
+    setAskDialogForDeleteProfile((prev) => {
+      return {
+        ...prev,
+        type: 'danger',
+        title: `Excluir ${getValues('name')}?`,
+        description:
+          'Deseja excluir permanentemente este registro? Todos os posts, comentários, publicações em marketplace, etc vão ser excluidos e não é possível retornar com os dados.',
+        isActive: true,
+      };
+    });
+  };
+
+  const onCloseAskDialogForDeleteProfile = (): void => {
+    setAskDialogForDeleteProfile((prev) => {
+      return {
+        ...prev,
+        isActive: false,
+      };
+    });
+  };
+
+  const onCloseDeleteDialog = (): void => {
+    setDeleteDialog((prev) => {
+      return { ...prev, isActive: false };
+    });
+  };
+
+  const onShowDeleteDialogForDeleteProfile = (): void => {
+    onCloseAskDialogForDeleteProfile();
+    setDeleteDialog((prev) => {
+      return {
+        ...prev,
+        title: `Excluir ${getValues('name')}?`,
+        registerName: getValues('name'),
+        isActive: true,
+      };
+    });
+  };
+
+  const onDeleteRegister = (): void => {
+    onCloseDeleteDialog();
+    toast.success(`${getValues('name')} excluido com sucesso.`, {
+      duration: 2000,
+      action: {
+        label: 'Fechar',
+        onClick: () => {},
+      },
+    });
+    router.push(previousUrl);
+  };
+
+  const onShowAskDialogForSendSignUpEmail = (): void => {
+    setAskDialogForDeleteProfile((prev) => {
+      return {
+        ...prev,
+        title: 'Envio de e-mail de cadastro',
+        description: `Deseja enviar email de cadastro para ${getValues('name')}?`,
+        isActive: true,
+      };
+    });
+  };
+
+  const onCloseAskDialogForSendSignUpEmail = (): void => {
+    setAskDialogForSendSignUpEmail((prev) => {
+      return { ...prev, isActive: false };
+    });
+  };
+
   const onSubmit = (): void => {};
 
   return (
@@ -180,45 +301,49 @@ export default function ProfileForm({ userData }: ProfileProps) {
         <div className="flex flex-col-reverse md:flex-row md:items-center gap-4">
           <div className="flex flex-col gap-2 grow">
             <div className="flex flex-col md:flex-row gap-2">
-              <Controller
-                name="idUser"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field className={cn('md:shrink')}>
-                    <FieldLabel
-                      htmlFor={`admin-user-input-id-user-${adminUserPageId}`}
-                    >
-                      Id
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      disabled={formState.isSubmitting || !isActive}
-                      readOnly
-                      id={`admin-user-input-id-user-${adminUserPageId}`}
-                    />
-                  </Field>
-                )}
-              />
-              <Controller
-                name="createdAt"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field className={'md:grow'}>
-                    <FieldLabel
-                      htmlFor={`admin-user-input-created-at-${adminUserPageId}`}
-                    >
-                      Data da criação
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      disabled={formState.isSubmitting || !isActive}
-                      readOnly
-                      id={`admin-user-input-created-at-${adminUserPageId}`}
-                      value={formatDateTime(field.value ?? '') ?? ''}
-                    />
-                  </Field>
-                )}
-              />
+              {getValues('idUser') > 0 && (
+                <>
+                  <Controller
+                    name="idUser"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <Field className={cn('md:shrink')}>
+                        <FieldLabel
+                          htmlFor={`admin-user-input-id-user-${adminUserPageId}`}
+                        >
+                          Id
+                        </FieldLabel>
+                        <Input
+                          {...field}
+                          disabled={formState.isSubmitting || !isActive}
+                          readOnly
+                          id={`admin-user-input-id-user-${adminUserPageId}`}
+                        />
+                      </Field>
+                    )}
+                  />
+                  <Controller
+                    name="createdAt"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <Field className={'md:grow'}>
+                        <FieldLabel
+                          htmlFor={`admin-user-input-created-at-${adminUserPageId}`}
+                        >
+                          Data da criação
+                        </FieldLabel>
+                        <Input
+                          {...field}
+                          disabled={formState.isSubmitting || !isActive}
+                          readOnly
+                          id={`admin-user-input-created-at-${adminUserPageId}`}
+                          value={formatDateTime(field.value ?? '') ?? ''}
+                        />
+                      </Field>
+                    )}
+                  />
+                </>
+              )}
               <Controller
                 name="name"
                 control={control}
@@ -362,6 +487,7 @@ export default function ProfileForm({ userData }: ProfileProps) {
             setValue={setValue}
             fileName="mediaFile"
             urlName="mediaUrl"
+            isDisabled={!isActive}
           />
         </div>
         <div className="flex justify-between bg-slate-700 text-white rounded-md w-full px-2 py-1">
@@ -403,7 +529,7 @@ export default function ProfileForm({ userData }: ProfileProps) {
                     replacement={{ _: /\d/ }}
                     value={field.value ?? ''}
                     onChange={field.onChange}
-                    onBlur={field.onBlur}
+                    onBlur={onSetAddressViaCEPValues}
                     disabled={formState.isSubmitting || !isActive}
                     component={Input}
                     id={`admin-user-input-postal-code-${adminUserPageId}`}
@@ -420,7 +546,7 @@ export default function ProfileForm({ userData }: ProfileProps) {
                   <FieldLabel
                     htmlFor={`admin-user-input-street-${adminUserPageId}`}
                   >
-                    Endereço
+                    Logradouro
                   </FieldLabel>
                   <Input
                     {...field}
@@ -512,6 +638,25 @@ export default function ProfileForm({ userData }: ProfileProps) {
               />
             </div>
             <Controller
+              name="address.district"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field className="grow-[2]">
+                  <FieldLabel
+                    htmlFor={`admin-user-input-district-${adminUserPageId}`}
+                  >
+                    Bairro
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    disabled={formState.isSubmitting || !isActive}
+                    id={`admin-user-input-district-${adminUserPageId}`}
+                    value={field.value || ''}
+                  />
+                </Field>
+              )}
+            />
+            <Controller
               name="address.city"
               control={control}
               render={({ field, fieldState }) => (
@@ -555,17 +700,49 @@ export default function ProfileForm({ userData }: ProfileProps) {
           <p className="font-medium md:text-lg">Ações</p>
         </div>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Button variant={'destructive'} className="w-full sm:w-auto">
+          <Button
+            onClick={onShowAskDialogForDeleteProfile}
+            variant={'destructive'}
+            className="w-full sm:w-auto"
+            disabled={formState.isSubmitting || !isActive}
+          >
             Excluir
           </Button>
-          <Button variant={'outline'} className="w-full sm:w-auto">
-            Enviar e-mail de cadastro
-          </Button>
-          <Button variant={'default'} className="w-full sm:w-auto">
+          <Button
+            onClick={onShowAskDialogForSendSignUpEmail}
+            variant={'default'}
+            className="w-full sm:w-auto"
+            disabled={formState.isSubmitting}
+          >
             Salvar
           </Button>
         </div>
       </form>
+
+      <AskDialog
+        isActive={askDialogForDeleteProfile.isActive}
+        description={askDialogForDeleteProfile.description}
+        title={askDialogForDeleteProfile.title}
+        type={askDialogForDeleteProfile.type}
+        onActionNok={onCloseAskDialogForDeleteProfile}
+        onActionOk={onShowDeleteDialogForDeleteProfile}
+      />
+
+      <AskDialog
+        isActive={askDialogForSendSignUpEmail.isActive}
+        description={askDialogForSendSignUpEmail.description}
+        title={askDialogForSendSignUpEmail.title}
+        onActionNok={onCloseAskDialogForSendSignUpEmail}
+        onActionOk={onSubmit}
+      />
+
+      <DeleteDialog
+        isActive={deleteDialog.isActive}
+        title={deleteDialog.title}
+        registerName={deleteDialog.registerName}
+        onActionNok={onCloseDeleteDialog}
+        onActionOk={onDeleteRegister}
+      />
     </div>
   );
 }

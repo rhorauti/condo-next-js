@@ -34,7 +34,9 @@ export default function Page() {
     <div className="flex flex-col gap-4 w-[75rem] mb-4">
       <div className="flex gap-2 items-center justify-between">
         <h1 className="text-center md:text-2xl text-lg font-semibold">
-          Cadastro de novo usuário
+          {userInfo && userInfo?.idUser > 0
+            ? 'Editar usuário'
+            : 'Cadastro de novo usuário'}
         </h1>
         <Button
           onClick={() => router.push(`/admin/condo/${idCondoParams}/users`)}
@@ -45,7 +47,10 @@ export default function Page() {
           <span className="hidden xs:inline">Voltar</span>
         </Button>
       </div>
-      <ProfileForm userData={userInfo} />
+      <ProfileForm
+        userData={userInfo}
+        previousUrl={`/admin/condo/${idCondoParams}/users`}
+      />
     </div>
   );
 }

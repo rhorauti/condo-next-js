@@ -32,7 +32,7 @@ export function InfoDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader className="flex flex-col items-center gap-2">
           {isDialogFailure ? (
-            <CircleX className="text-destructive rounded-full" size={30} />
+            <CircleX className="h-10 w-10 p-2 bg-destructive text-white rounded-full" />
           ) : (
             <Check
               className="bg-success text-success-foreground p-1 rounded-full"

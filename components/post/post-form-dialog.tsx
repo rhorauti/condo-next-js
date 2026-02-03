@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import { IPost } from '@/interfaces/web/post.interface';
-import z, { set } from 'zod';
+import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';

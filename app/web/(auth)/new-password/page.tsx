@@ -19,7 +19,7 @@ import Link from 'next/link';
 import { useId } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
+import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { onSetNewPassword } from '@/http/web/auth/auth.http';
 
