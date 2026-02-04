@@ -73,7 +73,7 @@ const adminUserSchema = z.object({
         message: 'Número de telefone incompleto.',
       }
     ),
-  mediaFile: z.instanceof(File).optional().nullable(),
+  mediaFile: z.instanceof(File).nullable().optional(),
   mediaObject: z
     .object({
       idMedia: z.number().nullable(),
@@ -343,8 +343,12 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
 
   const onSubmit = (): void => {
     setFinalData();
-    console.log('finalData', finalData);
-    console.log('mediaFile', getValues('mediaFile'));
+    const formData = new FormData();
+    const file = getValues('mediaFile');
+    if (file) {
+      formData.append('file', file);
+    }
+    formData.append('data', JSON.stringify(finalData));
   };
 
   return (
@@ -382,49 +386,47 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         <div className="flex flex-col-reverse md:flex-row md:items-center gap-4">
           <div className="flex flex-col gap-2 grow">
             <div className="flex flex-col md:flex-row gap-2">
-              {getValues('idUser') > 0 && (
-                <>
-                  <Controller
-                    name="idUser"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <Field className={cn('md:shrink')}>
-                        <FieldLabel
-                          htmlFor={`admin-user-input-id-user-${adminUserPageId}`}
-                        >
-                          Id
-                        </FieldLabel>
-                        <Input
-                          {...field}
-                          disabled={formState.isSubmitting || !isActive}
-                          readOnly
-                          id={`admin-user-input-id-user-${adminUserPageId}`}
-                        />
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    name="createdAt"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <Field className={'md:grow'}>
-                        <FieldLabel
-                          htmlFor={`admin-user-input-created-at-${adminUserPageId}`}
-                        >
-                          Data da criação
-                        </FieldLabel>
-                        <Input
-                          {...field}
-                          disabled={formState.isSubmitting || !isActive}
-                          readOnly
-                          id={`admin-user-input-created-at-${adminUserPageId}`}
-                          value={formatDateTime(field.value ?? '') ?? ''}
-                        />
-                      </Field>
-                    )}
-                  />
-                </>
-              )}
+              <>
+                <Controller
+                  name="idUser"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Field className={cn('md:shrink')}>
+                      <FieldLabel
+                        htmlFor={`admin-user-input-id-user-${adminUserPageId}`}
+                      >
+                        Id
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        disabled={formState.isSubmitting || !isActive}
+                        readOnly
+                        id={`admin-user-input-id-user-${adminUserPageId}`}
+                      />
+                    </Field>
+                  )}
+                />
+                <Controller
+                  name="createdAt"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Field className={'md:grow'}>
+                      <FieldLabel
+                        htmlFor={`admin-user-input-created-at-${adminUserPageId}`}
+                      >
+                        Data da criação
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        disabled={formState.isSubmitting || !isActive}
+                        readOnly
+                        id={`admin-user-input-created-at-${adminUserPageId}`}
+                        value={formatDateTime(field.value ?? '') ?? ''}
+                      />
+                    </Field>
+                  )}
+                />
+              </>
               <Controller
                 name="name"
                 control={control}
@@ -805,16 +807,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
           <p className="font-medium md:text-lg">Ações</p>
         </div>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          {!getValues('isEmailConfirmed') && (
-            <Button
-              onClick={onSendSignUpEmail}
-              variant={'outline'}
-              className="w-full sm:w-auto"
-              disabled={formState.isSubmitting || !isActive}
-            >
-              Enviar e-mail de cadastro
-            </Button>
-          )}
           <Button
             onClick={onShowAskDialogForDeleteProfile}
             variant={'destructive'}

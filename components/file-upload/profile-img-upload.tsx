@@ -90,25 +90,31 @@ export function ProfileImgUpload<T extends FieldValues>({
         <div className="relative flex justify-center">
           <Avatar
             className={cn(
-              'border border-gray-400 w-[8rem] h-[8rem] md:w-[9rem] md:h-[9rem] font-semibold'
+              'border border-gray-400 w-[8rem] h-[8rem] md:w-[9rem] md:h-[9rem] font-semibold',
+              isDisabled ? 'opacity-60' : ''
             )}
           >
             <AvatarImage src={preview} className={cn('mx-auto')} />
           </Avatar>
-          <Button
-            variant={'destructive'}
-            type="button"
-            onClick={() => {
-              setPreview(null);
-              setValue(fileName, null as any, { shouldDirty: true });
-              setValue(mediaObject, null as any, {
-                shouldDirty: true,
-              });
-            }}
-            className="absolute h-6 w-6 -top-1 -right-1 p-1 rounded-full"
-          >
-            <X className="text-white" />
-          </Button>
+          {!isDisabled && (
+            <Button
+              variant={'destructive'}
+              type="button"
+              onClick={() => {
+                setPreview(null);
+                setValue(fileName, null as any, { shouldDirty: true });
+                setValue(mediaObject, null as any, {
+                  shouldDirty: true,
+                });
+              }}
+              className={cn(
+                'absolute h-6 w-6 -top-1 -right-1 p-1 rounded-full',
+                isDisabled ? 'opacity-60' : ''
+              )}
+            >
+              <X className={cn('text-white')} />
+            </Button>
+          )}
         </div>
       )}
     </div>

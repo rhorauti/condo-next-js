@@ -34,9 +34,7 @@ export default function Page() {
     <div className="flex flex-col gap-4 w-[75rem] mb-4">
       <div className="flex gap-2 items-center justify-between">
         <h1 className="text-center md:text-2xl text-lg font-semibold">
-          {userInfo && userInfo?.idUser > 0
-            ? 'Editar usuário'
-            : 'Cadastro de novo usuário'}
+          Editar Usuário
         </h1>
         <Button
           onClick={() => router.push(`/admin/condo/${idCondoParams}/users`)}
