@@ -19,7 +19,6 @@ import { PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { formatDateTime, onRemoveMask } from '@/utils/misc';
 import { Switch } from '@/components/ui/switch';
-import { InputMask, format } from '@react-input/mask';
 import { ProfileImgUpload } from '@/components/file-upload/profile-img-upload';
 import { IUserDetail } from '@/interfaces/user.interface';
 import { getAddressFromCep } from '@/http/web/third-part/third-part.http';
@@ -27,6 +26,7 @@ import { AskDialog } from '../dialog/ask-dialog';
 import { IAskDialog, IDeleteDialog } from '@/interfaces/modal.interface';
 import { DeleteDialog } from '../dialog/delete-dialog';
 import { toast } from 'sonner';
+import { IMaskInput } from 'react-imask';
 
 interface ProfileProps {
   previousUrl: string;
@@ -66,7 +66,8 @@ const adminUserSchema = z.object({
     .refine(
       (v) => {
         if (!v || !v.trim()) return true;
-        const digits = v.replace(/[\D]/g, '').trim();
+        const digits = v.replace(/[\D]/g, '');
+        console.log('phone', digits.length);
         return digits.length == 12 || digits.length == 13;
       },
       {
@@ -173,19 +174,13 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
 
   useEffect(() => {
     if (!userData) return;
-
-    const maskOptions = {
-      mask: '+__ (__) _____-____',
-      replacement: { _: /\d/ },
-    };
-
     reset({
       idUser: userData.idUser,
       createdAt: new Date(userData.createdAt),
       name: userData.name,
       birthDate: new Date(userData.birthDate),
       email: userData.email,
-      phone: format(userData.phone ?? '', maskOptions),
+      phone: userData.phone ?? '',
       mediaUrl: userData.media ?? null,
       mediaFile: null,
       photoFile: null,
@@ -321,7 +316,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     finalData.birthDate = getValues('birthDate').toISOString();
     finalData.email = getValues('email');
     finalData.phone = onRemoveMask(getValues('phone') ?? '');
-    // finalData.mediaUrl = getValues('mediaUrl');
     finalData.isActive = getValues('isActive');
     finalData.address.idAddress = getValues('address.idAddress') ?? 0;
     finalData.address.postalCode = onRemoveMask(
@@ -526,10 +520,10 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                   </Field>
                 )}
               />
+
               <Controller
                 name="phone"
                 control={control}
-                rules={{ required: true }}
                 render={({ field, fieldState }) => (
                   <Field className="md:grow-[4]">
                     <FieldLabel
@@ -538,17 +532,23 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                       Telefone
                     </FieldLabel>
 
-                    <InputMask
-                      mask="+__ (__) _____-____"
-                      replacement={{ _: /\d/ }}
+                    <IMaskInput
+                      mask={['+00 (00) 0000-0000', '+00 (00) 00000-0000']}
+                      definitions={{
+                        '0': /[0-9]/,
+                      }}
                       value={field.value ?? ''}
-                      onChange={field.onChange}
+                      onAccept={(value) => field.onChange(value)}
                       onBlur={field.onBlur}
                       disabled={formState.isSubmitting || !isActive}
-                      component={Input}
                       id={`admin-user-input-phone-${adminUserPageId}`}
                       autoComplete="tel"
+                      className={cn(
+                        'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                        fieldState.invalid && 'border-destructive'
+                      )}
                     />
+
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -599,17 +599,28 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                   >
                     Cep
                   </FieldLabel>
-                  <InputMask
-                    mask="_____-___"
-                    replacement={{ _: /\d/ }}
+
+                  <IMaskInput
+                    mask="00000-000"
+                    definitions={{ '0': /[0-9]/ }}
                     value={field.value ?? ''}
-                    onChange={field.onChange}
-                    onBlur={onSetAddressViaCEPValues}
+                    onAccept={(value) => field.onChange(value)}
+                    onBlur={() => {
+                      field.onBlur();
+                      onSetAddressViaCEPValues();
+                    }}
                     disabled={formState.isSubmitting || !isActive}
-                    component={Input}
                     id={`admin-user-input-postal-code-${adminUserPageId}`}
-                    autoComplete="postalCode"
+                    autoComplete="postal-code"
+                    className={cn(
+                      'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                      fieldState.invalid && 'border-destructive'
+                    )}
                   />
+
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               )}
             />
@@ -648,9 +659,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                     value={field.value || ''}
                     id={`admin-user-input-number-${adminUserPageId}`}
                   />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
                 </Field>
               )}
             />
