@@ -8,7 +8,7 @@ export interface IUserDetail {
   email: string;
   phone: string;
   isWhatsapp: boolean;
-  media: IMedia | null;
+  mediaObject: IMedia | null;
   fallbackName: string;
   isActive: boolean;
   isEmailConfirmed: boolean;

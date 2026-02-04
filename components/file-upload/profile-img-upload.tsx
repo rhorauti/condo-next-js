@@ -12,45 +12,45 @@ import { Button } from '../ui/button';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
+import { IMedia } from '@/interfaces/admin/media.interface';
 
 type ImageUploadProps<T extends FieldValues> = {
   control: Control<T>;
   fileName: FieldPath<T>;
   setValue: UseFormSetValue<T>;
-  urlName: FieldPath<T>;
+  mediaObject: FieldPath<T>;
   isDisabled?: boolean;
 };
 
 export function ProfileImgUpload<T extends FieldValues>({
   control,
   fileName,
-  urlName,
+  mediaObject,
   setValue,
   isDisabled = false,
 }: ImageUploadProps<T>) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const file = useWatch({ control, name: fileName });
-  const urlObj = useWatch({ control, name: urlName }) as any;
-  const url = urlObj?.mediaUrl;
+  const urlObj = useWatch({ control, name: mediaObject }) as IMedia | null;
+  const url = urlObj?.mediaUrl ?? null;
 
   const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
+      const imageUrl = URL.createObjectURL(file as File);
       setPreview(imageUrl);
       return () => URL.revokeObjectURL(imageUrl);
     }
 
     if (!file && typeof url == 'string' && url) {
       setPreview(url);
-      console.log('url', url);
     }
 
     if (!file && !url) {
       setPreview(null);
     }
-  }, [file, url]);
+  }, [file, urlObj]);
 
   return (
     <div className="flex items-center flex-col gap-4">
@@ -66,7 +66,7 @@ export function ProfileImgUpload<T extends FieldValues>({
           setValue(fileName, selected as any, {
             shouldDirty: true,
           });
-          setValue(urlName, null as any);
+          setValue(mediaObject, null as any);
           e.target.value = '';
         }}
       />
@@ -99,8 +99,11 @@ export function ProfileImgUpload<T extends FieldValues>({
             variant={'destructive'}
             type="button"
             onClick={() => {
-              setValue(fileName, null as any);
-              setValue(urlName, null as any);
+              setPreview(null);
+              setValue(fileName, null as any, { shouldDirty: true });
+              setValue(mediaObject, null as any, {
+                shouldDirty: true,
+              });
             }}
             className="absolute h-6 w-6 -top-1 -right-1 p-1 rounded-full"
           >

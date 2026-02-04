@@ -11,7 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { ChevronDownIcon } from 'lucide-react';
+import { ChevronDownIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Popover } from '@radix-ui/react-popover';
@@ -67,7 +67,6 @@ const adminUserSchema = z.object({
       (v) => {
         if (!v || !v.trim()) return true;
         const digits = v.replace(/[\D]/g, '');
-        console.log('phone', digits.length);
         return digits.length == 12 || digits.length == 13;
       },
       {
@@ -75,21 +74,20 @@ const adminUserSchema = z.object({
       }
     ),
   mediaFile: z.instanceof(File).optional().nullable(),
-  mediaUrl: z
+  mediaObject: z
     .object({
-      idMedia: z.number().optional().nullable(),
-      mediaUrl: z.string,
+      idMedia: z.number().nullable(),
+      mediaUrl: z.string(),
     })
     .nullable(),
-  photoFile: z.any().optional(),
   isActive: z.boolean(),
-  isEmailConfirmed: z.boolean(),
-  accessLevel: z.number(),
+  isEmailConfirmed: z.boolean().optional(),
+  accessLevel: z.number().optional(),
   address: z.object({
     idAddress: z.number().optional(),
     postalCode: z
       .string()
-      .optional()
+      .nullable()
       .refine(
         (v) => {
           if (!v || !v.trim()) return true;
@@ -100,15 +98,15 @@ const adminUserSchema = z.object({
           message: 'CEP incompleto.',
         }
       ),
-    type: z.string().nullable(),
+    type: z.string().nullable().optional(),
     street: z.string().nullable(),
     number: z.string().nullable(),
     district: z.string().nullable(),
     city: z.string().nullable(),
     state: z.string().nullable(),
-    blockType: z.string().nullable(),
+    blockType: z.string().nullable().optional(),
     block: z.string().nullable(),
-    lotType: z.string().nullable(),
+    lotType: z.string().nullable().optional(),
     lot: z.string().nullable(),
   }),
 });
@@ -119,6 +117,8 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   const adminUserPageId = useId();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [isInputPostalCodeLoading, setIsInputPostalCodeLoading] =
+    useState(false);
   const [askDialogForDeleteProfile, setAskDialogForDeleteProfile] =
     useState<IAskDialog>({
       description: '',
@@ -147,7 +147,10 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       birthDate: new Date('1984-02-28'),
       email: '',
       phone: '',
-      mediaUrl: null,
+      mediaObject: {
+        idMedia: 0,
+        mediaUrl: '',
+      },
       mediaFile: null,
       isActive: false,
       isEmailConfirmed: false,
@@ -181,9 +184,8 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       birthDate: new Date(userData.birthDate),
       email: userData.email,
       phone: userData.phone ?? '',
-      mediaUrl: userData.media ?? null,
+      mediaObject: userData.mediaObject ?? null,
       mediaFile: null,
-      photoFile: null,
       isActive: userData.isActive,
       isEmailConfirmed: userData.isEmailConfirmed,
       accessLevel: userData.accessLevel,
@@ -191,7 +193,9 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         idAddress: userData.address.idAddress,
         type: userData.address.type,
         street: userData.address.street,
+        postalCode: userData.address.postalCode,
         number: userData.address.number,
+        district: userData.address.district,
         city: userData.address.city,
         state: userData.address.state,
         blockType: userData.address.blockType,
@@ -203,18 +207,23 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   }, [userData, reset]);
 
   const onSetAddressViaCEPValues = async (): Promise<void> => {
-    const postalCode = getValues('address.postalCode');
-    if (!postalCode || onRemoveMask(postalCode).length != 8) {
-      return;
-    }
-    const response = await getAddressFromCep(postalCode ?? '');
-    if (response) {
-      setValue('address.street', response.logradouro);
-      setValue('address.district', response.bairro);
-      setValue('address.city', response.localidade);
-      setValue('address.state', response.uf);
-    } else {
-      return;
+    setIsInputPostalCodeLoading(true);
+    try {
+      const postalCode = getValues('address.postalCode');
+      if (!postalCode || onRemoveMask(postalCode).length != 8) {
+        return;
+      }
+      const response = await getAddressFromCep(postalCode ?? '');
+      if (response) {
+        setValue('address.street', response.logradouro);
+        setValue('address.district', response.bairro);
+        setValue('address.city', response.localidade);
+        setValue('address.state', response.uf);
+      }
+    } catch (error) {
+      console.log('Erro ao buscar o CEP');
+    } finally {
+      setIsInputPostalCodeLoading(false);
     }
   };
 
@@ -287,19 +296,20 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     });
   };
 
-  const finalData = {
+  const finalData: AdminUserSchema = {
     idUser: 0,
     name: '',
-    birthDate: '',
+    birthDate: new Date('2026-01-28'),
     email: '',
     phone: '',
-    mediaUrl: null,
-    mediaFile: null,
+    mediaObject: {
+      idMedia: 0,
+      mediaUrl: '',
+    },
     isActive: false,
     address: {
       idAddress: 0,
       postalCode: '',
-      type: '',
       street: '',
       number: '',
       district: '',
@@ -313,10 +323,11 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   const setFinalData = () => {
     finalData.idUser = getValues('idUser');
     finalData.name = getValues('name');
-    finalData.birthDate = getValues('birthDate').toISOString();
+    finalData.birthDate = new Date(getValues('birthDate'));
     finalData.email = getValues('email');
     finalData.phone = onRemoveMask(getValues('phone') ?? '');
     finalData.isActive = getValues('isActive');
+    finalData.mediaObject = getValues('mediaObject');
     finalData.address.idAddress = getValues('address.idAddress') ?? 0;
     finalData.address.postalCode = onRemoveMask(
       getValues('address.postalCode') ?? ''
@@ -333,6 +344,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   const onSubmit = (): void => {
     setFinalData();
     console.log('finalData', finalData);
+    console.log('mediaFile', getValues('mediaFile'));
   };
 
   return (
@@ -561,7 +573,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
             control={control}
             setValue={setValue}
             fileName="mediaFile"
-            urlName="mediaUrl"
+            mediaObject="mediaObject"
             isDisabled={!isActive}
           />
         </div>
@@ -570,57 +582,67 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         </div>
         <div className="flex flex-col gap-2 grow">
           <div className="flex flex-col md:flex-row gap-2">
-            <Controller
-              name="address.idAddress"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field className={cn('md:shrink')}>
-                  <FieldLabel
-                    htmlFor={`admin-user-input-id-address-${adminUserPageId}`}
-                  >
-                    Id
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    disabled={formState.isSubmitting || !isActive}
-                    readOnly
-                    id={`admin-user-input-id-address-${adminUserPageId}`}
-                  />
-                </Field>
-              )}
-            />
+            {(getValues('address.idAddress') ?? 0) > 0 && (
+              <Controller
+                name="address.idAddress"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field className={cn('md:shrink')}>
+                    <FieldLabel
+                      htmlFor={`admin-user-input-id-address-${adminUserPageId}`}
+                    >
+                      Id
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      disabled={formState.isSubmitting || !isActive}
+                      readOnly
+                      id={`admin-user-input-id-address-${adminUserPageId}`}
+                    />
+                  </Field>
+                )}
+              />
+            )}
+
             <Controller
               name="address.postalCode"
               control={control}
               render={({ field, fieldState }) => (
-                <Field>
+                <Field className="relative">
                   <FieldLabel
                     htmlFor={`admin-user-input-postal-code-${adminUserPageId}`}
                   >
                     Cep
                   </FieldLabel>
+                  <div className="relative">
+                    <IMaskInput
+                      mask="00000-000"
+                      definitions={{ '0': /[0-9]/ }}
+                      value={field.value ?? ''}
+                      onAccept={(value) => field.onChange(value)}
+                      onBlur={() => {
+                        field.onBlur();
+                        onSetAddressViaCEPValues();
+                      }}
+                      disabled={formState.isSubmitting || !isActive}
+                      id={`admin-user-input-postal-code-${adminUserPageId}`}
+                      autoComplete="postal-code"
+                      className={cn(
+                        'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                        fieldState.invalid && 'border-destructive'
+                      )}
+                    />
 
-                  <IMaskInput
-                    mask="00000-000"
-                    definitions={{ '0': /[0-9]/ }}
-                    value={field.value ?? ''}
-                    onAccept={(value) => field.onChange(value)}
-                    onBlur={() => {
-                      field.onBlur();
-                      onSetAddressViaCEPValues();
-                    }}
-                    disabled={formState.isSubmitting || !isActive}
-                    id={`admin-user-input-postal-code-${adminUserPageId}`}
-                    autoComplete="postal-code"
-                    className={cn(
-                      'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-                      fieldState.invalid && 'border-destructive'
+                    {isInputPostalCodeLoading && (
+                      <span className="pointer-events-none absolute top-3 right-3 flex items-center">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground font-extrabold" />
+                      </span>
                     )}
-                  />
 
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </div>
                 </Field>
               )}
             />
