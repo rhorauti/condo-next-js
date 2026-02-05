@@ -8,12 +8,45 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { userDetailsMock } from './user-mock';
 
+export const initialUserInfo = {
+  idUser: 0,
+  createdAt: '',
+  name: '',
+  birthDate: new Date('1984-02-22'),
+  email: '',
+  phone: '',
+  mediaObject: {
+    idMedia: 0,
+    mediaUrl: '',
+  },
+  fallbackName: '',
+  isActive: true,
+  isEmailConfirmed: false,
+  isWhatsapp: true,
+  accessLevel: 0,
+  address: {
+    idAddress: 0,
+    postalCode: '',
+    type: '',
+    street: '',
+    number: '',
+    district: '',
+    city: '',
+    state: '',
+    blockType: '',
+    block: '',
+    lotType: '',
+    lot: '',
+  },
+};
+
 export default function Page() {
   const router = useRouter();
   const params = useParams();
   const idCondoParams = Number(params.idCondo);
   const idUserParams = Number(params.idUser);
-  const [userInfo, setUserInfo] = useState<IUserDetail>();
+  const [userInfo, setUserInfo] = useState<IUserDetail>(initialUserInfo);
+  const previousUrl = `/admin/condo/${idCondoParams}/users`;
 
   useEffect(() => {
     const idUserParams = Number(params.idUser);
@@ -37,18 +70,15 @@ export default function Page() {
           Editar Usuário
         </h1>
         <Button
-          onClick={() => router.push(`/admin/condo/${idCondoParams}/users`)}
-          variant={'default'}
+          onClick={() => router.push(previousUrl)}
+          variant={'outline'}
           className="flex sm:w-auto gap-2"
         >
           <ArrowLeftCircle />
           <span className="hidden xs:inline">Voltar</span>
         </Button>
       </div>
-      <ProfileForm
-        userData={userInfo}
-        previousUrl={`/admin/condo/${idCondoParams}/users`}
-      />
+      <ProfileForm userData={userInfo} previousUrl={previousUrl} />
     </div>
   );
 }

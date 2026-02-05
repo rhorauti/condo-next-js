@@ -11,7 +11,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { IAdminUserHome } from '@/interfaces/admin/admin-users.interface';
-import { IAskDialog } from '@/interfaces/modal.interface';
+import { IAskDialog } from '@/interfaces/dialog.interface';
 import { cn } from '@/lib/utils';
 import {
   Check,
@@ -36,7 +36,7 @@ import { IAdminCondoUserHome } from '@/interfaces/admin/condo.interface';
 import { formatTelephoneNumber } from '@/utils/misc';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getAddressFromCep } from '@/http/web/third-part/third-part.http';
+import { EmailSendDialog } from '@/components/dialog/email-send.dialog';
 
 export default function Page() {
   const pathname = usePathname();
@@ -59,6 +59,7 @@ export default function Page() {
     isActive: false,
     title: '',
   });
+  const [isEmailSendDialogActive, setIsEmailSendDialogActive] = useState(false);
   const centeredTextHeaders = ['Id', 'Foto', 'Ações'];
   const gridColsLayout = 'md:grid-cols-[1fr_1fr_4fr_4fr_4fr_1fr_1fr_1fr_4fr]';
   const [tableSort, setTableSort] = useState<0 | 1 | 2>(0);
@@ -204,6 +205,8 @@ export default function Page() {
     );
   };
 
+  const onSendEmailToNewUser = (): void => {};
+
   return (
     <div className="flex flex-col gap-5 w-full">
       <h1 className="font-medium md:text-2xl text-center">
@@ -218,7 +221,7 @@ export default function Page() {
           />
         </div>
         <Button
-          onClick={() => router.push(`/admin/condo/${idCondo}/users/${0}`)}
+          onClick={() => setIsEmailSendDialogActive(true)}
           variant="default"
           size={'sm'}
           className={cn('flex gap-2 h-full py-2 sm:py-0')}
@@ -376,64 +379,32 @@ export default function Page() {
               )}
             </div>
             <div className="flex justify-center gap-3 my-2 md:my-1">
-              {/* <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    disabled={!user.isActive}
-                    variant="default"
-                    size={'icon'}
-                  >
-                    <Mail />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Enviar e-mail para ativar o usuário</p>
-                </TooltipContent>
-              </Tooltip> */}
               <div>
-                {user.isActive ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        onClick={() => onShowAskDialog(user)}
-                        variant="default"
-                        size={'icon'}
-                        className="bg-green-800 hover:bg-green-700"
-                      >
-                        <UserCheck />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        Desativar{' '}
-                        <span className="font-medium">{user.name}</span>
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        onClick={() => onShowAskDialog(user)}
-                        variant="default"
-                        size={'icon'}
-                        className="bg-red-800 hover:bg-red-700"
-                      >
-                        <UserLock />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        Ativar <span className="font-medium">{user.name}</span>
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => onShowAskDialog(user)}
+                      variant="default"
+                      size={'icon'}
+                      className={`${user.isActive ? 'bg-green-800 hover:bg-green-700' : 'bg-red-800 hover:bg-red-700'}`}
+                    >
+                      {user.isActive ? <UserCheck /> : <UserLock />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{user.isActive ? 'Desativar' : 'Ativar'}</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
+                    onClick={() =>
+                      router.push(
+                        `/admin/condo/${idCondo}/users/${user.idUser}`
+                      )
+                    }
                     disabled={!user.isActive}
                     variant="default"
                     size={'icon'}
@@ -464,6 +435,11 @@ export default function Page() {
           })
         }
         onActionOk={onChangeUserActiveState}
+      />
+      <EmailSendDialog
+        isActive={isEmailSendDialogActive}
+        onActionNok={() => setIsEmailSendDialogActive(false)}
+        onActionOk={onSendEmailToNewUser}
       />
     </div>
   );

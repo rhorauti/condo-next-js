@@ -23,7 +23,7 @@ import ControlledTextArea from '../text-area/controlled.text-area';
 import { ControlledSelect } from '../select/controlled-select';
 import { CarouselForm } from '../carousel/carousel-form';
 import { AskDialog } from '../dialog/ask-dialog';
-import { IAskDialog } from '@/interfaces/modal.interface';
+import { IAskDialog } from '@/interfaces/dialog.interface';
 import { toast } from 'sonner';
 import useAuthStore from '@/store/web/auth.store';
 import { savePost } from '@/http/web/post/posts.http';

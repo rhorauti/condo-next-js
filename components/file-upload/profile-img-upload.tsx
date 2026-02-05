@@ -13,6 +13,7 @@ import { Avatar, AvatarImage } from '../ui/avatar';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import { IMedia } from '@/interfaces/admin/media.interface';
+import { readonly } from 'zod';
 
 type ImageUploadProps<T extends FieldValues> = {
   control: Control<T>;
@@ -20,6 +21,7 @@ type ImageUploadProps<T extends FieldValues> = {
   setValue: UseFormSetValue<T>;
   mediaObject: FieldPath<T>;
   isDisabled?: boolean;
+  isAdminView?: boolean;
 };
 
 export function ProfileImgUpload<T extends FieldValues>({
@@ -28,6 +30,7 @@ export function ProfileImgUpload<T extends FieldValues>({
   mediaObject,
   setValue,
   isDisabled = false,
+  isAdminView = false,
 }: ImageUploadProps<T>) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const file = useWatch({ control, name: fileName });
@@ -74,7 +77,9 @@ export function ProfileImgUpload<T extends FieldValues>({
       {!preview && (
         <Button
           type="button"
-          onClick={() => inputRef.current?.click()}
+          onClick={(e) =>
+            isAdminView ? e.preventDefault() : inputRef.current?.click()
+          }
           className={cn(
             'w-[8rem] h-[8rem] md:w-[9rem] md:h-[9rem] bg-transparent border border-border',
             isDisabled
@@ -96,7 +101,7 @@ export function ProfileImgUpload<T extends FieldValues>({
           >
             <AvatarImage src={preview} className={cn('mx-auto')} />
           </Avatar>
-          {!isDisabled && (
+          {!isDisabled && !isAdminView && (
             <Button
               variant={'destructive'}
               type="button"

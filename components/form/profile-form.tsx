@@ -11,7 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { ChevronDownIcon, Loader2 } from 'lucide-react';
+import { ArrowLeftCircle, ChevronDownIcon, Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Popover } from '@radix-ui/react-popover';
@@ -23,14 +23,15 @@ import { ProfileImgUpload } from '@/components/file-upload/profile-img-upload';
 import { IUserDetail } from '@/interfaces/user.interface';
 import { getAddressFromCep } from '@/http/web/third-part/third-part.http';
 import { AskDialog } from '../dialog/ask-dialog';
-import { IAskDialog, IDeleteDialog } from '@/interfaces/modal.interface';
+import { IAskDialog, IDeleteDialog } from '@/interfaces/dialog.interface';
 import { DeleteDialog } from '../dialog/delete-dialog';
 import { toast } from 'sonner';
 import { IMaskInput } from 'react-imask';
 
 interface ProfileProps {
-  previousUrl: string;
-  userData?: IUserDetail;
+  isAdminView?: boolean;
+  previousUrl?: string;
+  userData: IUserDetail;
 }
 
 const eighteenYearsAgo = new Date();
@@ -113,7 +114,11 @@ const adminUserSchema = z.object({
 
 export type AdminUserSchema = z.infer<typeof adminUserSchema>;
 
-export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
+export default function ProfileForm({
+  isAdminView = false,
+  userData,
+  previousUrl,
+}: ProfileProps) {
   const adminUserPageId = useId();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -276,7 +281,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       },
     });
     onCloseDeleteDialog();
-    router.push(previousUrl);
+    router.push(previousUrl ?? '/');
   };
 
   const onCloseAskDialogForSendSignUpEmail = (): void => {
@@ -360,28 +365,30 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       >
         <div className="flex justify-between gap-2 bg-slate-700 text-white rounded-md w-full px-2 py-1">
           <p className="font-medium md:text-lg">Dados Cadastrais</p>
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field, fieldState }) => {
-              const isActive = field.value;
+          {isAdminView && (
+            <Controller
+              name="isActive"
+              control={control}
+              render={({ field, fieldState }) => {
+                const isActive = field.value;
 
-              return (
-                <Field className={cn('md:shrink')}>
-                  <div className="flex gap-4 items-center">
-                    <span>{isActive ? 'Ativo' : 'Não Ativo'}</span>
-                    <Switch
-                      checked={isActive}
-                      onCheckedChange={(checked) => field.onChange(checked)}
-                    />
-                  </div>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              );
-            }}
-          />
+                return (
+                  <Field className={cn('md:shrink')}>
+                    <div className="flex gap-4 items-center">
+                      <span>{isActive ? 'Ativo' : 'Não Ativo'}</span>
+                      <Switch
+                        checked={isActive}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                      />
+                    </div>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+          )}
         </div>
         <div className="flex flex-col-reverse md:flex-row md:items-center gap-4">
           <div className="flex flex-col gap-2 grow">
@@ -440,6 +447,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                     <Input
                       {...field}
                       disabled={formState.isSubmitting || !isActive}
+                      readOnly={isAdminView}
                       autoComplete="name"
                       id={`admin-user-input-name-${adminUserPageId}`}
                     />
@@ -470,10 +478,15 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                         )}
                       >
                         <Button
+                          onClick={(e) => isAdminView && e.preventDefault()}
                           variant="outline"
                           id={`admin-user-button-birth-date-${adminUserPageId}`}
                           disabled={formState.isSubmitting || !isActive}
-                          className={cn(`w-48 justify-between font-normal`)}
+                          className={cn(
+                            `w-48 justify-between font-normal`,
+                            isAdminView &&
+                              'border-input hover:bg-transparent cursor-default'
+                          )}
                         >
                           {field.value ? (
                             formatDateTime(field.value)
@@ -525,6 +538,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                     <Input
                       {...field}
                       disabled={formState.isSubmitting || !isActive}
+                      readOnly={isAdminView}
                       autoComplete="email"
                       id={`admin-user-input-email-${adminUserPageId}`}
                     />
@@ -555,6 +569,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                       onAccept={(value) => field.onChange(value)}
                       onBlur={field.onBlur}
                       disabled={formState.isSubmitting || !isActive}
+                      readOnly={isAdminView}
                       id={`admin-user-input-phone-${adminUserPageId}`}
                       autoComplete="tel"
                       className={cn(
@@ -577,6 +592,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
             fileName="mediaFile"
             mediaObject="mediaObject"
             isDisabled={!isActive}
+            isAdminView={isAdminView}
           />
         </div>
         <div className="flex justify-between bg-slate-700 text-white rounded-md w-full px-2 py-1">
@@ -627,6 +643,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                         onSetAddressViaCEPValues();
                       }}
                       disabled={formState.isSubmitting || !isActive}
+                      readOnly={isAdminView}
                       id={`admin-user-input-postal-code-${adminUserPageId}`}
                       autoComplete="postal-code"
                       className={cn(
@@ -661,6 +678,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                   <Input
                     {...field}
                     disabled={formState.isSubmitting || !isActive}
+                    readOnly={isAdminView}
                     id={`admin-user-input-street-${adminUserPageId}`}
                     value={field.value || ''}
                   />
@@ -680,6 +698,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                   <Input
                     {...field}
                     disabled={formState.isSubmitting || !isActive}
+                    readOnly={isAdminView}
                     value={field.value || ''}
                     id={`admin-user-input-number-${adminUserPageId}`}
                   />
@@ -706,6 +725,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                     <Input
                       {...field}
                       disabled={formState.isSubmitting || !isActive}
+                      readOnly={isAdminView}
                       value={field.value || ''}
                       id={`admin-user-input-block-${adminUserPageId}`}
                     />
@@ -734,6 +754,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                     <Input
                       {...field}
                       disabled={formState.isSubmitting || !isActive}
+                      readOnly={isAdminView}
                       value={field.value || ''}
                       id={`admin-user-input-lot-${adminUserPageId}`}
                     />
@@ -757,6 +778,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                   <Input
                     {...field}
                     disabled={formState.isSubmitting || !isActive}
+                    readOnly={isAdminView}
                     id={`admin-user-input-district-${adminUserPageId}`}
                     value={field.value || ''}
                   />
@@ -776,6 +798,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                   <Input
                     {...field}
                     disabled={formState.isSubmitting || !isActive}
+                    readOnly={isAdminView}
                     id={`admin-user-input-city-${adminUserPageId}`}
                     value={field.value || ''}
                   />
@@ -795,6 +818,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                   <Input
                     {...field}
                     disabled={formState.isSubmitting || !isActive}
+                    readOnly={isAdminView}
                     id={`admin-user-input-state-${adminUserPageId}`}
                     value={field.value || ''}
                   />
@@ -807,13 +831,23 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
           <p className="font-medium md:text-lg">Ações</p>
         </div>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          {isAdminView && (
+            <Button
+              onClick={onShowAskDialogForDeleteProfile}
+              variant={'destructive'}
+              className="w-full sm:w-auto"
+              disabled={formState.isSubmitting || !isActive}
+            >
+              Excluir
+            </Button>
+          )}
           <Button
-            onClick={onShowAskDialogForDeleteProfile}
-            variant={'destructive'}
-            className="w-full sm:w-auto"
-            disabled={formState.isSubmitting || !isActive}
+            onClick={() => router.push(previousUrl ?? '/')}
+            variant={'outline'}
+            className="flex sm:w-auto gap-2"
           >
-            Excluir
+            <ArrowLeftCircle />
+            <span className="hidden xs:inline">Voltar</span>
           </Button>
           <Button
             type="submit"
@@ -821,7 +855,8 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
             className="w-full sm:w-auto"
             disabled={formState.isSubmitting}
           >
-            Salvar
+            <Save />
+            <span className="hidden xs:inline">Salvar</span>
           </Button>
         </div>
       </form>
