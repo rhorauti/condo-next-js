@@ -27,8 +27,7 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { pageInfo } from './mock';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { ITableHeaders } from '@/interfaces/admin/table.interface';
 import { usersTableHeaders } from './tableHeaders';
@@ -37,10 +36,21 @@ import { formatTelephoneNumber } from '@/utils/misc';
 import Image from 'next/image';
 import Link from 'next/link';
 import { EmailSendDialog } from '@/components/dialog/email-send.dialog';
+import { response } from './mock';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ADMIN_ROUTES, buildAdminDinamicRoute } from '@/enum/admin/routes.enum';
+import { onSendEmailToCreateUser } from '@/http/admin/auth/users-admin.http';
 
 export default function Page() {
-  const pathname = usePathname();
-  const params = useParams();
+  const adminUserPageId = useId();
+  const pathName = usePathname();
   const router = useRouter();
   const qtyPerPage = 8;
   const searchParams = useSearchParams();
@@ -49,8 +59,8 @@ export default function Page() {
   const [searchBarValue, setSearchBarValue] = useState<string>();
   const [tableHeaders, setTableHeaders] =
     useState<ITableHeaders[]>(usersTableHeaders);
-  const [idCondo, setIdCondo] = useState('');
   const [condoInfo, setCondoInfo] = useState<IAdminCondoUserHome>();
+  const [condoList, setCondoList] = useState<IAdminCondoUserHome[]>([]);
   const [initialUserList, setInitialUserList] = useState<IAdminUserHome[]>();
   const [userList, setUserList] = useState<IAdminUserHome[]>();
   const [userData, setUserData] = useState<IAdminUserHome>();
@@ -65,35 +75,40 @@ export default function Page() {
   const [tableSort, setTableSort] = useState<0 | 1 | 2>(0);
 
   useEffect(() => {
+    fetchPageInfo();
+  }, []);
+
+  useEffect(() => {
     const pageFromQuery = Number(pageQueryParams);
     setCurrentPage(!pageFromQuery || pageFromQuery < 1 ? 1 : pageFromQuery);
   }, [pageQueryParams]);
 
-  useEffect(() => {
-    const id = (params.idCondo as string) ?? '';
-    setIdCondo(id);
-    if (!id) return;
-    fetchPageInfo();
-  }, [params.idCondo]);
-
   const fetchPageInfo = async (): Promise<void> => {
-    // const pageInfo = await onGetAdminUsersPageInfo(Number(idCondo));
-    if (pageInfo) {
-      // setAdminUsersPageInfo(pageInfo.data);
-      setInitialUserList(pageInfo.users);
-      setUserList(pageInfo.users);
-      setCondoInfo(pageInfo.condo);
-      setTableHeaders(
-        usersTableHeaders.map((header) => {
-          if (header.idTableHeader === 5) {
-            return { ...header, name: pageInfo.condo.blockUnit ?? 'Bloco' };
-          }
-          if (header.idTableHeader === 6) {
-            return { ...header, name: pageInfo.condo.lotUnit ?? 'Unidade' };
-          }
-          return header;
-        })
-      );
+    // const response = await onGetAdminUsersPageInfo(Number(idCondo));
+    if (response && response.data) {
+      setInitialUserList(response.data.users);
+      setUserList(response.data.users);
+      setCondoInfo(response.data.condo);
+      setCondoList(response.data.condoList);
+      if (response.data.condo) {
+        setTableHeaders(
+          usersTableHeaders.map((header) => {
+            if (header.idTableHeader === 5) {
+              return {
+                ...header,
+                name: response.data?.condo.blockUnit ?? 'Bloco',
+              };
+            }
+            if (header.idTableHeader === 6) {
+              return {
+                ...header,
+                name: response.data?.condo?.lotUnit ?? 'Unidade',
+              };
+            }
+            return header;
+          })
+        );
+      }
     }
   };
 
@@ -140,7 +155,7 @@ export default function Page() {
     });
 
     setUserList(filtered);
-    router.push(`${pathname}?${1}`);
+    router.push(`${pathName}?${1}`);
   };
 
   const onKeyDownSearchBar = (e: React.KeyboardEvent): void => {
@@ -205,13 +220,38 @@ export default function Page() {
     );
   };
 
-  const onSendEmailToNewUser = (): void => {};
+  const onSetCondoInfo = (idCondo: number): void => {
+    const condo = condoList.find((condo) => condo.idCondo == idCondo);
+    setCondoInfo(condo);
+  };
 
   return (
-    <div className="flex flex-col gap-5 w-full">
-      <h1 className="font-medium md:text-2xl text-center">
-        Usuários do condomínio {condoInfo?.name}
-      </h1>
+    <div className="flex flex-col gap-5">
+      <div className="flex gap-2 justify-between">
+        <h1 className="font-medium md:text-2xl text-center">
+          Usuários do condomínio {condoInfo?.name}
+        </h1>
+        <Select
+          value={condoInfo?.idCondo.toString()}
+          onValueChange={(idCondo) => onSetCondoInfo(Number(idCondo))}
+        >
+          <SelectTrigger
+            id={`admin-user-select-${adminUserPageId}`}
+            className="w-auto"
+          >
+            <SelectValue placeholder="Selecione o condominio" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {response.data?.condoList.map((condo, index) => (
+                <SelectItem key={index} value={condo.idCondo.toString()}>
+                  {condo.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
       <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-2 h-full overflow-auto">
         <div className="flex flex-col sm:flex-row gap-4">
           <SearchBar
@@ -402,7 +442,7 @@ export default function Page() {
                   <Button
                     onClick={() =>
                       router.push(
-                        `/admin/condo/${idCondo}/users/${user.idUser}`
+                        buildAdminDinamicRoute(ADMIN_ROUTES.USERS, user.idUser)
                       )
                     }
                     disabled={!user.isActive}
@@ -439,7 +479,6 @@ export default function Page() {
       <EmailSendDialog
         isActive={isEmailSendDialogActive}
         onActionNok={() => setIsEmailSendDialogActive(false)}
-        onActionOk={onSendEmailToNewUser}
       />
     </div>
   );

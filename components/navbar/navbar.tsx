@@ -37,6 +37,7 @@ import { Switch } from '../ui/switch';
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import useAuthStore from '@/store/web/auth.store';
+import { buildWebDinamicRoute, WEB_ROUTES } from '@/enum/web/routes.enum';
 
 export default function Navbar() {
   const authStore = useAuthStore((state) => state);
@@ -59,47 +60,50 @@ export default function Navbar() {
   const navBarItems = [
     {
       title: 'Dados Cadastrais',
-      href: `/profiles/${authStore.credential.idUser}`,
+      href: buildWebDinamicRoute(
+        WEB_ROUTES.PROFILES,
+        authStore.credential.idUser
+      ),
       icon: <User />,
     },
     {
       title: 'Minhas postagens',
-      href: '/posts/my-posts',
+      href: WEB_ROUTES.MY_POSTS,
       icon: <MessageSquare />,
     },
     {
       title: 'Meu MarketPlace',
-      href: '/marketplace/my-marketplace',
+      href: WEB_ROUTES.MY_MARKETPLACE,
       icon: <Store />,
     },
     {
       title: 'Calendário de eventos',
-      href: '/events',
+      href: WEB_ROUTES.EVENTS,
       icon: <Calendar />,
     },
     {
       title: 'Política de uso',
-      href: '/usage-policy',
+      href: WEB_ROUTES.POLICY,
       icon: <FileText />,
     },
     {
       title: 'Posts',
-      href: '/posts/all',
+      href: WEB_ROUTES.ALL_POSTS,
       icon: <Newspaper />,
     },
     {
       title: 'Recomendações',
-      href: '/recommendations',
+      href: WEB_ROUTES.RECOMMENDATIONS,
       icon: <ThumbsUp />,
     },
     {
       title: 'Marketplace',
-      href: '/marketplace/all',
+      href: WEB_ROUTES.ALL_MARKETPLACE,
       icon: <Store />,
     },
     {
       title: 'Relatórios',
-      href: '/reports',
+      href: WEB_ROUTES.REPORTS,
       icon: <BarChart3 />,
     },
   ];
@@ -115,7 +119,10 @@ export default function Navbar() {
   return (
     <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 shadow-sm z-[40] overflow-auto">
       <div className="flex-shrink-0">
-        <Link href="/" className="flex items-center space-x-2 group">
+        <Link
+          href={WEB_ROUTES.HOME}
+          className="flex items-center space-x-2 group"
+        >
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
             <span className="font-bold text-lg">C</span>
           </div>

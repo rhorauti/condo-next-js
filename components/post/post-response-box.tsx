@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import useAuthStore from '@/store/web/auth.store';
+import { buildWebDinamicRoute, WEB_ROUTES } from '@/enum/web/routes.enum';
 
 interface IProps {
   idPost: number;
@@ -51,7 +52,14 @@ export default function PostResponseBox({
   return (
     <div className={cn('flex gap-2 w-full bg-background', className)}>
       <Avatar
-        onClick={() => router.push(`/profiles/${authStore.credential.idUser}`)}
+        onClick={() =>
+          router.push(
+            buildWebDinamicRoute(
+              WEB_ROUTES.PROFILES,
+              authStore.credential.idUser
+            )
+          )
+        }
         className="h-8 w-8 rounded-full cursor-pointer"
       >
         <AvatarImage src={authStore.credential.photoUrl} alt="Profile Image" />

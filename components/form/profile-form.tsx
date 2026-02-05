@@ -27,6 +27,7 @@ import { IAskDialog, IDeleteDialog } from '@/interfaces/dialog.interface';
 import { DeleteDialog } from '../dialog/delete-dialog';
 import { toast } from 'sonner';
 import { IMaskInput } from 'react-imask';
+import { WEB_ROUTES } from '@/enum/web/routes.enum';
 
 interface ProfileProps {
   isAdminView?: boolean;
@@ -281,23 +282,12 @@ export default function ProfileForm({
       },
     });
     onCloseDeleteDialog();
-    router.push(previousUrl ?? '/');
+    router.push(previousUrl ?? WEB_ROUTES.HOME);
   };
 
   const onCloseAskDialogForSendSignUpEmail = (): void => {
     setAskDialogForSendSignUpEmail((prev) => {
       return { ...prev, isActive: false };
-    });
-  };
-
-  const onSendSignUpEmail = (): void => {
-    onSendEmailToCreateUser(getValues('email'));
-    toast.success('Login efetuado com sucesso!', {
-      duration: 2000,
-      action: {
-        label: 'Fechar',
-        onClick: () => {},
-      },
     });
   };
 
@@ -354,6 +344,8 @@ export default function ProfileForm({
       formData.append('file', file);
     }
     formData.append('data', JSON.stringify(finalData));
+    console.log('finalData', finalData);
+    console.log('file', file);
   };
 
   return (
@@ -842,7 +834,7 @@ export default function ProfileForm({
             </Button>
           )}
           <Button
-            onClick={() => router.push(previousUrl ?? '/')}
+            onClick={() => router.push(previousUrl ?? WEB_ROUTES.HOME)}
             variant={'outline'}
             className="flex sm:w-auto gap-2"
           >

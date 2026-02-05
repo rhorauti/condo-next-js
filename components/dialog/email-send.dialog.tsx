@@ -17,11 +17,28 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Field, FieldError, FieldLabel } from '../ui/field';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { onSendEmailToCreateUser } from '@/http/admin/auth/users-admin.http';
+import { toast } from 'sonner';
 
 const adminEmailUserSchema = z.object({
   email: z
     .email('Formato de e-mail inválido.')
     .nonempty('O email é obrigatório.'),
+  name: z
+    .string()
+    .nonempty('O nome não pode estar vazio.')
+    .refine(
+      (value: string) => {
+        const parts = value.trim().split(/\s+/);
+        if (parts.length < 2) return false;
+        if (parts[0].length < 2) return false;
+        return true;
+      },
+      {
+        message:
+          'Informe nome e sobrenome, com o primeiro nome tendo pelo menos 2 letras.',
+      }
+    ),
 });
 
 export type AdminEmailUserSchema = z.infer<typeof adminEmailUserSchema>;
@@ -29,13 +46,11 @@ export type AdminEmailUserSchema = z.infer<typeof adminEmailUserSchema>;
 export interface IAskDialogProps {
   isActive: boolean;
   onActionNok: () => void;
-  onActionOk: () => void;
 }
 
 export function EmailSendDialog({
   isActive = false,
   onActionNok,
-  onActionOk,
 }: IAskDialogProps) {
   const emailUserDialogId = useId();
 
@@ -43,13 +58,37 @@ export function EmailSendDialog({
     resolver: zodResolver(adminEmailUserSchema),
     defaultValues: {
       email: '',
+      name: '',
     },
   });
 
-  const { control, formState } = form;
+  const { control, formState, setValue } = form;
 
-  const onSubmit = (data: AdminEmailUserSchema): void => {
-    onActionOk();
+  const onSubmit = async (data: AdminEmailUserSchema): Promise<void> => {
+    try {
+      await onSendEmailToCreateUser(data);
+      toast.success(
+        `E-mail enviado para ${data?.email}. Verifique sua caixa de mensagem.`,
+        {
+          duration: 5000,
+          action: {
+            label: 'Fechar',
+            onClick: () => {},
+          },
+        }
+      );
+      setValue('email', '');
+      setValue('name', '');
+      onActionNok();
+    } catch (error: any) {
+      toast.error(error.message, {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {},
+        },
+      });
+    }
   };
 
   return (
@@ -65,6 +104,29 @@ export function EmailSendDialog({
               Informe o e-mail para enviar o link de cadastro.
             </DialogDescription>
           </DialogHeader>
+
+          <Controller
+            name="name"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field className="w-full">
+                <FieldLabel
+                  htmlFor={`admin-email-send-name-${emailUserDialogId}`}
+                >
+                  Nome
+                </FieldLabel>
+                <Input
+                  {...field}
+                  disabled={formState.isSubmitting || !isActive}
+                  autoComplete="email"
+                  id={`admin-email-send-name-${emailUserDialogId}`}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
 
           <Controller
             name="email"

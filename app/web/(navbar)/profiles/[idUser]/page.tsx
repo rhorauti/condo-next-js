@@ -1,12 +1,13 @@
 'use client';
 
+import { userDetailsMock } from '@/app/admin/(navbar)/users/[idUser]/user-mock';
 import ProfileForm from '@/components/form/profile-form';
 import { Button } from '@/components/ui/button';
+import { WEB_ROUTES } from '@/enum/web/routes.enum';
 import { IUserDetail } from '@/interfaces/user.interface';
 import { ArrowLeftCircle } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { userDetailsMock } from './user-mock';
 
 export const initialUserInfo = {
   idUser: 0,
@@ -46,7 +47,7 @@ export default function Page() {
   const idCondoParams = Number(params.idCondo);
   const idUserParams = Number(params.idUser);
   const [userInfo, setUserInfo] = useState<IUserDetail>(initialUserInfo);
-  const previousUrl = `/admin/condo/${idCondoParams}/users`;
+  const previousUrl = WEB_ROUTES.PROFILES;
 
   useEffect(() => {
     const idUserParams = Number(params.idUser);
@@ -67,7 +68,7 @@ export default function Page() {
     <div className="flex flex-col gap-4 w-[75rem] mb-4">
       <div className="flex gap-2 items-center justify-between">
         <h1 className="text-center md:text-2xl text-lg font-semibold">
-          Editar Usuário
+          Informações do usuário
         </h1>
         <Button
           onClick={() => router.push(previousUrl)}

@@ -29,13 +29,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronDownIcon, UserRoundPlus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
-import { onCreateUser } from '@/http/web/auth/auth.http';
+import { onCreateUser, onValidateToken } from '@/http/web/auth/auth.http';
+import { WEB_ROUTES } from '@/enum/web/routes.enum';
 
 const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
@@ -101,9 +102,38 @@ const signUpSchema = z.object({
 export type SignUpValues = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+  const user = {
+    name: searchParams.get('name'),
+    email: searchParams.get('email'),
+  };
   const formId = useId();
   const [open, setOpen] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    onValidateSignUpToken();
+  }, [user]);
+
+  const onValidateSignUpToken = async (): Promise<void> => {
+    try {
+      await onValidateToken(token ?? '');
+      form.setValue('email', user.email ?? '');
+      form.setValue('name', user.name ?? '');
+    } catch (error) {
+      toast.error('Erro ao validar o token de segurança', {
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
+      });
+    }
+    console.log('user', user);
+    console.log('token', token);
+    console.log('name', searchParams.get('name'));
+    console.log('email', searchParams.get('email'));
+  };
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -158,7 +188,7 @@ export default function SignUp() {
     <>
       <Card
         className={cn(
-          ' w-full sm:w-[30rem] bg-slate-700 border-none shadow-lg text-white'
+          ' w-full sm:w-[30rem] bg-slate-700 border-none shadow-lg'
         )}
       >
         <CardHeader className={cn('flex flex-col gap-4')}>
@@ -173,7 +203,9 @@ export default function SignUp() {
           <div className="bg-gradient-to-r w-36 mx-auto h-12 from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
             <span className="font-bold text-lg">ConectaCondo</span>
           </div>
-          <CardTitle className={cn('text-center')}>Novo usuário</CardTitle>
+          <CardTitle className={cn('text-center text-white')}>
+            Novo usuário
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form id={formId} onSubmit={form.handleSubmit(onSubmitForm)}>
@@ -183,11 +215,15 @@ export default function SignUp() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor={`signup-name-${formId}`}>
+                    <FieldLabel
+                      htmlFor={`signup-name-${formId}`}
+                      className="text-white"
+                    >
                       Nome
                     </FieldLabel>
                     <Input
                       {...field}
+                      value={field.value}
                       id={`signup-name-${formId}`}
                       aria-invalid={fieldState.invalid}
                       disabled={isSubmitting}
@@ -209,7 +245,10 @@ export default function SignUp() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor={`signup-birthDate-${formId}`}>
+                    <FieldLabel
+                      htmlFor={`signup-birthDate-${formId}`}
+                      className="text-white"
+                    >
                       Data de nascimento
                     </FieldLabel>
                     <Popover open={open} onOpenChange={setOpen}>
@@ -268,14 +307,20 @@ export default function SignUp() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor={`signup-email-${formId}`}>
+                    <FieldLabel
+                      htmlFor={`signup-email-${formId}`}
+                      className="text-white"
+                    >
                       E-mail
                     </FieldLabel>
                     <Input
                       {...field}
+                      value={field.value}
                       id={`signup-email-${formId}`}
                       aria-invalid={fieldState.invalid}
-                      disabled={isSubmitting}
+                      disabled={
+                        isSubmitting || form.getValues('email').length > 0
+                      }
                       placeholder="Digite seu e-mail"
                       autoComplete="email"
                       className={cn(
@@ -294,7 +339,10 @@ export default function SignUp() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor={`signup-password-${formId}`}>
+                    <FieldLabel
+                      htmlFor={`signup-password-${formId}`}
+                      className="text-white"
+                    >
                       Senha
                     </FieldLabel>
                     <PasswordInput
@@ -337,7 +385,7 @@ export default function SignUp() {
                 name="agreedWithTerms"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 text-white">
                     <div className="flex items-top space-x-2">
                       <Checkbox
                         id={`login-agreedWithTerms-${formId}`}
@@ -358,7 +406,7 @@ export default function SignUp() {
                         >
                           Li e aceito os{' '}
                           <Link
-                            href="/terms"
+                            href={WEB_ROUTES.POLICY}
                             className="underline"
                             target="_blank"
                           >
@@ -366,7 +414,7 @@ export default function SignUp() {
                           </Link>{' '}
                           e{' '}
                           <Link
-                            href="/privacy"
+                            href={WEB_ROUTES.POLICY}
                             className="underline "
                             target="_blank"
                           >
@@ -386,11 +434,11 @@ export default function SignUp() {
                   </div>
                 )}
               />
-              <Field>
+              <Field className="text-white">
                 <p className="flex gap-2 justify-center items-center font-medium">
                   <span className="font-normal">Já possui conta?</span>
                   {!isSubmitting ? (
-                    <Link href="/login" className="underline">
+                    <Link href={WEB_ROUTES.LOGIN} className="underline">
                       Clique aqui
                     </Link>
                   ) : (

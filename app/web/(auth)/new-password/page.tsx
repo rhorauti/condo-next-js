@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { onSetNewPassword } from '@/http/web/auth/auth.http';
+import { WEB_ROUTES } from '@/enum/web/routes.enum';
 
 const PATTERNS = {
   uppercase: /[A-Z]/,
@@ -84,7 +85,7 @@ export default function NewPassword() {
               onClick: () => '',
             },
           });
-          router.push('/login');
+          router.push(WEB_ROUTES.LOGIN);
         } else {
           toast.error(response.message, {
             id: toastId,
@@ -184,7 +185,10 @@ export default function NewPassword() {
                 <p className="flex gap-2 justify-center items-center">
                   <span>Já possui conta?</span>
                   {!isSubmitting ? (
-                    <Link href="/login" className="underline text-primary">
+                    <Link
+                      href={WEB_ROUTES.LOGIN}
+                      className="underline text-primary"
+                    >
                       Clique aqui
                     </Link>
                   ) : (

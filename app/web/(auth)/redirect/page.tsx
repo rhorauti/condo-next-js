@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { onValidateEmail } from '@/http/web/auth/auth.http';
+import { WEB_ROUTES } from '@/enum/web/routes.enum';
 
 export default function Redirect() {
   const searchParams = useSearchParams();
@@ -53,7 +54,7 @@ export default function Redirect() {
         </CardHeader>
         <CardFooter className={cn('flex justify-center')}>
           <Button variant={'default'}>
-            <Link href="/login">Ir para Login</Link>
+            <Link href={WEB_ROUTES.LOGIN}>Ir para Login</Link>
           </Button>
         </CardFooter>
       </Card>

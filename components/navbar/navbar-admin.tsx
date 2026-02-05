@@ -40,6 +40,7 @@ import { Switch } from '../ui/switch';
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import useAuthAdminStore from '@/store/admin/auth-admin.store';
+import { ADMIN_ROUTES } from '@/enum/admin/routes.enum';
 
 export default function AdminNavbar() {
   const authStore = useAuthAdminStore((state) => state);
@@ -62,32 +63,32 @@ export default function AdminNavbar() {
   const navBarItems = [
     {
       title: 'Condominios',
-      href: 'admin/condo',
+      href: ADMIN_ROUTES.CONDO,
       icon: <LucideHouse />,
     },
     {
       title: 'Usuários',
-      href: '/admin/condo/users',
+      href: ADMIN_ROUTES.USERS,
       icon: <User2 />,
     },
     {
       title: 'Calendário de eventos',
-      href: '/admin/events',
+      href: ADMIN_ROUTES.EVENTS,
       icon: <Calendar />,
     },
     {
       title: 'Faq',
-      href: '/admin/faq',
+      href: ADMIN_ROUTES.FAQ,
       icon: <FileQuestionMark />,
     },
     {
       title: 'Política de uso',
-      href: '/admin/usage-policy',
+      href: ADMIN_ROUTES.POLICY,
       icon: <FileText />,
     },
     {
       title: 'Relatórios',
-      href: '/admin/reports',
+      href: ADMIN_ROUTES.REPORTS,
       icon: <BarChart3 />,
     },
   ];
@@ -103,7 +104,10 @@ export default function AdminNavbar() {
   return (
     <nav className="flex justify-between text-white items-center sticky top-0 left-0 w-full mx-auto py-2 px-6 bg-gray-900 z-[50] shadow-sm overflow-auto">
       <div className="flex-shrink-0">
-        <Link href="/" className="flex items-center space-x-2 group">
+        <Link
+          href={ADMIN_ROUTES.HOME}
+          className="flex items-center space-x-2 group"
+        >
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center group-hover:from-blue-700 group-hover:to-blue-800 transition">
             <span className="font-bold text-lg">C</span>
           </div>

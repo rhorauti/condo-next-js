@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { onSendRecoveryEmail } from '@/http/web/auth/auth.http';
+import { WEB_ROUTES } from '@/enum/web/routes.enum';
 
 const passwordRecoverySchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
@@ -53,7 +54,7 @@ const PasswordRecovery = () => {
             onClick: () => '',
           },
         });
-        router.push('/login');
+        router.push(WEB_ROUTES.LOGIN);
       } else {
         toast.error(response.message, {
           id: toastId,
@@ -135,7 +136,10 @@ const PasswordRecovery = () => {
             <Field>
               <div className="flex justify-center gap-2">
                 <span>Já possui conta?</span>
-                <Link href="/login" className="underline text-primary">
+                <Link
+                  href={WEB_ROUTES.LOGIN}
+                  className="underline text-primary"
+                >
                   Clique aqui.
                 </Link>
               </div>

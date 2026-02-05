@@ -1,6 +1,8 @@
 import { IAdminCondoUserHome } from './condo.interface';
 
 export interface IAdminUsersHome {
+  idUser: number;
+  condoList: IAdminCondoUserHome[];
   condo: IAdminCondoUserHome;
   users: IAdminUserHome[];
 }

@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { onLoginUser } from '@/http/web/auth/auth.http';
+import { WEB_ROUTES } from '@/enum/web/routes.enum';
 
 const loginSchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
@@ -55,7 +56,7 @@ const LoginForm = () => {
         setIsRedirecting(true);
         const redirectDelay = 2000;
         const timer = setTimeout(() => {
-          router.push('/dashboard');
+          router.push(WEB_ROUTES.REPORTS);
         }, redirectDelay);
         toast.success('Login efetuado com sucesso!', {
           id: toastId,
@@ -64,7 +65,7 @@ const LoginForm = () => {
             label: 'Fechar',
             onClick: () => {
               clearTimeout(timer);
-              router.push('/dashboard');
+              router.push(WEB_ROUTES.REPORTS);
             },
           },
         });
@@ -166,7 +167,7 @@ const LoginForm = () => {
               <div className="flex justify-center gap-2">
                 <span>Esqueceu a senha?</span>
                 <Link
-                  href="/password-recovery"
+                  href={WEB_ROUTES.PASSWORD_RECOVERY}
                   className="underline text-primary-foreground"
                 >
                   Clique aqui.

@@ -5,6 +5,7 @@ import {
 import { onHttpRequestJson } from '../../http-request';
 import { IFetchResponse } from '@/interfaces/response.interface';
 import { IUserDetail } from '@/interfaces/user.interface';
+import { AdminEmailUserSchema } from '@/components/dialog/email-send.dialog';
 
 export const onGetAdminUsersPageInfo = async (
   idCondo: number
@@ -36,11 +37,11 @@ export const onGetAdminUserInfo = async (
 };
 
 export const onSendEmailToCreateUser = async (
-  email: string
-): Promise<IFetchResponse<void>> => {
+  user: AdminEmailUserSchema
+): Promise<IFetchResponse<AdminEmailUserSchema>> => {
   return await onHttpRequestJson({
-    endpoint: 'admin/signup-email',
+    endpoint: 'admin/send-signup-email',
     method: 'POST',
-    data: email,
+    data: user,
   });
 };
