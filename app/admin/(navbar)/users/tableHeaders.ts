@@ -36,11 +36,6 @@ export const usersTableHeaders = [
   },
   {
     idTableHeader: 7,
-    name: 'E-mail validado?',
-    isActive: true,
-  },
-  {
-    idTableHeader: 8,
     name: 'Ações',
     isActive: true,
   },

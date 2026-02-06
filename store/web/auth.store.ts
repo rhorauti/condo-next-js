@@ -1,18 +1,9 @@
+import { IRole, IUserDetail } from '@/interfaces/user.interface';
 import { create } from 'zustand';
 
-interface ICredential {
-  idUser: number;
-  name: string;
-  email: string;
-  fallbackName: string;
-  isActive: boolean;
-  accessLevel: number;
-  photoUrl: string;
-}
-
 interface AuthState {
-  credential: ICredential;
-  onSetCredential: (credential: ICredential) => void;
+  credential: IUserDetail;
+  onSetCredential: (credential: IUserDetail) => void;
   onGetCredential: () => void;
   onClearCredential: () => void;
   onSetFallbackName: () => void;
@@ -21,25 +12,25 @@ interface AuthState {
 
 const useAuthStore = create<AuthState>((set, get) => ({
   credential: {
-    idUser: 1,
-    name: 'Rafael Kazuo Horauti',
+    idUser: 0,
+    name: '',
     email: '',
     fallbackName: '',
+    createdAt: '',
+    birthDate: '',
     isActive: false,
-    accessLevel: 0,
-    photoUrl: 'https://github.com/shadcn.png',
   },
   isDarkMode: true,
-  onSetCredential: (credential: ICredential) =>
+  onSetCredential: (credential: IUserDetail) =>
     set({
       credential: {
         idUser: credential.idUser,
         name: credential.name,
         email: credential.email,
         fallbackName: credential.fallbackName,
-        isActive: false,
-        accessLevel: credential.accessLevel,
-        photoUrl: credential.photoUrl,
+        birthDate: credential.birthDate,
+        createdAt: credential.createdAt,
+        isActive: credential.isActive,
       },
     }),
   onGetCredential: () => get().credential,
@@ -50,9 +41,9 @@ const useAuthStore = create<AuthState>((set, get) => ({
         name: '',
         email: '',
         fallbackName: '',
+        createdAt: '',
+        birthDate: '',
         isActive: false,
-        accessLevel: 0,
-        photoUrl: '',
       },
     }),
   onSetFallbackName: () => {

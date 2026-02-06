@@ -68,10 +68,11 @@ export default function Page() {
     description: '',
     isActive: false,
     title: '',
+    type: 'info',
   });
   const [isEmailSendDialogActive, setIsEmailSendDialogActive] = useState(false);
   const centeredTextHeaders = ['Id', 'Foto', 'Ações'];
-  const gridColsLayout = 'md:grid-cols-[1fr_1fr_4fr_4fr_4fr_1fr_1fr_1fr_4fr]';
+  const gridColsLayout = 'md:grid-cols-[1fr_1fr_4fr_4fr_4fr_1fr_1fr_3fr]';
   const [tableSort, setTableSort] = useState<0 | 1 | 2>(0);
 
   useEffect(() => {
@@ -174,6 +175,7 @@ export default function Page() {
         return {
           ...prev,
           title: 'Desativar usuário',
+          type: 'danger',
           description: `Deseja desativar o usuário ${user.name}`,
           isActive: true,
         };
@@ -181,6 +183,7 @@ export default function Page() {
         return {
           ...prev,
           title: 'Ativar usuário',
+          type: 'info',
           description: `Deseja ativar o usuário ${user.name}`,
           isActive: true,
         };
@@ -227,12 +230,12 @@ export default function Page() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex gap-2 justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 items-center sm:justify-between">
         <h1 className="font-medium md:text-2xl text-center">
           Usuários do condomínio {condoInfo?.name}
         </h1>
         <Select
-          value={condoInfo?.idCondo.toString()}
+          value={condoInfo ? condoInfo?.idCondo.toString() : ''}
           onValueChange={(idCondo) => onSetCondoInfo(Number(idCondo))}
         >
           <SelectTrigger
@@ -341,7 +344,7 @@ export default function Page() {
             </div>
             <div
               className={cn(
-                'flex gap-2 text-sm text-wrap break-words text-center md:text-start',
+                'flex justify-center md:justify-start items-center gap-2 text-sm text-wrap break-words text-center md:text-start',
                 user.isActive ? '' : 'opacity-40'
               )}
             >
@@ -351,9 +354,9 @@ export default function Page() {
                   <Image
                     src="/whatsapp.png"
                     alt="whatsapp image"
-                    width={16}
-                    height={16}
-                    className="cursor-pointer"
+                    width={18}
+                    height={18}
+                    className="cursor-pointer w-[18px] h-[18px] object-contain"
                   />
                 </Link>
               )}
@@ -361,8 +364,9 @@ export default function Page() {
                 <Image
                   src="/whatsapp.png"
                   alt="whatsapp image"
-                  width={16}
-                  height={16}
+                  width={18}
+                  height={18}
+                  className="w-[18px] h-[18px] object-contain"
                 />
               )}
             </div>
@@ -390,33 +394,6 @@ export default function Page() {
             >
               <span>Quadra: {user.address.block} /</span>
               <span> Lote: {user.address.lot}</span>
-            </div>
-            <div
-              className={cn(
-                'flex justify-center gap-2 text-sm text-wrap break-words text-center md:text-start',
-                user.isActive ? '' : 'opacity-40'
-              )}
-            >
-              <span className="md:hidden">E-mail validado?</span>
-              {user.isEmailConfirmed ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Check className="bg-green-800 rounded-full p-1 text-white" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Validado</p>
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <CircleAlert className="bg-red-700 rounded-full p-1 text-white" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Não validado</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
             </div>
             <div className="flex justify-center gap-3 my-2 md:my-1">
               <div>
@@ -469,6 +446,7 @@ export default function Page() {
         isActive={askDialog.isActive}
         description={askDialog.description}
         title={askDialog.title}
+        type={askDialog.type}
         onActionNok={() =>
           setAskDialog((prev) => {
             return { ...prev, isActive: false };

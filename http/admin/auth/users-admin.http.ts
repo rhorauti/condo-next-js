@@ -40,7 +40,7 @@ export const onSendEmailToCreateUser = async (
   user: AdminEmailUserSchema
 ): Promise<IFetchResponse<AdminEmailUserSchema>> => {
   return await onHttpRequestJson({
-    endpoint: 'admin/send-signup-email',
+    endpoint: 'send-signup-email',
     method: 'POST',
     data: user,
   });

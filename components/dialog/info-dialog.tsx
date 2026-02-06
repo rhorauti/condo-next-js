@@ -9,31 +9,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Check, CircleX } from 'lucide-react';
+import { Check, CircleX, Info } from 'lucide-react';
 import { Button } from '../ui/button';
+import { InfoDialogType } from '@/interfaces/dialog.interface';
 
 export interface IInfoDialogProps {
   isActive: boolean;
   title: string;
-  isDialogFailure: boolean;
+  type: InfoDialogType;
   description: string;
-  onOpenChange: () => void;
+  onCloseDialog: () => void;
 }
 
 export function InfoDialog({
   isActive = false,
-  isDialogFailure = true,
+  type = 'info',
   title,
   description,
-  onOpenChange,
+  onCloseDialog,
 }: IInfoDialogProps) {
   return (
-    <Dialog open={isActive} onOpenChange={onOpenChange}>
+    <Dialog open={isActive}>
       <DialogContent className="sm:max-w-[30rem]">
         <DialogHeader className="flex flex-col items-center gap-2">
-          {isDialogFailure ? (
+          {type == 'info' && (
+            <Info className="h-10 w-10 p-2 bg-destructive text-white rounded-full" />
+          )}
+          {type == 'danger' && (
             <CircleX className="h-10 w-10 p-2 bg-destructive text-white rounded-full" />
-          ) : (
+          )}
+          {type == 'success' && (
             <Check
               className="bg-success text-success-foreground p-1 rounded-full"
               size={30}
@@ -44,7 +49,9 @@ export function InfoDialog({
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="secondary">Fechar</Button>
+            <Button onClick={onCloseDialog} variant="secondary">
+              Fechar
+            </Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

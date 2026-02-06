@@ -12,7 +12,7 @@ export const initialUserInfo = {
   idUser: 0,
   createdAt: '',
   name: '',
-  birthDate: new Date('1984-02-22'),
+  birthDate: '',
   email: '',
   phone: '',
   mediaObject: {
@@ -23,7 +23,11 @@ export const initialUserInfo = {
   isActive: true,
   isEmailConfirmed: false,
   isWhatsapp: true,
-  accessLevel: 0,
+  role: {
+    idRole: 0,
+    name: '',
+    description: '',
+  },
   address: {
     idAddress: 0,
     postalCode: '',
@@ -46,17 +50,14 @@ export default function Page() {
   const idCondoParams = Number(params.idCondo);
   const idUserParams = Number(params.idUser);
   const [userInfo, setUserInfo] = useState<IUserDetail>(initialUserInfo);
-  const previousUrl = `/admin/condo/${idCondoParams}/users`;
+  const previousUrl = `/admin/users`;
 
   useEffect(() => {
     const idUserParams = Number(params.idUser);
-    onGetUserInfo(idCondoParams, idUserParams);
+    onGetUserInfo(idUserParams);
   }, [idUserParams, idCondoParams]);
 
-  const onGetUserInfo = async (
-    idCondo: number,
-    idUser: number
-  ): Promise<void> => {
+  const onGetUserInfo = async (idUser: number): Promise<void> => {
     // const user = await onGetAdminUserInfo(idCondo, idUser);
     // if (user) {
     //   setUserInfo(user.data);

@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
-import { Trash } from 'lucide-react';
+import { CircleArrowLeft, Send, Trash } from 'lucide-react';
 import { Input } from '../ui/input';
 import { useEffect, useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -82,7 +82,7 @@ export function EmailSendDialog({
       onActionNok();
     } catch (error: any) {
       toast.error(error.message, {
-        duration: 2000,
+        duration: 5000,
         action: {
           label: 'Fechar',
           onClick: () => {},
@@ -93,7 +93,7 @@ export function EmailSendDialog({
 
   return (
     <Dialog open={isActive} onOpenChange={(open) => !open && onActionNok()}>
-      <DialogContent className="sm:max-w-[30rem]" showCloseButton={true}>
+      <DialogContent className="sm:max-w-[30rem]">
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-4"
@@ -151,13 +151,23 @@ export function EmailSendDialog({
             )}
           />
 
-          <DialogFooter className="flex md:gap-4 gap-2">
+          <DialogFooter className="flex flex-col sm:flex-row gap-4 mt-2">
+            <Button
+              onClick={onActionNok}
+              type="button"
+              variant="outline"
+              disabled={formState.isSubmitting}
+            >
+              <CircleArrowLeft />
+              <span>Fechar</span>
+            </Button>
             <Button
               type="submit"
               variant="default"
               disabled={formState.isSubmitting}
             >
-              Enviar e-mail de cadastro
+              <Send />
+              <span>Enviar e-mail de cadastro</span>
             </Button>
           </DialogFooter>
         </form>

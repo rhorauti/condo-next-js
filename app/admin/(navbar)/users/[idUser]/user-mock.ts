@@ -2,7 +2,7 @@ export const userDetailsMock = {
   idUser: 0,
   createdAt: '2025-05-10',
   name: 'Rafael Horauti',
-  birthDate: new Date('1984-02-22'),
+  birthDate: '',
   email: 'rafafel_h44@hotmail.com',
   phone: '5511941221211',
   mediaObject: {
@@ -14,6 +14,11 @@ export const userDetailsMock = {
   isEmailConfirmed: false,
   isWhatsapp: true,
   accessLevel: 1,
+  role: {
+    idRole: 1,
+    name: 'USER',
+    description: '',
+  },
   address: {
     idAddress: 0,
     postalCode: '18074-761',

@@ -17,7 +17,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { PasswordInput } from '@/components/input/password-input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { ILogin } from '@/interfaces/web/auth.interface';
+import { ILoginRequest } from '@/interfaces/web/auth.interface';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +42,7 @@ const LoginForm = () => {
     defaultValues: {
       email: '',
       password: '',
-    } as ILogin,
+    } as ILoginRequest,
   });
 
   const { isSubmitting } = form.formState;

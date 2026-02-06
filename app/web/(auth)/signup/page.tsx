@@ -114,7 +114,7 @@ export default function SignUp() {
 
   useEffect(() => {
     onValidateSignUpToken();
-  }, [user]);
+  }, []);
 
   const onValidateSignUpToken = async (): Promise<void> => {
     try {
@@ -129,10 +129,6 @@ export default function SignUp() {
         },
       });
     }
-    console.log('user', user);
-    console.log('token', token);
-    console.log('name', searchParams.get('name'));
-    console.log('email', searchParams.get('email'));
   };
 
   const form = useForm<SignUpValues>({
@@ -167,7 +163,7 @@ export default function SignUp() {
             onClick: () => '',
           },
         });
-        router.push('/login');
+        router.push(WEB_ROUTES.LOGIN);
       } else {
         throw new Error(response?.message || 'Erro ao criar usuário');
       }
@@ -235,7 +231,10 @@ export default function SignUp() {
                       )}
                     ></Input>
                     {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                      <FieldError
+                        errors={[fieldState.error]}
+                        className="text-red-400"
+                      />
                     )}
                   </Field>
                 )}
@@ -297,7 +296,10 @@ export default function SignUp() {
                     </Popover>
 
                     {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                      <FieldError
+                        errors={[fieldState.error]}
+                        className="text-red-400"
+                      />
                     )}
                   </Field>
                 )}
@@ -329,7 +331,10 @@ export default function SignUp() {
                       )}
                     ></Input>
                     {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                      <FieldError
+                        errors={[fieldState.error]}
+                        className="text-red-400"
+                      />
                     )}
                   </Field>
                 )}
@@ -360,18 +365,22 @@ export default function SignUp() {
                       {fieldState.invalid && (
                         <ul className="space-y-1">
                           <RequirementItem
+                            className="text-red-400"
                             isValid={isLengthValid}
                             label={FORM_ERRORS.password.min}
                           />
                           <RequirementItem
+                            className="text-red-400"
                             isValid={check(PATTERNS.uppercase)}
                             label={FORM_ERRORS.password.uppercase}
                           />
                           <RequirementItem
+                            className="text-red-400"
                             isValid={check(PATTERNS.number)}
                             label={FORM_ERRORS.password.number}
                           />
                           <RequirementItem
+                            className="text-red-400"
                             isValid={check(PATTERNS.symbol)}
                             label={FORM_ERRORS.password.symbol}
                           />
@@ -427,7 +436,7 @@ export default function SignUp() {
 
                     {/* Error Message */}
                     {fieldState.invalid && (
-                      <span className="text-xs text-destructive">
+                      <span className="text-xs text-red-400">
                         {fieldState.error?.message}
                       </span>
                     )}

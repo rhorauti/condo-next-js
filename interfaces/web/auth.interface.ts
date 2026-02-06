@@ -1,6 +1,6 @@
-export type AuthDataResponse = Omit<ILogin, 'password'>;
+export type AuthDataResponse = Omit<ILoginRequest, 'password'>;
 
-export interface ILogin {
+export interface ILoginRequest {
   email: string;
   password: string;
 }

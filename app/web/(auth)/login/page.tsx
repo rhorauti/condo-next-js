@@ -17,13 +17,17 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { PasswordInput } from '@/components/input/password-input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { ILogin } from '@/interfaces/web/auth.interface';
+import { ILoginRequest } from '@/interfaces/web/auth.interface';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { onLoginUser } from '@/http/web/auth/auth.http';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
+import { IInfoDialog } from '@/interfaces/dialog.interface';
+import { InfoDialog } from '@/components/dialog/info-dialog';
+import { info } from 'sass';
+import useAuthStore from '@/store/web/auth.store';
 
 const loginSchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
@@ -35,53 +39,68 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 const LoginForm = () => {
   const formId = useId();
   const router = useRouter();
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const authStore = useAuthStore();
+  const [infoDialog, setInfoDialog] = useState<IInfoDialog>({
+    isActive: false,
+    title: '',
+    type: 'success',
+    description: '',
+    isActionOk: false,
+  });
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
-    } as ILogin,
+    } as ILoginRequest,
   });
 
   const { isSubmitting } = form.formState;
-  const isLoading = isSubmitting || isRedirecting;
 
   async function onSubmitForm(values: LoginFormValues) {
-    const toastId = toast.loading('Aguarde o login ser realizado.');
     try {
       const response = await onLoginUser(values);
-      if (response && response.status) {
-        setIsRedirecting(true);
-        const redirectDelay = 2000;
-        const timer = setTimeout(() => {
-          router.push(WEB_ROUTES.REPORTS);
-        }, redirectDelay);
-        toast.success('Login efetuado com sucesso!', {
-          id: toastId,
-          duration: redirectDelay,
-          action: {
-            label: 'Fechar',
-            onClick: () => {
-              clearTimeout(timer);
-              router.push(WEB_ROUTES.REPORTS);
-            },
-          },
+      if (response && response.data) {
+        authStore.onSetCredential(response.data);
+        setInfoDialog((prev) => {
+          return {
+            ...prev,
+            title: 'Login',
+            description: 'Login realizado com sucesso!',
+            type: 'success',
+            isActionOk: true,
+            isActive: true,
+          };
         });
       } else {
         throw new Error(response?.message || 'Erro ao fazer o login');
       }
-    } catch (error: unknown) {
-      toast.error((error as Error).message, {
-        id: toastId,
-        action: {
-          label: 'Fechar',
-          onClick: () => '',
-        },
+    } catch (error: any) {
+      setInfoDialog((prev) => {
+        return {
+          ...prev,
+          title: 'Login',
+          description:
+            error && error.message
+              ? error.message
+              : 'Login realizado com sucesso!',
+          type: 'danger',
+          isActionOk: false,
+          isActive: true,
+        };
       });
     }
   }
+
+  const onCloseInfoDialog = (): void => {
+    if (infoDialog.isActionOk) {
+      router.push(WEB_ROUTES.REPORTS);
+    }
+    setInfoDialog((prev) => {
+      return { ...prev, isActive: false };
+    });
+  };
 
   return (
     <>
@@ -127,12 +146,16 @@ const LoginForm = () => {
                     autoComplete="email"
                     placeholder="exemplo@provedor.com"
                     className={cn(
+                      'text-black',
                       fieldState.invalid &&
                         'border-destructive focus-visible:shadow-none'
                     )}
                   />
                   {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
+                    <FieldError
+                      errors={[fieldState.error]}
+                      className="text-red-400"
+                    />
                   )}
                 </Field>
               )}
@@ -153,12 +176,16 @@ const LoginForm = () => {
                     autoComplete="current-password"
                     {...field}
                     className={cn(
+                      'text-black',
                       fieldState.invalid &&
                         'border-destructive focus-visible:shadow-none'
                     )}
                   />
                   {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
+                    <FieldError
+                      errors={[fieldState.error]}
+                      className="text-red-400"
+                    />
                   )}
                 </Field>
               )}
@@ -180,19 +207,27 @@ const LoginForm = () => {
           <Button
             type="submit"
             form={formId}
-            disabled={isLoading}
+            disabled={isSubmitting}
             variant={'default'}
             size={'sm'}
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <span className="animate-spin mr-2">⏳</span>
             ) : (
               <LogIn className="mr-1" />
             )}
-            <span>{isLoading ? 'Entrando...' : 'Entrar'}</span>
+            <span>{isSubmitting ? 'Entrando...' : 'Entrar'}</span>
           </Button>
         </CardFooter>
       </Card>
+
+      <InfoDialog
+        isActive={infoDialog.isActive}
+        title={infoDialog.title}
+        description={infoDialog.description ?? ''}
+        type={infoDialog.type ?? 'info'}
+        onCloseDialog={onCloseInfoDialog}
+      />
     </>
   );
 };

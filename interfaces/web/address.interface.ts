@@ -1,12 +1,16 @@
 export interface IAddress {
-  idAddress: number | null;
-  postalCode: string;
-  address: string;
-  number?: string;
-  complement?: string;
-  district?: string;
-  city?: string;
-  state?: string;
+  idAddress: number;
+  postalCode: string | null;
+  type: string | null;
+  street: string | null;
+  number: string | null;
+  district: string | null;
+  city: string | null;
+  state: string | null;
+  blockType: string | null;
+  block: string | null;
+  lotType: string | null;
+  lot: string | null;
 }
 
 export interface IResponseViaCep {

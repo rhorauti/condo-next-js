@@ -1,30 +1,23 @@
 import { IMedia } from './admin/media.interface';
+import { IAddress } from './web/address.interface';
 
 export interface IUserDetail {
   idUser: number;
   createdAt: string;
   name: string;
-  birthDate: Date;
+  birthDate: string;
   email: string;
-  phone: string;
-  isWhatsapp: boolean;
-  mediaObject: IMedia | null;
+  phone?: string | null;
+  isWhatsapp?: boolean;
+  mediaObject?: IMedia | null;
   fallbackName: string;
   isActive: boolean;
-  isEmailConfirmed: boolean;
-  accessLevel: number;
-  address: {
-    idAddress: number;
-    postalCode: string | null;
-    type: string | null;
-    street: string | null;
-    number: string | null;
-    district: string | null;
-    city: string | null;
-    state: string | null;
-    blockType: string | null;
-    block: string | null;
-    lotType: string | null;
-    lot: string | null;
-  };
+  role?: IRole;
+  address?: IAddress;
+}
+
+export interface IRole {
+  idRole: number;
+  name: string;
+  description?: string | null;
 }

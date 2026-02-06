@@ -24,6 +24,7 @@ import { CircleCheck, CircleX } from 'lucide-react';
 export default function RequirementItem({
   isValid,
   label,
+  className,
 }: {
   /**
    * Toggles between the success (green) and failure (red) states.
@@ -33,12 +34,14 @@ export default function RequirementItem({
    * The requirement text to display.
    */
   label: string;
+  className: string;
 }) {
   return (
     <li
       className={cn(
         'flex items-center gap-2 text-xs transition-colors duration-300',
-        isValid ? 'text-green-600 dark:text-green-400' : 'text-destructive'
+        isValid ? 'text-green-600 dark:text-green-400' : 'text-destructive',
+        className
       )}
     >
       {isValid ? (

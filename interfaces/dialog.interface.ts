@@ -1,10 +1,13 @@
 import { AskDialogIconType } from '@/components/dialog/ask-dialog';
 
+export type InfoDialogType = 'danger' | 'success' | 'info';
+
 export interface IInfoDialog {
   isActive: boolean;
   title: string;
-  description: string;
-  isDialogFailure: boolean;
+  type?: InfoDialogType;
+  description?: string;
+  isActionOk: boolean;
 }
 
 export interface IAskDialog {

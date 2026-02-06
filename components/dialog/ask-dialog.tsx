@@ -12,6 +12,7 @@ import {
 import { Button } from '../ui/button';
 import { Info, Trash, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 export type AskDialogIconType = 'info' | 'danger';
 
@@ -46,12 +47,14 @@ export function AskDialog({
         showCloseButton={showCloseButton}
       >
         <DialogHeader className="flex flex-col items-center gap-2">
-          {dialogType == 'info' ? (
-            <Info className="bg-blue-800 dark:bg-blue-500 text-white h-10 w-10 p-2 rounded-full" />
-          ) : (
-            <Trash className="bg-destructive h-10 w-10 p-2 text-white rounded-full text-foreground" />
-          )}
-
+          <Info
+            className={cn(
+              ' text-white h-10 w-10 p-2 rounded-full',
+              dialogType == 'info'
+                ? 'bg-blue-800 dark:bg-blue-500'
+                : 'bg-destructive'
+            )}
+          />
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
