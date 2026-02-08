@@ -9,14 +9,14 @@ jest.mock('@/http/auth/auth.http');
 jest.mock('sonner');
 
 const mockUseRouter = jest.mocked(useRouter);
-const mockOnCreateUser = jest.mocked(onCreateUser);
+const mockOnCreateUser = jest.mocked(onSignUpUser);
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SignUp, { FORM_ERRORS } from './page';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { onCreateUser } from '@/http/web/auth/auth.http';
+import { onSignUpUser } from '@/http/web/auth/auth.http';
 
 describe('Sign Up Page', () => {
   const mockPush = jest.fn();

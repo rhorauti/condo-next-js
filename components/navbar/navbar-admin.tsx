@@ -44,7 +44,7 @@ import {
   ADMIN_ROUTES,
   buildAdminDinamicRoute,
 } from '@/enum/admin/admin-routes.enum';
-import { onGetAuthUser } from '@/http/web/auth/auth.http';
+import { onGetUserInfo } from '@/http/web/auth/auth.http';
 import { IUser } from '@/interfaces/user.interface';
 import { initialUserData } from './navbar';
 
@@ -62,7 +62,7 @@ export default function AdminNavbar() {
   }, []);
 
   const onGetUserInfo = async (): Promise<void> => {
-    const user = await onGetAuthUser();
+    const user = await onGetUserInfo();
     if (user) {
       setUserData(user.data ?? initialUserData);
     }

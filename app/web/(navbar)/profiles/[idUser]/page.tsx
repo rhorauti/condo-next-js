@@ -3,7 +3,7 @@
 import ProfileForm from '@/components/form/profile-form';
 import { Button } from '@/components/ui/button';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
-import { onGetDetailedAuthUser } from '@/http/web/auth/auth.http';
+import { onGetDetailedUserInfo } from '@/http/web/user/user.http';
 import { IUserDetail } from '@/interfaces/user.interface';
 import { ArrowLeftCircle } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -37,7 +37,7 @@ export default function Page() {
   }, [idUser]);
 
   const getAuthUser = async (): Promise<void> => {
-    const user = await onGetDetailedAuthUser();
+    const user = await onGetDetailedUserInfo();
     if (user) {
       setUserData(user.data ?? initialUserData);
     }

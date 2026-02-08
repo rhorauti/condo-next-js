@@ -35,7 +35,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
-import { onCreateUser, onValidateToken } from '@/http/web/auth/auth.http';
+import { onSignUpUser, onValidateToken } from '@/http/web/auth/auth.http';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
 
 const eighteenYearsAgo = new Date();
@@ -154,7 +154,7 @@ export default function SignUp() {
   const onSubmitForm = async (data: SignUpValues): Promise<void> => {
     const toastId = toast.loading('Validando os dados...');
     try {
-      const response = await onCreateUser(data);
+      const response = await onSignUpUser(data);
       if (response && response.status) {
         toast.success(response.message, {
           id: toastId,

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   BarChart3,
   BellIcon,
@@ -36,8 +36,8 @@ import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { buildWebDinamicRoute, WEB_ROUTES } from '@/enum/web/routes.enum';
 import { IUser } from '@/interfaces/user.interface';
-import { onGetAuthUser } from '@/http/web/auth/auth.http';
 import { USER_ROLES } from '@/enum/role.enum';
+import { onGetUserInfo } from '@/http/web/user/user.http';
 
 export const initialUserData: IUser = {
   idUser: 0,
@@ -58,11 +58,11 @@ export default function Navbar() {
 
   useEffect(() => {
     setMounted(true);
-    onGetUserInfo();
+    onGetUserOverallInfo();
   }, []);
 
-  const onGetUserInfo = async (): Promise<void> => {
-    const user = await onGetAuthUser();
+  const onGetUserOverallInfo = async (): Promise<void> => {
+    const user = await onGetUserInfo();
     if (user) {
       setUserData(user.data ?? initialUserData);
     }

@@ -28,6 +28,8 @@ import { DeleteDialog } from '../dialog/delete-dialog';
 import { toast } from 'sonner';
 import { IMaskInput } from 'react-imask';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
+import { USER_ROLES } from '@/enum/role.enum';
+import { onGetDetailedUserInfo, onUpdateUser } from '@/http/web/user/user.http';
 
 interface ProfileProps {
   previousUrl?: string;
@@ -83,11 +85,7 @@ const adminUserSchema = z.object({
     .nullable(),
   isActive: z.boolean(),
   isEmailConfirmed: z.boolean().optional(),
-  role: z.object({
-    idRole: z.number(),
-    name: z.string(),
-    description: z.string().optional().nullable(),
-  }),
+  role: z.enum(USER_ROLES),
   address: z.object({
     idAddress: z.number().optional(),
     postalCode: z
@@ -116,7 +114,7 @@ const adminUserSchema = z.object({
   }),
 });
 
-export type AdminUserSchema = z.infer<typeof adminUserSchema>;
+export type UserDetailSchema = z.infer<typeof adminUserSchema>;
 
 export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   const adminUserPageId = useId();
@@ -143,7 +141,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     isActive: false,
     title: '',
   });
-  const form = useForm<AdminUserSchema>({
+  const form = useForm<UserDetailSchema>({
     resolver: zodResolver(adminUserSchema),
     defaultValues: {
       idUser: 0,
@@ -159,11 +157,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       mediaFile: null,
       isActive: false,
       isEmailConfirmed: false,
-      role: {
-        idRole: 0,
-        name: '',
-        description: '',
-      },
+      role: USER_ROLES.USER,
       address: {
         idAddress: 0,
         postalCode: '',
@@ -196,7 +190,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       mediaObject: userData.mediaObject ?? null,
       mediaFile: null,
       isActive: userData.isActive,
-      role: userData.role,
+      role: userData.role ?? USER_ROLES.USER,
       address: {
         idAddress: userData.address?.idAddress,
         type: userData.address?.type,
@@ -293,7 +287,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     });
   };
 
-  const finalData: AdminUserSchema = {
+  const finalData: UserDetailSchema = {
     idUser: 0,
     name: '',
     birthDate: new Date('2026-01-28'),
@@ -304,11 +298,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       mediaUrl: '',
     },
     isActive: false,
-    role: {
-      idRole: 0,
-      name: '',
-      description: '',
-    },
+    role: USER_ROLES.USER,
     address: {
       idAddress: 0,
       postalCode: '',
@@ -343,7 +333,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     finalData.address.lot = getValues('address.lot') ?? '';
   };
 
-  const onSubmit = (): void => {
+  const onSubmit = async (): Promise<void> => {
     setFinalData();
     const formData = new FormData();
     const file = getValues('mediaFile');
@@ -351,8 +341,31 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       formData.append('file', file);
     }
     formData.append('data', JSON.stringify(finalData));
-    console.log('finalData', finalData);
-    console.log('file', file);
+    const toastId = toast.loading('Aguarde...');
+    try {
+      const response = await onUpdateUser(formData);
+      if (response && response.status) {
+        toast.success(response.message, {
+          id: toastId,
+          action: {
+            label: 'Fechar',
+            onClick: () => '',
+          },
+        });
+      } else {
+        throw new Error('Erro ao atualizar as informações do usuário.');
+      }
+    } catch (error: any) {
+      toast.error(error.message, {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
+      });
+    }
+    // console.log('finalData', finalData);
+    // console.log('file', file);
   };
 
   return (

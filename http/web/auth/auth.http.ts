@@ -4,16 +4,11 @@ import { PasswordRecoveryValues } from '@/app/web/(auth)/password-recovery/page'
 import { SignUpValues } from '@/app/web/(auth)/signup/page';
 import { onHttpRequestJson } from '@/http/http-request';
 import { IFetchResponse } from '@/interfaces/response.interface';
-import { IUser, IUserDetail } from '@/interfaces/user.interface';
-import {
-  ILoginRequest,
-  AuthDataResponse,
-  SignUpDataResponse,
-} from '@/interfaces/auth.interface';
+import { ILoginRequest, SignUpDataResponse } from '@/interfaces/auth.interface';
 
 export const onLoginUser = async (
   loginData: ILoginRequest
-): Promise<IFetchResponse<IUserDetail>> => {
+): Promise<IFetchResponse<{ email: string }>> => {
   return await onHttpRequestJson({
     endpoint: 'login',
     method: 'POST',
@@ -21,23 +16,7 @@ export const onLoginUser = async (
   });
 };
 
-export const onGetAuthUser = async (): Promise<IFetchResponse<IUser>> => {
-  return await onHttpRequestJson({
-    endpoint: `account/me`,
-    method: 'GET',
-  });
-};
-
-export const onGetDetailedAuthUser = async (): Promise<
-  IFetchResponse<IUserDetail>
-> => {
-  return await onHttpRequestJson({
-    endpoint: `profiles/me/detail`,
-    method: 'GET',
-  });
-};
-
-export const onCreateUser = async (
+export const onSignUpUser = async (
   signUpData: SignUpValues
 ): Promise<IFetchResponse<SignUpDataResponse>> => {
   return await onHttpRequestJson({
@@ -50,7 +29,7 @@ export const onCreateUser = async (
 export const onSetNewPassword = async (
   jwtToken: string,
   newPasswordData: NewPasswordValues
-): Promise<IFetchResponse<AuthDataResponse>> => {
+): Promise<IFetchResponse<{ email: string }>> => {
   return await onHttpRequestJson({
     jwtToken: jwtToken,
     endpoint: 'new-password',
@@ -61,7 +40,7 @@ export const onSetNewPassword = async (
 
 export const onSendRecoveryEmail = async (
   passwordRecoveryData: PasswordRecoveryValues
-): Promise<IFetchResponse<AuthDataResponse>> => {
+): Promise<IFetchResponse<{ email: string }>> => {
   return await onHttpRequestJson({
     endpoint: 'password-recovery',
     method: 'POST',
