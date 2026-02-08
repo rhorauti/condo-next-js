@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BarChart3,
-  Bell,
   BellIcon,
   Calendar,
   CircleQuestionMark,
@@ -13,7 +12,6 @@ import {
   LogOut,
   Menu,
   MessageSquare,
-  MessagesSquare,
   Monitor,
   Moon,
   Newspaper,
@@ -36,13 +34,23 @@ import { cn } from '@/lib/utils';
 import { Switch } from '../ui/switch';
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-import useAuthStore from '@/store/web/auth.store';
 import { buildWebDinamicRoute, WEB_ROUTES } from '@/enum/web/routes.enum';
+import { IUser } from '@/interfaces/user.interface';
+import { onGetAuthUser } from '@/http/web/auth/auth.http';
+import { USER_ROLES } from '@/enum/role.enum';
+
+export const initialUserData: IUser = {
+  idUser: 0,
+  email: '',
+  fallbackName: '',
+  name: '',
+  role: USER_ROLES.USER,
+  mediaObject: null,
+  isActive: false,
+};
 
 export default function Navbar() {
-  const authStore = useAuthStore((state) => state);
-  // const [isProfileBoxActive, setIsProfileBoxActive] = useState(false);
-  const profileBoxRef = useRef<HTMLDivElement | null>(null);
+  const [userData, setUserData] = useState<IUser>();
   const router = useRouter();
   const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
   const { setTheme, theme } = useTheme();
@@ -50,20 +58,20 @@ export default function Navbar() {
 
   useEffect(() => {
     setMounted(true);
+    onGetUserInfo();
   }, []);
 
-  const fallbackName = useMemo(() => {
-    authStore.onSetFallbackName();
-    return authStore.credential.fallbackName;
-  }, [authStore.credential.name]);
+  const onGetUserInfo = async (): Promise<void> => {
+    const user = await onGetAuthUser();
+    if (user) {
+      setUserData(user.data ?? initialUserData);
+    }
+  };
 
   const navBarItems = [
     {
       title: 'Dados Cadastrais',
-      href: buildWebDinamicRoute(
-        WEB_ROUTES.PROFILES,
-        authStore.credential.idUser
-      ),
+      href: buildWebDinamicRoute(WEB_ROUTES.PROFILES, 'me'),
       icon: <User />,
     },
     {
@@ -256,8 +264,8 @@ export default function Navbar() {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold">
-              <AvatarImage src={authStore.credential.photoUrl} />
-              <AvatarFallback>{fallbackName}</AvatarFallback>
+              <AvatarImage src={userData?.mediaObject?.mediaUrl} />
+              <AvatarFallback>{userData?.fallbackName}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -342,22 +350,36 @@ export default function Navbar() {
         <div className="flex flex-col items-start gap-8">
           <div className="flex flex-col justify-center items-center gap-2 mx-auto">
             <Avatar
-              onClick={authStore.onShowProfile}
+              onClick={() =>
+                router.push(
+                  buildWebDinamicRoute(
+                    WEB_ROUTES.PROFILES,
+                    userData?.idUser ?? 0
+                  )
+                )
+              }
               className={cn('h-12 w-12 rounded-full cursor-pointer')}
             >
               <AvatarImage
-                src={authStore.credential.photoUrl}
+                src={userData?.mediaObject?.mediaUrl}
                 alt="Profile Image"
               />
               <AvatarFallback className="rounded-lg">
-                {authStore.credential.fallbackName}
+                {userData?.fallbackName}
               </AvatarFallback>
             </Avatar>
             <span
-              onClick={authStore.onShowProfile}
+              onClick={() =>
+                router.push(
+                  buildWebDinamicRoute(
+                    WEB_ROUTES.PROFILES,
+                    userData?.idUser ?? 0
+                  )
+                )
+              }
               className="font-semibold cursor-pointer hover:underline"
             >
-              {authStore.credential.name}
+              {userData?.name}
             </span>
           </div>
           <div className="flex flex-col justify-start items-center gap-4 w-full">

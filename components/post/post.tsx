@@ -14,7 +14,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { IPost } from '@/interfaces/web/post.interface';
+import { IPost } from '@/interfaces/post.interface';
 import {
   DropdownMenu,
   DropdownMenuContent,

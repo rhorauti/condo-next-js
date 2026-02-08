@@ -34,7 +34,7 @@ export default function RequirementItem({
    * The requirement text to display.
    */
   label: string;
-  className: string;
+  className?: string;
 }) {
   return (
     <li

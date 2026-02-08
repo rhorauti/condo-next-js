@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
-import { IPost } from '@/interfaces/web/post.interface';
+import { IPost } from '@/interfaces/post.interface';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

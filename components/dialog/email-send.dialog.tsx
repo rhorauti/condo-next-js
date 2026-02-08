@@ -19,6 +19,7 @@ import { Field, FieldError, FieldLabel } from '../ui/field';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { onSendEmailToCreateUser } from '@/http/admin/auth/users-admin.http';
 import { toast } from 'sonner';
+import { USER_ROLES } from '@/enum/role.enum';
 
 const adminEmailUserSchema = z.object({
   email: z
@@ -39,19 +40,22 @@ const adminEmailUserSchema = z.object({
           'Informe nome e sobrenome, com o primeiro nome tendo pelo menos 2 letras.',
       }
     ),
+  role: z.enum(USER_ROLES),
 });
 
 export type AdminEmailUserSchema = z.infer<typeof adminEmailUserSchema>;
 
-export interface IAskDialogProps {
+export interface IEmailSendgProps {
   isActive: boolean;
+  role: USER_ROLES;
   onActionNok: () => void;
 }
 
 export function EmailSendDialog({
   isActive = false,
+  role,
   onActionNok,
-}: IAskDialogProps) {
+}: IEmailSendgProps) {
   const emailUserDialogId = useId();
 
   const form = useForm<AdminEmailUserSchema>({
@@ -59,6 +63,7 @@ export function EmailSendDialog({
     defaultValues: {
       email: '',
       name: '',
+      role: role,
     },
   });
 

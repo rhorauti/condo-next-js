@@ -1,3 +1,4 @@
+import { USER_ROLES } from '@/enum/role.enum';
 import { IAdminUsersHome } from '@/interfaces/admin/admin-users.interface';
 import { IFetchResponse } from '@/interfaces/response.interface';
 
@@ -38,8 +39,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: false,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -56,8 +56,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: false,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -74,8 +73,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -92,8 +90,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -110,8 +107,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -128,8 +124,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: false,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -146,8 +141,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -164,8 +158,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -182,8 +175,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: false,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -200,8 +192,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: false,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -218,8 +209,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -236,8 +226,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -254,8 +243,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -272,8 +260,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: false,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -290,8 +277,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',
@@ -308,8 +294,7 @@ export const response: IFetchResponse<IAdminUsersHome> = {
         photoUrl: 'https://github.com/shadcn.png',
         fallbackName: 'RH',
         isActive: true,
-        isEmailConfirmed: true,
-        accessLevel: 1,
+        role: USER_ROLES.USER,
         address: {
           idAddress: 1,
           block: '10',

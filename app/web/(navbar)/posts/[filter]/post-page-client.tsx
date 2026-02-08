@@ -4,7 +4,7 @@ import Post from '@/components/post/post';
 import { PostFormDialog } from '@/components/post/post-form-dialog';
 import SearchBar from '@/components/search-bar/search-bar';
 import { Button } from '@/components/ui/button';
-import { IPost } from '@/interfaces/web/post.interface';
+import { IPost } from '@/interfaces/post.interface';
 import { cn } from '@/lib/utils';
 import useAuthStore from '@/store/web/auth.store';
 import { FileText, Plus } from 'lucide-react';

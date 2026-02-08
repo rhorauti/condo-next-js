@@ -1,3 +1,5 @@
+import { USER_ROLES } from '@/enum/role.enum';
+
 export const userDetailsMock = {
   idUser: 0,
   createdAt: '2025-05-10',
@@ -13,12 +15,7 @@ export const userDetailsMock = {
   isActive: true,
   isEmailConfirmed: false,
   isWhatsapp: true,
-  accessLevel: 1,
-  role: {
-    idRole: 1,
-    name: 'USER',
-    description: '',
-  },
+  role: USER_ROLES.USER,
   address: {
     idAddress: 0,
     postalCode: '18074-761',

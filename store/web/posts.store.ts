@@ -2,7 +2,7 @@ import {
   IPost,
   IPostComment,
   IPostSubComment,
-} from '@/interfaces/web/post.interface';
+} from '@/interfaces/post.interface';
 import { create } from 'zustand';
 
 interface IPostStore {

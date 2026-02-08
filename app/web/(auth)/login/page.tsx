@@ -16,8 +16,7 @@ import {
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { PasswordInput } from '@/components/input/password-input';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
-import { ILoginRequest } from '@/interfaces/web/auth.interface';
+import { ILoginRequest } from '@/interfaces/auth.interface';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +38,6 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 const LoginForm = () => {
   const formId = useId();
   const router = useRouter();
-  const authStore = useAuthStore();
   const [infoDialog, setInfoDialog] = useState<IInfoDialog>({
     isActive: false,
     title: '',
@@ -62,7 +60,6 @@ const LoginForm = () => {
     try {
       const response = await onLoginUser(values);
       if (response && response.data) {
-        authStore.onSetCredential(response.data);
         setInfoDialog((prev) => {
           return {
             ...prev,

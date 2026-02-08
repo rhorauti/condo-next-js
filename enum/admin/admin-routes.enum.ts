@@ -13,6 +13,7 @@ export enum ADMIN_ROUTES {
   USERS = prefix + 'users',
   REPORTS = prefix + 'reports',
   EVENTS = prefix + 'events',
+  PROFILES = prefix + 'profiles',
   FAQ = prefix + 'faq',
   POLICY = prefix + 'policy',
 }

@@ -12,7 +12,7 @@ import { Button } from '../ui/button';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
-import { IMedia } from '@/interfaces/admin/media.interface';
+import { IMedia } from '@/interfaces/media.interface';
 import { readonly } from 'zod';
 
 type ImageUploadProps<T extends FieldValues> = {

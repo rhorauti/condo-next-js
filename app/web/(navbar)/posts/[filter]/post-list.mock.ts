@@ -1,4 +1,4 @@
-import { IPost } from '@/interfaces/web/post.interface';
+import { IPost } from '@/interfaces/post.interface';
 
 export const postList: IPost[] = [
   {

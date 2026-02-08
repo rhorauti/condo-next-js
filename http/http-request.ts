@@ -1,5 +1,5 @@
 import { IFetchResponse } from '@/interfaces/response.interface';
-import { ICSRFTokenResponse } from '@/interfaces/web/auth.interface';
+import { ICSRFTokenResponse } from '@/interfaces/auth.interface';
 
 interface BaseConfig {
   apiUrl?: string;

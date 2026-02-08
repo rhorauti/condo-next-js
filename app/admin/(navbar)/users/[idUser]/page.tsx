@@ -7,6 +7,7 @@ import { ArrowLeftCircle } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { userDetailsMock } from './user-mock';
+import { USER_ROLES } from '@/enum/role.enum';
 
 export const initialUserInfo = {
   idUser: 0,
@@ -21,13 +22,8 @@ export const initialUserInfo = {
   },
   fallbackName: '',
   isActive: true,
-  isEmailConfirmed: false,
   isWhatsapp: true,
-  role: {
-    idRole: 0,
-    name: '',
-    description: '',
-  },
+  role: USER_ROLES.USER,
   address: {
     idAddress: 0,
     postalCode: '',

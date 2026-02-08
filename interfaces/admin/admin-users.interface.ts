@@ -1,4 +1,5 @@
-import { IAdminCondoUserHome } from './condo.interface';
+import { USER_ROLES } from '@/enum/role.enum';
+import { IAdminCondoUserHome } from './admin-condo.interface';
 
 export interface IAdminUsersHome {
   idUser: number;
@@ -15,9 +16,8 @@ export interface IAdminUserHome {
   phone: string;
   photoUrl: string;
   fallbackName: string;
+  role: USER_ROLES;
   isActive: boolean;
-  isEmailConfirmed: boolean;
-  accessLevel: number;
   isWhatsapp: boolean;
   address: {
     idAddress: number;

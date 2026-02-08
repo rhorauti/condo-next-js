@@ -40,11 +40,16 @@ import { Switch } from '../ui/switch';
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import useAuthAdminStore from '@/store/admin/auth-admin.store';
-import { ADMIN_ROUTES } from '@/enum/admin/routes.enum';
+import {
+  ADMIN_ROUTES,
+  buildAdminDinamicRoute,
+} from '@/enum/admin/admin-routes.enum';
+import { onGetAuthUser } from '@/http/web/auth/auth.http';
+import { IUser } from '@/interfaces/user.interface';
+import { initialUserData } from './navbar';
 
 export default function AdminNavbar() {
-  const authStore = useAuthAdminStore((state) => state);
-  // const [isProfileBoxActive, setIsProfileBoxActive] = useState(false);
+  const [userData, setUserData] = useState<IUser>();
   const profileBoxRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
   const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
@@ -53,12 +58,15 @@ export default function AdminNavbar() {
 
   useEffect(() => {
     setMounted(true);
+    onGetUserInfo();
   }, []);
 
-  const fallbackName = useMemo(() => {
-    authStore.onSetFallbackName();
-    return authStore.credential.fallbackName;
-  }, [authStore.credential.name]);
+  const onGetUserInfo = async (): Promise<void> => {
+    const user = await onGetAuthUser();
+    if (user) {
+      setUserData(user.data ?? initialUserData);
+    }
+  };
 
   const navBarItems = [
     {
@@ -238,8 +246,8 @@ export default function AdminNavbar() {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold">
-              <AvatarImage src={authStore.credential.photoUrl} />
-              <AvatarFallback>{fallbackName}</AvatarFallback>
+              <AvatarImage src={userData?.mediaObject?.mediaUrl} />
+              <AvatarFallback>{userData?.fallbackName}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -324,22 +332,36 @@ export default function AdminNavbar() {
         <div className="flex flex-col items-start gap-8">
           <div className="flex flex-col justify-center items-center gap-2 mx-auto">
             <Avatar
-              onClick={authStore.onShowProfile}
+              onClick={() =>
+                router.push(
+                  buildAdminDinamicRoute(
+                    ADMIN_ROUTES.PROFILES,
+                    userData?.idUser ?? 0
+                  )
+                )
+              }
               className={cn('h-12 w-12 rounded-full cursor-pointer')}
             >
               <AvatarImage
-                src={authStore.credential.photoUrl}
+                src={userData?.mediaObject?.mediaUrl}
                 alt="Profile Image"
               />
               <AvatarFallback className="rounded-lg">
-                {authStore.credential.fallbackName}
+                {userData?.fallbackName}
               </AvatarFallback>
             </Avatar>
             <span
-              onClick={authStore.onShowProfile}
+              onClick={() =>
+                router.push(
+                  buildAdminDinamicRoute(
+                    ADMIN_ROUTES.PROFILES,
+                    userData?.idUser ?? 0
+                  )
+                )
+              }
               className="font-semibold cursor-pointer hover:underline"
             >
-              {authStore.credential.name}
+              {userData?.name}
             </span>
           </div>
           <div className="flex flex-col justify-start items-center gap-4 w-full">

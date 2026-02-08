@@ -3,23 +3,44 @@
 import ProfileForm from '@/components/form/profile-form';
 import { Button } from '@/components/ui/button';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
-import { onGetUser } from '@/http/web/auth/auth.http';
+import { onGetDetailedAuthUser } from '@/http/web/auth/auth.http';
 import { IUserDetail } from '@/interfaces/user.interface';
-import useAuthStore from '@/store/web/auth.store';
 import { ArrowLeftCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
+const initialUserData = {
+  idUser: 0,
+  name: '',
+  birthDate: '',
+  createdAt: '',
+  email: '',
+  fallbackName: '',
+  isActive: false,
+  isWhatsapp: false,
+  mediaObject: null,
+  phone: '',
+};
 
 export default function Page() {
   const router = useRouter();
+  const params = useParams();
+  const idUser = params.idUser ?? 0;
   const previousUrl = WEB_ROUTES.PROFILES;
-  const authStore = useAuthStore();
-  const [userData, setUserData] = useState<IUserDetail>();
+  const [userData, setUserData] = useState<IUserDetail>(initialUserData);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    console.log('me', idUser);
+    if (idUser == 'me') {
+      getAuthUser();
+    }
+  }, [idUser]);
 
-  const getUser = async (): Promise<void> => {
-    const user = await onGetUser(authStore.credential.idUser);
+  const getAuthUser = async (): Promise<void> => {
+    const user = await onGetDetailedAuthUser();
+    if (user) {
+      setUserData(user.data ?? initialUserData);
+    }
   };
 
   return (
@@ -37,7 +58,7 @@ export default function Page() {
           <span className="hidden xs:inline">Voltar</span>
         </Button>
       </div>
-      <ProfileForm userData={authStore.credential} previousUrl={previousUrl} />
+      <ProfileForm userData={userData} previousUrl={previousUrl} />
     </div>
   );
 }

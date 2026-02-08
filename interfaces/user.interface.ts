@@ -1,5 +1,6 @@
-import { IMedia } from './admin/media.interface';
-import { IAddress } from './web/address.interface';
+import { IMedia } from './media.interface';
+import { IAddress } from './address.interface';
+import { USER_ROLES } from '@/enum/role.enum';
 
 export interface IUserDetail {
   idUser: number;
@@ -12,12 +13,16 @@ export interface IUserDetail {
   mediaObject?: IMedia | null;
   fallbackName: string;
   isActive: boolean;
-  role?: IRole;
+  role?: USER_ROLES;
   address?: IAddress;
 }
 
-export interface IRole {
-  idRole: number;
+export interface IUser {
+  idUser: number;
   name: string;
-  description?: string | null;
+  email: string;
+  mediaObject?: IMedia | null;
+  role: USER_ROLES;
+  fallbackName: string;
+  isActive: boolean;
 }

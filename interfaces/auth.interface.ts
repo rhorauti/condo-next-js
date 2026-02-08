@@ -7,17 +7,15 @@ export interface ILoginRequest {
 
 export type SignUpDataResponse = Omit<ISignUp, 'password'>;
 
-export interface ISignUp {
-  email: string;
-  password: string;
+export interface ISignUp extends ILoginRequest {
   name: string;
   birthDate: Date;
 }
 
-export interface INewPassword {
-  password: string;
-}
+export type INewPassword = Omit<ILoginRequest, 'email'>;
 
 export interface ICSRFTokenResponse {
   csrfToken: string;
 }
+
+export interface IAuthUser extends ISignUp {}

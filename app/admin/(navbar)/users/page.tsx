@@ -29,9 +29,9 @@ import {
 } from 'next/navigation';
 import { useEffect, useId, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { ITableHeaders } from '@/interfaces/admin/table.interface';
+import { ITableHeaders } from '@/interfaces/admin/admin-table.interface';
 import { usersTableHeaders } from './tableHeaders';
-import { IAdminCondoUserHome } from '@/interfaces/admin/condo.interface';
+import { IAdminCondoUserHome } from '@/interfaces/admin/admin-condo.interface';
 import { formatTelephoneNumber } from '@/utils/misc';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -45,8 +45,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ADMIN_ROUTES, buildAdminDinamicRoute } from '@/enum/admin/routes.enum';
+import {
+  ADMIN_ROUTES,
+  buildAdminDinamicRoute,
+} from '@/enum/admin/admin-routes.enum';
 import { onSendEmailToCreateUser } from '@/http/admin/auth/users-admin.http';
+import { USER_ROLES } from '@/enum/role.enum';
 
 export default function Page() {
   const adminUserPageId = useId();
@@ -456,6 +460,7 @@ export default function Page() {
       />
       <EmailSendDialog
         isActive={isEmailSendDialogActive}
+        role={USER_ROLES.USER}
         onActionNok={() => setIsEmailSendDialogActive(false)}
       />
     </div>

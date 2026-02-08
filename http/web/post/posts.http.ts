@@ -2,7 +2,7 @@ import {
   IPost,
   IPostComment,
   IPostSubComment,
-} from '@/interfaces/web/post.interface';
+} from '@/interfaces/post.interface';
 import { IFetchResponse } from '@/interfaces/response.interface';
 import { onHttpRequestJson } from '@/http/http-request';
 

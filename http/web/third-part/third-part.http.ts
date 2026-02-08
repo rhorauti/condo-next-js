@@ -1,6 +1,6 @@
 import { onHttpRequestJson } from '@/http/http-request';
 import { IFetchResponse } from '@/interfaces/response.interface';
-import { IResponseViaCep } from '@/interfaces/web/address.interface';
+import { IResponseViaCep } from '@/interfaces/address.interface';
 
 export const getAddressFromCep = async (
   cep: string
