@@ -39,8 +39,7 @@ interface ProfileProps {
 const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
 
-const adminUserSchema = z.object({
-  idUser: z.number(),
+const userSchema = z.object({
   createdAt: z.date().optional(),
   name: z
     .string()
@@ -114,7 +113,7 @@ const adminUserSchema = z.object({
   }),
 });
 
-export type UserDetailSchema = z.infer<typeof adminUserSchema>;
+export type UserDetailSchema = z.infer<typeof userSchema>;
 
 export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   const adminUserPageId = useId();
@@ -142,9 +141,8 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     title: '',
   });
   const form = useForm<UserDetailSchema>({
-    resolver: zodResolver(adminUserSchema),
+    resolver: zodResolver(userSchema),
     defaultValues: {
-      idUser: 0,
       createdAt: new Date('2026-01-26'),
       name: '',
       birthDate: new Date('1984-02-28'),
@@ -181,7 +179,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   useEffect(() => {
     if (!userData) return;
     reset({
-      idUser: userData.idUser,
       createdAt: new Date(userData.createdAt),
       name: userData.name,
       birthDate: new Date(userData.birthDate),
@@ -200,9 +197,9 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         district: userData.address?.district,
         city: userData.address?.city,
         state: userData.address?.state,
-        blockType: userData.address?.blockType,
+        blockType: userData.address?.blockType ?? 'Quadra',
         block: userData.address?.block,
-        lotType: userData.address?.lotType,
+        lotType: userData.address?.lotType ?? 'Lote',
         lot: userData.address?.lot,
       },
     });
@@ -288,7 +285,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   };
 
   const finalData: UserDetailSchema = {
-    idUser: 0,
     name: '',
     birthDate: new Date('2026-01-28'),
     email: '',
@@ -313,7 +309,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   };
 
   const setFinalData = () => {
-    finalData.idUser = getValues('idUser');
     finalData.name = getValues('name');
     finalData.birthDate = new Date(getValues('birthDate'));
     finalData.email = getValues('email');
@@ -404,26 +399,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
           <div className="flex flex-col gap-2 grow">
             <div className="flex flex-col md:flex-row gap-2">
               <>
-                <Controller
-                  name="idUser"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field className={cn('md:shrink')}>
-                      <FieldLabel
-                        htmlFor={`admin-user-input-id-user-${adminUserPageId}`}
-                      >
-                        Id
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        value={field.value}
-                        disabled={formState.isSubmitting || !isActive}
-                        readOnly
-                        id={`admin-user-input-id-user-${adminUserPageId}`}
-                      />
-                    </Field>
-                  )}
-                />
                 <Controller
                   name="createdAt"
                   control={control}

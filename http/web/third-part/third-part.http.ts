@@ -1,13 +1,12 @@
-import { onHttpRequestJson } from '@/http/http-request';
-import { IFetchResponse } from '@/interfaces/response.interface';
+import { onHttpExternalRequest } from '@/http/http-request';
 import { IResponseViaCep } from '@/interfaces/address.interface';
 
 export const getAddressFromCep = async (
   cep: string
 ): Promise<IResponseViaCep> => {
   const clearCep = cep.replace(/\D/g, '');
-  return await onHttpRequestJson({
-    apiUrl: `https://viacep.com.br/ws/${clearCep}/json/`,
+  return await onHttpExternalRequest({
+    url: `https://viacep.com.br/ws/${clearCep}/json/`,
     method: 'GET',
   });
 };
