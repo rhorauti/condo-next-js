@@ -143,7 +143,7 @@ const LoginForm = () => {
                     autoComplete="email"
                     placeholder="exemplo@provedor.com"
                     className={cn(
-                      'text-black',
+                      'text-foreground',
                       fieldState.invalid &&
                         'border-destructive focus-visible:shadow-none'
                     )}
@@ -173,7 +173,7 @@ const LoginForm = () => {
                     autoComplete="current-password"
                     {...field}
                     className={cn(
-                      'text-black',
+                      'text-foreground',
                       fieldState.invalid &&
                         'border-destructive focus-visible:shadow-none'
                     )}

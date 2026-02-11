@@ -4,7 +4,7 @@ import { ICSRFTokenResponse } from '@/interfaces/auth.interface';
 interface BaseConfig {
   apiUrl?: string;
   endpoint?: string;
-  jwtToken?: string;
+  accessToken?: string;
 }
 
 interface JsonConfig extends BaseConfig {
@@ -29,12 +29,15 @@ let cachedCsrfToken: string | null = null;
 export async function getOrFetchCsrfToken(): Promise<string> {
   if (cachedCsrfToken) return cachedCsrfToken;
 
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/csrf-token`;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/auth/csrf-token`;
   const options: RequestInit = {
     method: 'GET',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
   };
+
+  console.log('url', url);
+  console.log('options', options);
 
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -96,7 +99,8 @@ async function applyCsrfIfNeeded(
       ...headers,
       'X-CSRF-Token': csrfToken,
     };
-  } catch {
+  } catch (error) {
+    console.log('CSRF', error);
     throw new Error('Erro ao gerar o CSRF Token');
   }
 }
@@ -107,14 +111,14 @@ async function applyCsrfIfNeeded(
 export async function onHttpRequestJson({
   endpoint,
   method = 'GET',
-  jwtToken,
+  accessToken,
   data,
 }: JsonConfig): Promise<any> {
   const url = buildApiUrl(endpoint);
 
   let headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
+    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
   };
 
   headers = await applyCsrfIfNeeded(method, headers);
@@ -170,13 +174,13 @@ export async function onHttpExternalRequest({
 export async function onHttpRequestFormData({
   endpoint,
   method = 'POST',
-  jwtToken,
+  accessToken,
   formData,
 }: FormDataConfig): Promise<any> {
   const url = buildApiUrl(endpoint);
 
   let headers: HeadersInit = {
-    ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
+    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
   };
 
   headers = await applyCsrfIfNeeded(method, headers);

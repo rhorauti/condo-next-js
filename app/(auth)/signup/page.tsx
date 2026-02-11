@@ -37,6 +37,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { onSignUpUser, onValidateToken } from '@/http/web/auth/auth.http';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
+import { createSupabaseBrowserClient } from '@/app/supabase/supabase.config';
+import { UserResponse } from '@supabase/supabase-js';
 
 const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
@@ -97,39 +99,51 @@ const signUpSchema = z.object({
   agreedWithTerms: z.boolean().refine((checked) => checked == true, {
     error: 'Os termos devem ser aceitos antes de realizar o login.',
   }),
+  role: z.string(),
 });
 
 export type SignUpValues = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
-  const user = {
-    name: searchParams.get('name'),
-    email: searchParams.get('email'),
-  };
+  // const searchParams = useSearchParams();
+  // const token = searchParams.get('token');
+  // const user = {
+  //   name: searchParams.get('name'),
+  //   email: searchParams.get('email'),
+  // };
   const formId = useId();
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
 
   useEffect(() => {
-    onValidateSignUpToken();
+    supabase.auth.getSession().then(({ data }) => {
+      console.log('session', data.session);
+
+      if (data.session?.user) {
+        const user = data.session.user;
+
+        form.setValue('email', user.email ?? '');
+        form.setValue('name', user.user_metadata?.name ?? '');
+        form.setValue('role', user.user_metadata?.role ?? '');
+      }
+    });
   }, []);
 
-  const onValidateSignUpToken = async (): Promise<void> => {
-    try {
-      await onValidateToken(token ?? '');
-      form.setValue('email', user.email ?? '');
-      form.setValue('name', user.name ?? '');
-    } catch (error) {
-      toast.error('Erro ao validar o token de segurança', {
-        action: {
-          label: 'Fechar',
-          onClick: () => '',
-        },
-      });
-    }
-  };
+  // const onValidateSignUpToken = async (): Promise<void> => {
+  //   try {
+  //     await onValidateToken(token ?? '');
+  //     form.setValue('email', user.email ?? '');
+  //     form.setValue('name', user.name ?? '');
+  //   } catch (error) {
+  //     toast.error('Erro ao validar o token de segurança', {
+  //       action: {
+  //         label: 'Fechar',
+  //         onClick: () => '',
+  //       },
+  //     });
+  //   }
+  // };
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -139,6 +153,7 @@ export default function SignUp() {
       email: '',
       birthDate: undefined,
       agreedWithTerms: false,
+      role: '',
     },
   });
 
@@ -151,30 +166,41 @@ export default function SignUp() {
   const check = (regex: RegExp) => regex.test(passwordValue);
   const isLengthValid = passwordValue.length >= 6;
 
-  const onSubmitForm = async (data: SignUpValues): Promise<void> => {
+  const onSubmitForm = async (formData: SignUpValues): Promise<void> => {
     const toastId = toast.loading('Validando os dados...');
+
     try {
-      const response = await onSignUpUser(data);
-      if (response && response.status) {
-        toast.success(response.message, {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
-        router.push(WEB_ROUTES.LOGIN);
-      } else {
-        throw new Error(response?.message || 'Erro ao criar usuário');
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (!sessionData.session) {
+        throw new Error('Sessão inválida ou expirada.');
       }
-    } catch (error: unknown) {
-      toast.error((error as Error).message, {
-        id: toastId,
-        action: {
-          label: 'Fechar',
-          onClick: () => '',
+
+      const { error } = await supabase.auth.updateUser({
+        password: formData.password,
+        data: {
+          name: formData.name,
+          role: formData.role,
         },
       });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const response = await onSignUpUser(
+        sessionData.session.access_token,
+        formData
+      );
+
+      if (!response?.status) {
+        throw new Error(response?.message || 'Erro ao criar usuário');
+      }
+
+      toast.success(response.message, { id: toastId });
+      router.push(WEB_ROUTES.LOGIN);
+    } catch (error: unknown) {
+      toast.error((error as Error).message, { id: toastId });
     }
   };
 

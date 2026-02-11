@@ -26,21 +26,11 @@ export const onChangeUserActivationStatus = async (
   });
 };
 
-export const onGetAdminUserInfo = async (
-  idCondo: number,
-  idUser: number
-): Promise<IFetchResponse<IUserDetail>> => {
-  return await onHttpRequestJson({
-    endpoint: `admin/condo/${idCondo}/users/${idUser}`,
-    method: 'GET',
-  });
-};
-
 export const onSendEmailToCreateUser = async (
   user: AdminEmailUserSchema
 ): Promise<IFetchResponse<AdminEmailUserSchema>> => {
   return await onHttpRequestJson({
-    endpoint: 'send-signup-email',
+    endpoint: 'auth/send-signup-email',
     method: 'POST',
     data: user,
   });
