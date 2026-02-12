@@ -1,17 +1,20 @@
 'use client';
 
-import {
-  onGetAdminUserInfo,
-  onSendEmailToCreateUser,
-} from '@/http/admin/auth/users-admin.http';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useId, useState } from 'react';
 import { z } from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { ArrowLeftCircle, ChevronDownIcon, Loader2, Save } from 'lucide-react';
+import {
+  ArrowLeftCircle,
+  ChevronDownIcon,
+  Pencil,
+  Plus,
+  Save,
+  Trash,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Popover } from '@radix-ui/react-popover';
@@ -21,15 +24,20 @@ import { formatDateTime, onRemoveMask } from '@/utils/misc';
 import { Switch } from '@/components/ui/switch';
 import { ProfileImgUpload } from '@/components/file-upload/profile-img-upload';
 import { IUserDetail } from '@/interfaces/user.interface';
-import { getAddressFromCep } from '@/http/web/third-part/third-part.http';
-import { AskDialog } from '../dialog/ask-dialog';
-import { IAskDialog, IDeleteDialog } from '@/interfaces/dialog.interface';
+import {
+  IAddressFormDialog,
+  IAskDialog,
+  IDeleteDialog,
+} from '@/interfaces/dialog.interface';
 import { DeleteDialog } from '../dialog/delete-dialog';
 import { toast } from 'sonner';
 import { IMaskInput } from 'react-imask';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
 import { USER_ROLES } from '@/enum/role.enum';
-import { onGetDetailedUserInfo, onUpdateUser } from '@/http/web/user/user.http';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { AddressFormDialog } from '../dialog/address-form-dialog';
+import { onUpdateUser } from '@/http/web/user/user.http';
+import { AskDialog } from '../dialog/ask-dialog';
 
 interface ProfileProps {
   previousUrl?: string;
@@ -83,34 +91,7 @@ const userSchema = z.object({
     })
     .nullable(),
   isActive: z.boolean(),
-  isEmailConfirmed: z.boolean().optional(),
   role: z.enum(USER_ROLES),
-  address: z.object({
-    idAddress: z.number().optional(),
-    postalCode: z
-      .string()
-      .nullable()
-      .refine(
-        (v) => {
-          if (!v || !v.trim()) return true;
-          const digits = v.replace(/[\D]/g, '').trim();
-          return digits.length == 8;
-        },
-        {
-          message: 'CEP incompleto.',
-        }
-      ),
-    type: z.string().nullable().optional(),
-    street: z.string().nullable(),
-    number: z.string().nullable(),
-    district: z.string().nullable(),
-    city: z.string().nullable(),
-    state: z.string().nullable(),
-    blockType: z.string().nullable().optional(),
-    block: z.string().nullable(),
-    lotType: z.string().nullable().optional(),
-    lot: z.string().nullable(),
-  }),
 });
 
 export type UserDetailSchema = z.infer<typeof userSchema>;
@@ -119,8 +100,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
   const adminUserPageId = useId();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [isInputPostalCodeLoading, setIsInputPostalCodeLoading] =
-    useState(false);
   const [askDialogForDeleteProfile, setAskDialogForDeleteProfile] =
     useState<IAskDialog>({
       description: '',
@@ -140,6 +119,13 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     isActive: false,
     title: '',
   });
+  const [addressFormDialog, setAdressFormDialog] = useState<IAddressFormDialog>(
+    {
+      isActive: false,
+      idAddress: 0,
+    }
+  );
+
   const form = useForm<UserDetailSchema>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -154,22 +140,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       },
       mediaFile: null,
       isActive: false,
-      isEmailConfirmed: false,
       role: USER_ROLES.USER,
-      address: {
-        idAddress: 0,
-        postalCode: '',
-        type: '',
-        street: '',
-        number: '',
-        district: '',
-        city: '',
-        state: '',
-        blockType: '',
-        block: '',
-        lotType: '',
-        lot: '',
-      },
     },
   });
 
@@ -188,43 +159,8 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       mediaFile: null,
       isActive: userData.isActive,
       role: userData.role ?? USER_ROLES.USER,
-      address: {
-        idAddress: userData.address?.idAddress,
-        type: userData.address?.type,
-        street: userData.address?.street,
-        postalCode: userData.address?.postalCode,
-        number: userData.address?.number,
-        district: userData.address?.district,
-        city: userData.address?.city,
-        state: userData.address?.state,
-        blockType: userData.address?.blockType ?? 'Quadra',
-        block: userData.address?.block,
-        lotType: userData.address?.lotType ?? 'Lote',
-        lot: userData.address?.lot,
-      },
     });
   }, [userData, reset]);
-
-  const onSetAddressViaCEPValues = async (): Promise<void> => {
-    setIsInputPostalCodeLoading(true);
-    try {
-      const postalCode = getValues('address.postalCode');
-      if (!postalCode || onRemoveMask(postalCode).length != 8) {
-        return;
-      }
-      const response = await getAddressFromCep(postalCode ?? '');
-      if (response) {
-        setValue('address.street', response.logradouro);
-        setValue('address.district', response.bairro);
-        setValue('address.city', response.localidade);
-        setValue('address.state', response.uf);
-      }
-    } catch (error) {
-      console.log('Erro ao buscar o CEP');
-    } finally {
-      setIsInputPostalCodeLoading(false);
-    }
-  };
 
   const onShowAskDialogForDeleteProfile = (): void => {
     setAskDialogForDeleteProfile((prev) => {
@@ -284,6 +220,16 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     });
   };
 
+  const onShowAddressDialog = (idAddress?: number): void => {
+    setAdressFormDialog((prev) => {
+      return {
+        ...prev,
+        idAddress: idAddress ? idAddress : 0,
+        isActive: true,
+      };
+    });
+  };
+
   const finalData: UserDetailSchema = {
     name: '',
     birthDate: new Date('2026-01-28'),
@@ -295,17 +241,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     },
     isActive: false,
     role: USER_ROLES.USER,
-    address: {
-      idAddress: 0,
-      postalCode: '',
-      street: '',
-      number: '',
-      district: '',
-      city: '',
-      state: '',
-      block: '',
-      lot: '',
-    },
   };
 
   const setFinalData = () => {
@@ -315,17 +250,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     finalData.phone = onRemoveMask(getValues('phone') ?? '');
     finalData.isActive = getValues('isActive');
     finalData.mediaObject = getValues('mediaObject');
-    finalData.address.idAddress = getValues('address.idAddress') ?? 0;
-    finalData.address.postalCode = onRemoveMask(
-      getValues('address.postalCode') ?? ''
-    );
-    finalData.address.street = getValues('address.street') ?? '';
-    finalData.address.number = getValues('address.number') ?? '';
-    finalData.address.district = getValues('address.district') ?? '';
-    finalData.address.city = getValues('address.city') ?? '';
-    finalData.address.state = getValues('address.state') ?? '';
-    finalData.address.block = getValues('address.block') ?? '';
-    finalData.address.lot = getValues('address.lot') ?? '';
   };
 
   const onSubmit = async (): Promise<void> => {
@@ -359,8 +283,6 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         },
       });
     }
-    // console.log('finalData', finalData);
-    // console.log('file', file);
   };
 
   return (
@@ -370,7 +292,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <div className="flex justify-between gap-2 bg-slate-700 text-white rounded-md w-full px-2 py-1">
+        <div className="flex justify-between gap-2 bg-slate-700 text-white rounded-md w-full p-3">
           <p className="font-medium md:text-lg">Dados Cadastrais</p>
           <Controller
             name="isActive"
@@ -578,232 +500,127 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
             isDisabled={!isActive}
           />
         </div>
-        <div className="flex justify-between bg-slate-700 text-white rounded-md w-full px-2 py-1">
+        <div className="flex justify-between bg-slate-700 text-white rounded-md w-full p-3">
           <p className="font-medium md:text-lg">Endereço</p>
+          <Button
+            onClick={() => onShowAddressDialog(0)}
+            type="button"
+            variant="default"
+            size={'sm'}
+            className={cn('flex gap-2 h-full py-2 sm:py-0')}
+          >
+            <Plus />
+            <span className="hidden sm:block">Adicionar</span>
+          </Button>
         </div>
-        <div className="flex flex-col gap-2 grow">
-          <div className="flex flex-col md:flex-row gap-2">
-            {(getValues('address.idAddress') ?? 0) > 0 && (
-              <Controller
-                name="address.idAddress"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field className={cn('md:shrink')}>
-                    <FieldLabel
-                      htmlFor={`admin-user-input-id-address-${adminUserPageId}`}
+        <div className="flex flex-col gap-2">
+          {userData.address?.map((address, index) => (
+            <div key={index} className="flex flex-col md:flex-row gap-2">
+              <Field>
+                <FieldLabel
+                  htmlFor={`admin-user-input-id-address-${adminUserPageId}`}
+                >
+                  Id
+                </FieldLabel>
+                <Input
+                  value={address.idAddress}
+                  readOnly
+                  disabled={!isActive}
+                  id={`admin-user-input-id-address-${adminUserPageId}`}
+                />
+              </Field>
+              <Field>
+                <FieldLabel
+                  htmlFor={`admin-user-input-address-type-${adminUserPageId}`}
+                >
+                  Tipo de moradia
+                </FieldLabel>
+                <Input
+                  value={address.type == 'HOUSE' ? 'Casa' : 'Apartamento'}
+                  readOnly
+                  disabled={!isActive}
+                  id={`admin-user-input-address-type-${adminUserPageId}`}
+                />
+              </Field>
+              <Field className={cn('md:grow')}>
+                <FieldLabel
+                  htmlFor={`admin-user-input-address-${adminUserPageId}`}
+                >
+                  Logradouro
+                </FieldLabel>
+                <Input
+                  value={address.street ?? ''}
+                  readOnly
+                  disabled={!isActive}
+                  id={`admin-user-input-address-${adminUserPageId}`}
+                />
+              </Field>
+              <Field>
+                <FieldLabel
+                  htmlFor={`admin-user-input-address-block-${adminUserPageId}`}
+                >
+                  {address.blockType ?? 'Bloco'}
+                </FieldLabel>
+                <Input
+                  value={address.block ?? ''}
+                  readOnly
+                  disabled={!isActive}
+                  id={`admin-user-input-address-block-${adminUserPageId}`}
+                />
+              </Field>
+              <Field>
+                <FieldLabel
+                  htmlFor={`admin-user-input-address-lot-${adminUserPageId}`}
+                >
+                  {address.blockType ?? 'Lote'}
+                </FieldLabel>
+                <Input
+                  value={address.block ?? ''}
+                  readOnly
+                  disabled={!isActive}
+                  id={`admin-user-input-address-lot-${adminUserPageId}`}
+                />
+              </Field>
+              <div className="flex justify-center items-end gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => onShowAddressDialog(address.idAddress)}
+                      type="button"
+                      variant="default"
+                      size={'icon'}
+                      disabled={!isActive}
+                      className="bg-yellow-700 hover:bg-yellow-600"
                     >
-                      Id
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      value={field.value}
-                      disabled={formState.isSubmitting || !isActive}
-                      readOnly
-                      id={`admin-user-input-id-address-${adminUserPageId}`}
-                    />
-                  </Field>
-                )}
-              />
-            )}
-
-            <Controller
-              name="address.postalCode"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field className="relative">
-                  <FieldLabel
-                    htmlFor={`admin-user-input-postal-code-${adminUserPageId}`}
-                  >
-                    Cep
-                  </FieldLabel>
-                  <div className="relative">
-                    <IMaskInput
-                      mask="00000-000"
-                      definitions={{ '0': /[0-9]/ }}
-                      value={field.value ?? ''}
-                      onAccept={(value) => field.onChange(value)}
-                      onBlur={() => {
-                        field.onBlur();
-                        onSetAddressViaCEPValues();
-                      }}
-                      disabled={formState.isSubmitting || !isActive}
-                      id={`admin-user-input-postal-code-${adminUserPageId}`}
-                      autoComplete="postal-code"
-                      className={cn(
-                        'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-                        fieldState.invalid && 'border-destructive'
-                      )}
-                    />
-
-                    {isInputPostalCodeLoading && (
-                      <span className="pointer-events-none absolute top-3 right-3 flex items-center">
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground font-extrabold" />
-                      </span>
-                    )}
-
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </div>
-                </Field>
-              )}
-            />
-            <Controller
-              name="address.street"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field className={'md:grow-[4]'}>
-                  <FieldLabel
-                    htmlFor={`admin-user-input-street-${adminUserPageId}`}
-                  >
-                    Logradouro
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value ?? ''}
-                    disabled={formState.isSubmitting || !isActive}
-                    id={`admin-user-input-street-${adminUserPageId}`}
-                  />
-                </Field>
-              )}
-            />
-            <Controller
-              name="address.number"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel
-                    htmlFor={`admin-user-input-number-${adminUserPageId}`}
-                  >
-                    Número
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value || ''}
-                    disabled={formState.isSubmitting || !isActive}
-                    id={`admin-user-input-number-${adminUserPageId}`}
-                  />
-                </Field>
-              )}
-            />
-          </div>
-          <div className="flex flex-col md:flex-row gap-2">
-            <div className="flex flex-col gap-1 grow">
-              <Controller
-                name="address.blockType"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <span className="text-sm font-medium">
-                    {field.value || ''}:{' '}
-                  </span>
-                )}
-              />
-              <Controller
-                name="address.block"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <Input
-                      {...field}
-                      value={field.value || ''}
-                      disabled={formState.isSubmitting || !isActive}
-                      id={`admin-user-input-block-${adminUserPageId}`}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                      <Pencil />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Editar</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="default"
+                      size={'icon'}
+                      disabled={!isActive}
+                      className="bg-red-700 hover:bg-red-600"
+                    >
+                      <Trash />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Excluir</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
-            <div className="flex flex-col gap-1 grow">
-              <Controller
-                name="address.lotType"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <span className="text-sm font-medium">
-                    {field.value || ''}:{' '}
-                  </span>
-                )}
-              />
-              <Controller
-                name="address.lot"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <Input
-                      {...field}
-                      value={field.value || ''}
-                      disabled={formState.isSubmitting || !isActive}
-                      id={`admin-user-input-lot-${adminUserPageId}`}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-            </div>
-            <Controller
-              name="address.district"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field className="grow-[2]">
-                  <FieldLabel
-                    htmlFor={`admin-user-input-district-${adminUserPageId}`}
-                  >
-                    Bairro
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value || ''}
-                    disabled={formState.isSubmitting || !isActive}
-                    id={`admin-user-input-district-${adminUserPageId}`}
-                  />
-                </Field>
-              )}
-            />
-            <Controller
-              name="address.city"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field className="grow-[2]">
-                  <FieldLabel
-                    htmlFor={`admin-user-input-city-${adminUserPageId}`}
-                  >
-                    Cidade
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value || ''}
-                    disabled={formState.isSubmitting || !isActive}
-                    id={`admin-user-input-city-${adminUserPageId}`}
-                  />
-                </Field>
-              )}
-            />
-            <Controller
-              name="address.state"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field className="grow">
-                  <FieldLabel
-                    htmlFor={`admin-user-input-state-${adminUserPageId}`}
-                  >
-                    UF
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value || ''}
-                    disabled={formState.isSubmitting || !isActive}
-                    id={`admin-user-input-state-${adminUserPageId}`}
-                  />
-                </Field>
-              )}
-            />
-          </div>
+          ))}
         </div>
-        <div className="flex justify-between bg-slate-700 text-white rounded-md w-full px-2 py-1">
+
+        <div className="flex justify-between bg-slate-700 text-white rounded-md w-full p-3">
           <p className="font-medium md:text-lg">Ações</p>
         </div>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
@@ -813,12 +630,13 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
             className="w-full sm:w-auto"
             disabled={formState.isSubmitting || !isActive}
           >
+            <Trash />
             Excluir
           </Button>
           <Button
             onClick={() => router.push(previousUrl ?? WEB_ROUTES.HOME)}
             variant={'outline'}
-            className="flex sm:w-auto gap-2"
+            className="w-full sm:w-auto"
           >
             <ArrowLeftCircle />
             <span className="hidden xs:inline">Voltar</span>
@@ -863,6 +681,19 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         onActionNok={onCloseDeleteDialog}
         onActionOk={onDeleteRegister}
       />
+
+      {addressFormDialog.isActive && (
+        <AddressFormDialog
+          isActive={addressFormDialog.isActive}
+          idAddress={addressFormDialog.idAddress}
+          idUser={userData.idUser}
+          onCloseDialog={() =>
+            setAdressFormDialog((prev) => {
+              return { ...prev, isActive: false };
+            })
+          }
+        />
+      )}
     </div>
   );
 }

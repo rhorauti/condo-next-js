@@ -8,6 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { userDetailsMock } from './user-mock';
 import { USER_ROLES } from '@/enum/role.enum';
+import { onGetDetaildUserInfo } from '@/http/web/user/user.http';
 
 export const initialUserInfo = {
   idUser: 0,
@@ -24,20 +25,7 @@ export const initialUserInfo = {
   isActive: true,
   isWhatsapp: true,
   role: USER_ROLES.USER,
-  address: {
-    idAddress: 0,
-    postalCode: '',
-    type: '',
-    street: '',
-    number: '',
-    district: '',
-    city: '',
-    state: '',
-    blockType: '',
-    block: '',
-    lotType: '',
-    lot: '',
-  },
+  address: [],
 };
 
 export default function Page() {
@@ -50,14 +38,14 @@ export default function Page() {
 
   useEffect(() => {
     const idUserParams = Number(params.idUser);
-    onGetUserInfo(idUserParams);
+    onGetProfileInfo(idUserParams);
   }, [idUserParams, idCondoParams]);
 
-  const onGetUserInfo = async (idUser: number): Promise<void> => {
-    // const user = await onGetAdminUserInfo(idCondo, idUser);
-    // if (user) {
-    //   setUserInfo(user.data);
-    // }
+  const onGetProfileInfo = async (idUser: number): Promise<void> => {
+    const user = await onGetDetaildUserInfo(idUser);
+    if (user) {
+      setUserInfo(user.data ?? initialUserInfo);
+    }
     setUserInfo(userDetailsMock);
   };
   return (

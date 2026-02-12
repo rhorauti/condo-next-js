@@ -43,6 +43,8 @@ export function AskDialog({
   return (
     <Dialog open={isActive} onOpenChange={onActionNok}>
       <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
         className="sm:max-w-[30rem]"
         showCloseButton={showCloseButton}
       >

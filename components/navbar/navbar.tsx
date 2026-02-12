@@ -37,7 +37,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { buildWebDinamicRoute, WEB_ROUTES } from '@/enum/web/routes.enum';
 import { IUser } from '@/interfaces/user.interface';
 import { USER_ROLES } from '@/enum/role.enum';
-import { onGetUserInfo } from '@/http/web/user/user.http';
+import { onGetAuthUserInfo } from '@/http/web/user/user.http';
 
 export const initialUserData: IUser = {
   idUser: 0,
@@ -62,7 +62,7 @@ export default function Navbar() {
   }, []);
 
   const onGetUserOverallInfo = async (): Promise<void> => {
-    const user = await onGetUserInfo();
+    const user = await onGetAuthUserInfo();
     if (user) {
       setUserData(user.data ?? initialUserData);
     }

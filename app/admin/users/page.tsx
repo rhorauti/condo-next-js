@@ -35,7 +35,7 @@ import { IAdminCondoUserHome } from '@/interfaces/admin/admin-condo.interface';
 import { formatTelephoneNumber } from '@/utils/misc';
 import Image from 'next/image';
 import Link from 'next/link';
-import { EmailSendDialog } from '@/components/dialog/email-send.dialog';
+import { EmailSendFormDialog } from '@/components/dialog/email-send--form-dialog';
 import { response } from './mock';
 import {
   Select,
@@ -458,7 +458,7 @@ export default function Page() {
         }
         onActionOk={onChangeUserActiveState}
       />
-      <EmailSendDialog
+      <EmailSendFormDialog
         isActive={isEmailSendDialogActive}
         role={USER_ROLES.USER}
         onActionNok={() => setIsEmailSendDialogActive(false)}

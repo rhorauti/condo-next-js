@@ -1,12 +1,14 @@
 'use client';
 
+import { AddressFormDialog } from '@/components/dialog/address-form-dialog';
 import ProfileForm from '@/components/form/profile-form';
 import { Button } from '@/components/ui/button';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
-import { onGetDetailedUserInfo } from '@/http/web/user/user.http';
+import { onGetDetailedAuthUserInfo } from '@/http/web/user/user.http';
+import { IAddressFormDialog } from '@/interfaces/dialog.interface';
 import { IUserDetail } from '@/interfaces/user.interface';
 import { ArrowLeftCircle } from 'lucide-react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const initialUserData = {
@@ -24,20 +26,15 @@ const initialUserData = {
 
 export default function Page() {
   const router = useRouter();
-  const params = useParams();
-  const idUser = params.idUser ?? 0;
   const previousUrl = WEB_ROUTES.PROFILES;
   const [userData, setUserData] = useState<IUserDetail>(initialUserData);
 
   useEffect(() => {
-    console.log('me', idUser);
-    if (idUser == 'me') {
-      getAuthUser();
-    }
-  }, [idUser]);
+    getAuthUser();
+  }, []);
 
   const getAuthUser = async (): Promise<void> => {
-    const user = await onGetDetailedUserInfo();
+    const user = await onGetDetailedAuthUserInfo();
     if (user) {
       setUserData(user.data ?? initialUserData);
     }

@@ -14,7 +14,7 @@ export interface IUserDetail {
   fallbackName: string;
   isActive: boolean;
   role?: USER_ROLES;
-  address?: IAddress;
+  address?: IAddress[];
 }
 
 export interface IUser {

@@ -1,5 +1,16 @@
 export interface IAddress {
   idAddress: number;
+  type: string;
+  street: string | null;
+  number: string | null;
+  blockType: string | null;
+  block: string | null;
+  lotType: string | null;
+  lot: string | null;
+}
+
+export interface IAddressDetail {
+  idAddress: number;
   postalCode: string | null;
   type: string | null;
   street: string | null;

@@ -5,7 +5,7 @@ import {
 import { onHttpRequestJson } from '../../http-request';
 import { IFetchResponse } from '@/interfaces/response.interface';
 import { IUserDetail } from '@/interfaces/user.interface';
-import { AdminEmailUserSchema } from '@/components/dialog/email-send.dialog';
+import { AdminEmailUserSchema } from '@/components/dialog/email-send--form-dialog';
 
 export const onGetAdminUsersPageInfo = async (
   idCondo: number

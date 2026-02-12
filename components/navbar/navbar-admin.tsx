@@ -46,7 +46,7 @@ import {
 } from '@/enum/admin/admin-routes.enum';
 import { IUser } from '@/interfaces/user.interface';
 import { initialUserData } from './navbar';
-import { onGetUserInfo } from '@/http/web/user/user.http';
+import { onGetAuthUserInfo } from '@/http/web/user/user.http';
 
 export default function AdminNavbar() {
   const [userData, setUserData] = useState<IUser>();
@@ -62,7 +62,7 @@ export default function AdminNavbar() {
   }, []);
 
   const onGetUserOverallInfo = async (): Promise<void> => {
-    const user = await onGetUserInfo();
+    const user = await onGetAuthUserInfo();
     if (user) {
       setUserData(user.data ?? initialUserData);
     }

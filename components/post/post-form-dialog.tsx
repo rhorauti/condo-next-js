@@ -25,8 +25,10 @@ import { CarouselForm } from '../carousel/carousel-form';
 import { AskDialog } from '../dialog/ask-dialog';
 import { IAskDialog } from '@/interfaces/dialog.interface';
 import { toast } from 'sonner';
-import useAuthStore from '@/store/web/auth.store';
 import { savePost } from '@/http/web/post/posts.http';
+import { onGetAuthUserInfo } from '@/http/web/user/user.http';
+import { IUser } from '@/interfaces/user.interface';
+import { initialUserData } from '../navbar/navbar';
 
 interface IProps {
   showDialog: boolean;
@@ -81,7 +83,6 @@ export function PostFormDialog({
 }: IProps) {
   const formId = useId();
   const [postTypeList, setPostTypeList] = useState<string[]>([]);
-  const authStore = useAuthStore((state) => state);
   const [askDialog, setAskDialog] = useState<IAskDialog>({
     description: '',
     isActive: false,
@@ -107,9 +108,17 @@ export function PostFormDialog({
 
   const description = watch('description');
   const postType = watch('postType');
+  const [userData, setUserData] = useState<IUser>();
+
+  const onGetUserOverallInfo = async (): Promise<void> => {
+    const user = await onGetAuthUserInfo();
+    if (user) {
+      setUserData(user.data ?? initialUserData);
+    }
+  };
 
   useEffect(() => {
-    authStore.onSetFallbackName();
+    onGetUserOverallInfo();
     setPostTypeList(setPostTypeStringList());
   }, []);
 
@@ -121,7 +130,6 @@ export function PostFormDialog({
   };
 
   const onSubmit = async (data: PostFormValues) => {
-    // console.log('submit', data);
     const formData = new FormData();
     formData.append('description', data.description || '');
     formData.append('postType', data.postType || '');
@@ -208,12 +216,12 @@ export function PostFormDialog({
           <CardHeader className="pb-3 px-6">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 cursor-pointer hover:opacity-90 transition border border-gray-400 font-semibold">
-                <AvatarImage src={authStore.credential.photoUrl} />
-                <AvatarFallback>{authStore.credential.name}</AvatarFallback>
+                <AvatarImage src={userData?.mediaObject?.mediaUrl} />
+                <AvatarFallback>{userData?.fallbackName}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-semibold leading-none">
-                  {authStore.credential.name}
+                  {userData?.name}
                 </p>
               </div>
             </div>

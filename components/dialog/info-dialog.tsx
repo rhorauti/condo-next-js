@@ -30,7 +30,11 @@ export function InfoDialog({
 }: IInfoDialogProps) {
   return (
     <Dialog open={isActive}>
-      <DialogContent className="sm:max-w-[30rem]">
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        className="sm:max-w-[30rem]"
+      >
         <DialogHeader className="flex flex-col items-center gap-2">
           {type == 'info' && (
             <Info className="h-10 w-10 p-2 bg-destructive text-white rounded-full" />

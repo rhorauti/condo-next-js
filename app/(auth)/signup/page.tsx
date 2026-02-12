@@ -106,21 +106,12 @@ const signUpSchema = z.object({
 export type SignUpValues = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
-  // const searchParams = useSearchParams();
-  // const token = searchParams.get('token');
-  // const user = {
-  //   name: searchParams.get('name'),
-  //   email: searchParams.get('email'),
-  // };
   const formId = useId();
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  // const supabase = createSupabaseBrowserClient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      console.log('session', data.session);
-
       if (data.session?.user) {
         const user = data.session.user;
 
@@ -129,23 +120,7 @@ export default function SignUp() {
         form.setValue('role', user.user_metadata?.role ?? '');
       }
     });
-    console.log('form', form.getValues());
   }, []);
-
-  // const onValidateSignUpToken = async (): Promise<void> => {
-  //   try {
-  //     await onValidateToken(token ?? '');
-  //     form.setValue('email', user.email ?? '');
-  //     form.setValue('name', user.name ?? '');
-  //   } catch (error) {
-  //     toast.error('Erro ao validar o token de segurança', {
-  //       action: {
-  //         label: 'Fechar',
-  //         onClick: () => '',
-  //       },
-  //     });
-  //   }
-  // };
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),

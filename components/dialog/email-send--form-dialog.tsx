@@ -51,7 +51,7 @@ export interface IEmailSendgProps {
   onActionNok: () => void;
 }
 
-export function EmailSendDialog({
+export function EmailSendFormDialog({
   isActive = false,
   role,
   onActionNok,
@@ -104,18 +104,22 @@ export function EmailSendDialog({
 
   return (
     <Dialog open={isActive} onOpenChange={(open) => !open && onActionNok()}>
-      <DialogContent className="sm:max-w-[30rem]">
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        className="sm:max-w-[30rem]"
+      >
+        <DialogHeader className="flex flex-col items-center gap-2">
+          <DialogTitle>Novo Cadastro</DialogTitle>
+          <DialogDescription>
+            Informe o e-mail para enviar o link de cadastro.
+          </DialogDescription>
+        </DialogHeader>
+
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-4"
         >
-          <DialogHeader className="flex flex-col items-center gap-2">
-            <DialogTitle>Novo Cadastro</DialogTitle>
-            <DialogDescription>
-              Informe o e-mail para enviar o link de cadastro.
-            </DialogDescription>
-          </DialogHeader>
-
           <Controller
             name="name"
             control={control}
