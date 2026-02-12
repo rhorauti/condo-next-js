@@ -71,7 +71,7 @@ export function EmailSendDialog({
 
   const onSubmit = async (data: AdminEmailUserSchema): Promise<void> => {
     try {
-      await onSendEmailToCreateUser(data);
+      onSendEmailToCreateUser(data);
       toast.success(
         `E-mail enviado para ${data?.email}. Verifique sua caixa de mensagem.`,
         {
@@ -93,6 +93,12 @@ export function EmailSendDialog({
           onClick: () => {},
         },
       });
+    }
+  };
+
+  const onKeyDown = (event: React.KeyboardEvent): void => {
+    if (event.key == 'Enter') {
+      onSubmit(form.getValues());
     }
   };
 
@@ -122,6 +128,7 @@ export function EmailSendDialog({
                 </FieldLabel>
                 <Input
                   {...field}
+                  onKeyDown={onKeyDown}
                   disabled={formState.isSubmitting || !isActive}
                   autoComplete="email"
                   id={`admin-email-send-name-${emailUserDialogId}`}
@@ -145,6 +152,7 @@ export function EmailSendDialog({
                 </FieldLabel>
                 <Input
                   {...field}
+                  onKeyDown={onKeyDown}
                   disabled={formState.isSubmitting || !isActive}
                   autoComplete="email"
                   id={`admin-user-input-email-${emailUserDialogId}`}
@@ -171,8 +179,16 @@ export function EmailSendDialog({
               variant="default"
               disabled={formState.isSubmitting}
             >
-              <Send />
-              <span>Enviar e-mail de cadastro</span>
+              {form.formState.isSubmitting ? (
+                <span className="animate-spin mr-2">⏳</span>
+              ) : (
+                <Send />
+              )}
+              <span>
+                {form.formState.isSubmitting
+                  ? 'Enviando...'
+                  : 'Enviar e-mail de cadastro'}
+              </span>
             </Button>
           </DialogFooter>
         </form>

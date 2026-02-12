@@ -24,9 +24,7 @@ import { useRouter } from 'next/navigation';
 import { onLoginUser } from '@/http/web/auth/auth.http';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
 import { IInfoDialog } from '@/interfaces/dialog.interface';
-import { InfoDialog } from '@/components/dialog/info-dialog';
-import { info } from 'sass';
-import useAuthStore from '@/store/web/auth.store';
+import { toast } from 'sonner';
 
 const loginSchema = z.object({
   email: z.email('Por favor, insira um email válido.'),
@@ -57,47 +55,36 @@ const LoginForm = () => {
   const { isSubmitting } = form.formState;
 
   async function onSubmitForm(values: LoginFormValues) {
+    const toastId = toast.loading('Validando os dados...');
     try {
       const response = await onLoginUser(values);
-      if (response && response.data) {
-        setInfoDialog((prev) => {
-          return {
-            ...prev,
-            title: 'Login',
-            description: 'Login realizado com sucesso!',
-            type: 'success',
-            isActionOk: true,
-            isActive: true,
-          };
-        });
-      } else {
-        throw new Error(response?.message || 'Erro ao fazer o login');
+
+      if (!response?.status) {
+        throw new Error(
+          response?.message || 'Erro ao realizar o login do usuário.'
+        );
       }
-    } catch (error: any) {
-      setInfoDialog((prev) => {
-        return {
-          ...prev,
-          title: 'Login',
-          description:
-            error && error.message
-              ? error.message
-              : 'Login realizado com sucesso!',
-          type: 'danger',
-          isActionOk: false,
-          isActive: true,
-        };
+
+      if (response) {
+        toast.success(response.message, {
+          id: toastId,
+          action: {
+            label: 'Fechar',
+            onClick: () => '',
+          },
+        });
+        router.push(WEB_ROUTES.REPORTS);
+      }
+    } catch (error: unknown) {
+      toast.error((error as Error).message, {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
       });
     }
   }
-
-  const onCloseInfoDialog = (): void => {
-    if (infoDialog.isActionOk) {
-      router.push(WEB_ROUTES.REPORTS);
-    }
-    setInfoDialog((prev) => {
-      return { ...prev, isActive: false };
-    });
-  };
 
   return (
     <>
@@ -217,14 +204,6 @@ const LoginForm = () => {
           </Button>
         </CardFooter>
       </Card>
-
-      <InfoDialog
-        isActive={infoDialog.isActive}
-        title={infoDialog.title}
-        description={infoDialog.description ?? ''}
-        type={infoDialog.type ?? 'info'}
-        onCloseDialog={onCloseInfoDialog}
-      />
     </>
   );
 };

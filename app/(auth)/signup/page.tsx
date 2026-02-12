@@ -37,8 +37,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { onSignUpUser, onValidateToken } from '@/http/web/auth/auth.http';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
-import { createSupabaseBrowserClient } from '@/app/supabase/supabase.config';
+// import { createSupabaseBrowserClient } from '@/app/supabase/supabase.config';
 import { UserResponse } from '@supabase/supabase-js';
+import { supabase } from '@/app/supabase/supabase.config';
 
 const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
@@ -114,7 +115,7 @@ export default function SignUp() {
   const formId = useId();
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
+  // const supabase = createSupabaseBrowserClient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -128,6 +129,7 @@ export default function SignUp() {
         form.setValue('role', user.user_metadata?.role ?? '');
       }
     });
+    console.log('form', form.getValues());
   }, []);
 
   // const onValidateSignUpToken = async (): Promise<void> => {
@@ -346,9 +348,7 @@ export default function SignUp() {
                       value={field.value}
                       id={`signup-email-${formId}`}
                       aria-invalid={fieldState.invalid}
-                      disabled={
-                        isSubmitting || form.getValues('email').length > 0
-                      }
+                      disabled={isSubmitting}
                       placeholder="Digite seu e-mail"
                       autoComplete="email"
                       className={cn(
