@@ -38,6 +38,10 @@ import { buildWebDinamicRoute, WEB_ROUTES } from '@/enum/web/routes.enum';
 import { IUser } from '@/interfaces/user.interface';
 import { USER_ROLES } from '@/enum/role.enum';
 import { onGetAuthUserInfo } from '@/http/web/user/user.http';
+import { supabase } from '@/app/supabase/supabase.config';
+import { toast } from 'sonner';
+import { AskDialog } from '../dialog/ask-dialog';
+import { IAskDialog } from '@/interfaces/dialog.interface';
 
 export const initialUserData: IUser = {
   idUser: 0,
@@ -55,6 +59,12 @@ export default function Navbar() {
   const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [askDialogForSignOut, setAskDialogForSignOut] = useState<IAskDialog>({
+    description: '',
+    isActive: false,
+    type: 'info',
+    title: '',
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -121,6 +131,51 @@ export default function Navbar() {
       setTheme('dark');
     } else {
       setTheme('light');
+    }
+  };
+
+  const onShowAskDialogForSignOut = (): void => {
+    setAskDialogForSignOut((prev) => {
+      return {
+        ...prev,
+        title: 'LogOut',
+        description: 'Deseja sair da aplicação',
+        type: 'info',
+        isActive: true,
+      };
+    });
+    if (isMobileMenuActive) {
+      setIsMobileMenuActive(false);
+    }
+  };
+
+  const onCloseAskDialogForSignOut = (): void => {
+    setAskDialogForSignOut((prev) => {
+      return { ...prev, isActive: false };
+    });
+  };
+
+  const onSignOut = async () => {
+    const toastId = toast.loading('Saindo...');
+    try {
+      await supabase.auth.signOut();
+      toast.success('Usuário deslogado com sucesso.', {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
+      });
+      onCloseAskDialogForSignOut();
+      router.push(WEB_ROUTES.LOGIN);
+    } catch (error: unknown) {
+      toast.error((error as Error).message, {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
+      });
     }
   };
 
@@ -295,6 +350,7 @@ export default function Navbar() {
               <DropdownMenuItem className={cn('py-[0.1rem] px-0')} asChild>
                 <div className="w-full">
                   <Button
+                    onClick={onShowAskDialogForSignOut}
                     variant="ghost"
                     size="sm"
                     className={cn(
@@ -403,7 +459,7 @@ export default function Navbar() {
               </Button>
             ))}
             <Button
-              onClick={() => setIsMobileMenuActive(false)}
+              onClick={onShowAskDialogForSignOut}
               variant="outline"
               size="sm"
               className={cn('flex gap-4 justify-start items-center w-full')}
@@ -432,6 +488,15 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      <AskDialog
+        isActive={askDialogForSignOut.isActive}
+        description={askDialogForSignOut.description}
+        title={askDialogForSignOut.title}
+        showCloseButton={true}
+        onActionNok={onCloseAskDialogForSignOut}
+        onActionOk={onSignOut}
+      />
     </nav>
   );
 }

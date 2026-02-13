@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function PostPageLoading() {
+export default function PostLoading() {
   return (
     <div className="flex flex-col items-center gap-6 mb-6 overflow-auto px-4">
       {/* Top badge/button */}

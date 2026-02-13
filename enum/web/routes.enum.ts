@@ -9,11 +9,10 @@ export const buildWebDinamicRoute = (
 
 export enum WEB_ROUTES {
   HOME = prefix,
-  LOGIN = 'login',
-  SIGNUP = 'signup',
-  NEW_PASSWORD = 'new-password',
-  PASSWORD_RECOVERY = 'password-recovery',
-  TOKEN_VALIDATION = 'token-validation',
+  LOGIN = '/login',
+  SIGNUP = '/signup',
+  NEW_PASSWORD = '/new-password',
+  PASSWORD_RECOVERY = '/password-recovery',
   POLICY = prefix + 'policy',
   PROFILES = prefix + 'profiles',
   MY_POSTS = prefix + 'posts/my-posts',

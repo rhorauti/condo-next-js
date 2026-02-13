@@ -4,57 +4,51 @@ import { ILoginRequest, SignUpDataResponse } from '@/interfaces/auth.interface';
 import { SignUpValues } from '@/app/(auth)/signup/page';
 import { NewPasswordValues } from '@/app/(auth)/new-password/page';
 import { PasswordRecoveryValues } from '@/app/(auth)/password-recovery/page';
+import { supabase } from '@/app/supabase/supabase.config';
 
-export const onLoginUser = async (
-  loginData: ILoginRequest
-): Promise<IFetchResponse<{ email: string }>> => {
-  return await onHttpRequestJson({
-    endpoint: 'auth/email',
-    method: 'POST',
-    data: loginData,
-  });
+export const onLoginUser = async (loginData: ILoginRequest) => {
+  const { data, error } = await supabase.auth.signInWithPassword(loginData);
+
+  if (error || !data.user) {
+    throw new Error('Credenciais inválidas');
+  }
+
+  return data;
 };
 
 export const onSignUpUser = async (
-  accessToken: string,
   signUpData: SignUpValues
 ): Promise<IFetchResponse<SignUpDataResponse>> => {
   return await onHttpRequestJson({
-    accessToken: accessToken,
     endpoint: 'auth/signup',
     method: 'POST',
     data: signUpData,
   });
 };
 
-export const onSetNewPassword = async (
-  accessToken: string,
-  newPasswordData: NewPasswordValues
-): Promise<IFetchResponse<{ email: string }>> => {
-  return await onHttpRequestJson({
-    accessToken: accessToken,
-    endpoint: 'auth/new-password',
-    method: 'POST',
-    data: newPasswordData,
-  });
+export const onSetNewPassword = async (newPasswordData: NewPasswordValues) => {
+  const { data, error } = await supabase.auth.updateUser(newPasswordData);
+
+  if (error) {
+    throw new Error('Erro ao atualizar a senha.');
+  }
+
+  return data;
 };
 
 export const onSendRecoveryEmail = async (
   passwordRecoveryData: PasswordRecoveryValues
-): Promise<IFetchResponse<{ email: string }>> => {
-  return await onHttpRequestJson({
-    endpoint: 'auth/password-recovery',
-    method: 'POST',
-    data: passwordRecoveryData,
-  });
-};
+) => {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(
+    passwordRecoveryData.email,
+    {
+      redirectTo: `${window.location.origin}/new-password`,
+    }
+  );
 
-export const onValidateToken = async (
-  jwtToken: string
-): Promise<IFetchResponse<string>> => {
-  return await onHttpRequestJson({
-    accessToken: jwtToken,
-    endpoint: 'auth/token-validation',
-    method: 'POST',
-  });
+  if (error) {
+    throw new Error('Erro ao enviar e-mail de recuperação de senha.');
+  }
+
+  return data;
 };

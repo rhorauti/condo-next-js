@@ -35,10 +35,8 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
-import { onSignUpUser, onValidateToken } from '@/http/web/auth/auth.http';
+import { onSignUpUser } from '@/http/web/auth/auth.http';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
-// import { createSupabaseBrowserClient } from '@/app/supabase/supabase.config';
-import { UserResponse } from '@supabase/supabase-js';
 import { supabase } from '@/app/supabase/supabase.config';
 
 const eighteenYearsAgo = new Date();
@@ -147,12 +145,6 @@ export default function SignUp() {
     const toastId = toast.loading('Validando os dados...');
 
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-
-      if (!sessionData.session) {
-        throw new Error('Sessão inválida ou expirada.');
-      }
-
       const { error } = await supabase.auth.updateUser({
         password: formData.password,
         data: {
@@ -165,10 +157,7 @@ export default function SignUp() {
         throw new Error(error.message);
       }
 
-      const response = await onSignUpUser(
-        sessionData.session.access_token,
-        formData
-      );
+      const response = await onSignUpUser(formData);
 
       if (!response?.status) {
         throw new Error(response?.message || 'Erro ao criar usuário');
@@ -229,6 +218,7 @@ export default function SignUp() {
                       autoComplete="name"
                       placeholder="Digite seu nome"
                       className={cn(
+                        'text-foreground',
                         fieldState.invalid &&
                           'border-destructive focus-visible:shadow-none'
                       )}
@@ -327,6 +317,7 @@ export default function SignUp() {
                       placeholder="Digite seu e-mail"
                       autoComplete="email"
                       className={cn(
+                        'text-foreground',
                         fieldState.invalid &&
                           'border-destructive focus-visible:shadow-none'
                       )}
@@ -358,6 +349,7 @@ export default function SignUp() {
                       disabled={isSubmitting}
                       autoComplete="new-password"
                       className={cn(
+                        'text-foreground',
                         fieldState.invalid &&
                           'border-destructive focus-visible:shadow-none'
                       )}

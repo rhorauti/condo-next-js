@@ -46,8 +46,8 @@ const PasswordRecovery = () => {
     const toastId = toast.loading('Aguarde...');
     try {
       const response = await onSendRecoveryEmail(values);
-      if (response && response.status) {
-        toast.success(response.message, {
+      if (response) {
+        toast.success('E-mail de recuperação de senha enviado.', {
           id: toastId,
           action: {
             label: 'Fechar',
@@ -55,27 +55,15 @@ const PasswordRecovery = () => {
           },
         });
         router.push(WEB_ROUTES.LOGIN);
-      } else {
-        toast.error(response.message, {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
       }
     } catch (error: any) {
-      if (error instanceof Error) {
-        toast.error(error.message, {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
-      } else {
-        console.log(error);
-      }
+      toast.error(error.message, {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
+      });
     }
   }
 
@@ -123,6 +111,7 @@ const PasswordRecovery = () => {
                     autoComplete="email"
                     placeholder="exemplo@provedor.com"
                     className={cn(
+                      'text-foreground',
                       fieldState.invalid &&
                         'border-destructive focus-visible:shadow-none'
                     )}

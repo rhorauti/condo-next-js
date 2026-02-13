@@ -1,5 +1,10 @@
 import { IFetchResponse } from '@/interfaces/response.interface';
 import { ICSRFTokenResponse } from '@/interfaces/auth.interface';
+import { supabase } from '@/app/supabase/supabase.config';
+
+/* ======================================================
+   TYPES
+====================================================== */
 
 interface BaseConfig {
   apiUrl?: string;
@@ -24,35 +29,51 @@ interface FormDataConfig extends BaseConfig {
   formData: FormData;
 }
 
-let cachedCsrfToken: string | null = null;
+/* ======================================================
+   CSRF TOKEN CACHE (WITH EXPIRATION)
+====================================================== */
+
+let cachedCsrfToken: {
+  token: string;
+  expiresAt: number;
+} | null = null;
 
 export async function getOrFetchCsrfToken(): Promise<string> {
-  if (cachedCsrfToken) return cachedCsrfToken;
+  if (cachedCsrfToken && Date.now() < cachedCsrfToken.expiresAt) {
+    return cachedCsrfToken.token;
+  }
 
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/auth/csrf-token`;
-  const options: RequestInit = {
-    method: 'GET',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  };
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/auth/csrf-token`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  );
 
-  console.log('url', url);
-  console.log('options', options);
-
-  const response = await fetch(url, options);
   if (!response.ok) {
-    throw new Error(`Failed to fetch CSRF token. Status: ${response.status}`);
+    throw new Error('Erro ao obter CSRF token');
   }
 
   const apiResponse: IFetchResponse<ICSRFTokenResponse> = await response.json();
 
-  if (apiResponse.data?.csrfToken) {
-    cachedCsrfToken = apiResponse.data.csrfToken;
-    return cachedCsrfToken;
+  const csrfToken = apiResponse.data?.csrfToken;
+
+  if (!csrfToken) {
+    throw new Error('CSRF token inválido');
   }
 
-  throw new Error('CSRF token property missing from API response.');
+  cachedCsrfToken = {
+    token: csrfToken,
+    expiresAt: Date.now() + 10 * 60 * 1000, // 10 min
+  };
+
+  return csrfToken;
 }
+
+/* ======================================================
+   HELPERS
+====================================================== */
 
 function buildApiUrl(endpoint?: string, apiUrl?: string) {
   if (apiUrl) return apiUrl;
@@ -61,17 +82,19 @@ function buildApiUrl(endpoint?: string, apiUrl?: string) {
 }
 
 async function handleResponse(response: Response) {
+  if (response.status === 401 || response.status === 403) {
+    throw new Error('UNAUTHORIZED');
+  }
+
   if (!response.ok) {
-    let errorMessage = 'Erro interno do servidor';
+    let message = 'Erro interno do servidor';
 
     try {
       const errorData = await response.json();
-      errorMessage = errorData.message || errorData.error || errorMessage;
-      if (Array.isArray(errorMessage)) {
-        errorMessage = errorMessage.join(', ');
-      }
+      message = errorData.message || message;
     } catch {}
-    throw new Error(errorMessage);
+
+    throw new Error(message);
   }
 
   if (
@@ -84,62 +107,122 @@ async function handleResponse(response: Response) {
   return response.json();
 }
 
-async function applyCsrfIfNeeded(
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+/* ======================================================
+   SUPABASE SESSION (AUTO REFRESH)
+====================================================== */
+
+async function attachSupabaseSession(
   headers: HeadersInit
 ): Promise<HeadersInit> {
+  const { data: sessionData, error } = await supabase.auth.getSession();
+
+  if (error) throw error;
+
+  const session = sessionData.session;
+
+  if (!session) {
+    throw new Error('UNAUTHORIZED');
+  }
+
+  /**
+   * 🔥 IMPORTANT:
+   * getUser() forces validation + refresh if expired
+   */
+  const { data: userData } = await supabase.auth.getUser();
+
+  if (!userData.user) {
+    throw new Error('UNAUTHORIZED');
+  }
+
+  return {
+    ...headers,
+    Authorization: `Bearer ${session.access_token}`,
+  };
+}
+
+/* ======================================================
+   CSRF ATTACHER
+====================================================== */
+
+async function applyCsrfIfNeeded(method: string, headers: HeadersInit) {
   const isMutating =
     method === 'POST' || method === 'PUT' || method === 'DELETE';
 
   if (!isMutating) return headers;
 
-  try {
-    const csrfToken = await getOrFetchCsrfToken();
-    return {
-      ...headers,
-      'X-CSRF-Token': csrfToken,
-    };
-  } catch (error) {
-    console.log('CSRF', error);
-    throw new Error('Erro ao gerar o CSRF Token');
-  }
+  const csrfToken = await getOrFetchCsrfToken();
+
+  return {
+    ...headers,
+    'X-CSRF-Token': csrfToken,
+  };
 }
 
-/**
- * 1) JSON for backend API (CSRF + JWT optional)
- */
+/* ======================================================
+   JSON REQUEST
+====================================================== */
+
 export async function onHttpRequestJson({
   endpoint,
   method = 'GET',
   accessToken,
-  data,
-}: JsonConfig): Promise<any> {
+}: JsonConfig) {
   const url = buildApiUrl(endpoint);
 
   let headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    ...(accessToken && {
+      Authorization: `Bearer ${accessToken}`,
+    }),
   };
 
+  headers = await attachSupabaseSession(headers);
   headers = await applyCsrfIfNeeded(method, headers);
 
-  const options: RequestInit = {
+  const response = await fetch(url, {
     method,
     credentials: 'include',
     headers,
-  };
+  });
 
-  if (data) {
-    options.body = JSON.stringify(data);
-  }
-
-  const response = await fetch(url, options);
   return handleResponse(response);
 }
 
-/**
- * 2) External API without credentials neither CSRF)
- */
+/* ======================================================
+   FORM DATA REQUEST
+====================================================== */
+
+export async function onHttpRequestFormData({
+  endpoint,
+  method = 'POST',
+  accessToken,
+  formData,
+}: FormDataConfig) {
+  const url = buildApiUrl(endpoint);
+
+  let headers: HeadersInit = {
+    ...(accessToken && {
+      Authorization: `Bearer ${accessToken}`,
+    }),
+  };
+
+  headers = await attachSupabaseSession(headers);
+  headers = await applyCsrfIfNeeded(method, headers);
+
+  const response = await fetch(url, {
+    method,
+    credentials: 'include',
+    headers,
+    body: formData,
+  });
+
+  return handleResponse(response);
+}
+
+/* ======================================================
+   EXTERNAL REQUEST
+====================================================== */
+
 export async function onHttpExternalRequest({
   url,
   method = 'GET',
@@ -163,34 +246,6 @@ export async function onHttpExternalRequest({
   if (data) {
     options.body = isFormData ? data : JSON.stringify(data);
   }
-
-  const response = await fetch(url, options);
-  return handleResponse(response);
-}
-
-/**
- * 3) FormData to backend API (CSRF + JWT optional)
- */
-export async function onHttpRequestFormData({
-  endpoint,
-  method = 'POST',
-  accessToken,
-  formData,
-}: FormDataConfig): Promise<any> {
-  const url = buildApiUrl(endpoint);
-
-  let headers: HeadersInit = {
-    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-  };
-
-  headers = await applyCsrfIfNeeded(method, headers);
-
-  const options: RequestInit = {
-    method,
-    credentials: 'include',
-    headers,
-    body: formData,
-  };
 
   const response = await fetch(url, options);
   return handleResponse(response);

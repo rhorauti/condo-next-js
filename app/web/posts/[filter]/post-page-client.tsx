@@ -10,6 +10,7 @@ import useAuthStore from '@/store/web/auth.store';
 import { FileText, Plus } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { postList } from './post-list.mock';
+import PostLoading from './post-loading';
 
 type Props = {
   filter: 'all' | 'my-posts';
@@ -34,7 +35,7 @@ export default function PostsPageClient({ filter }: Props) {
     isLiked: false,
     commentsQty: 0,
   };
-  const [postData, setPostData] = useState<IPost>(initialPostData);
+  const [postData, setPostData] = useState<IPost>();
 
   useEffect(() => {
     setIsMyPosts(filter == 'my-posts');
@@ -46,11 +47,15 @@ export default function PostsPageClient({ filter }: Props) {
   //     : postList;
 
   const onShowDialog = (post?: IPost): void => {
-    setPostData(post ?? initialPostData);
+    setPostData(post);
     setIsPostDialogActive(true);
   };
 
   const onFilter = (): void => {};
+
+  // if (!postData) {
+  //   return <PostLoading />;
+  // }
 
   return (
     <>

@@ -57,16 +57,10 @@ const LoginForm = () => {
   async function onSubmitForm(values: LoginFormValues) {
     const toastId = toast.loading('Validando os dados...');
     try {
-      const response = await onLoginUser(values);
+      const session = await onLoginUser(values);
 
-      if (!response?.status) {
-        throw new Error(
-          response?.message || 'Erro ao realizar o login do usuário.'
-        );
-      }
-
-      if (response) {
-        toast.success(response.message, {
+      if (session) {
+        toast.success('Login efetuado com sucesso.', {
           id: toastId,
           action: {
             label: 'Fechar',

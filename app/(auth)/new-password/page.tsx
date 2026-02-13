@@ -76,9 +76,9 @@ export default function NewPassword() {
     const toastId = toast.loading('Validando os dados...');
     try {
       if (jwtToken != null) {
-        const response = await onSetNewPassword(jwtToken, data);
-        if (response.status) {
-          toast.success(response.message, {
+        const response = await onSetNewPassword(data);
+        if (response) {
+          toast.success('Senha atualizada com sucesso.', {
             id: toastId,
             action: {
               label: 'Fechar',
@@ -86,28 +86,16 @@ export default function NewPassword() {
             },
           });
           router.push(WEB_ROUTES.LOGIN);
-        } else {
-          toast.error(response.message, {
-            id: toastId,
-            action: {
-              label: 'Fechar',
-              onClick: () => '',
-            },
-          });
         }
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message, {
-          id: toastId,
-          action: {
-            label: 'Fechar',
-            onClick: () => '',
-          },
-        });
-      } else {
-        console.log(error);
-      }
+      toast.error((error as Error).message, {
+        id: toastId,
+        action: {
+          label: 'Fechar',
+          onClick: () => '',
+        },
+      });
     }
   };
 
@@ -152,6 +140,7 @@ export default function NewPassword() {
                       disabled={isSubmitting}
                       autoComplete="new-password"
                       className={cn(
+                        'text-foreground',
                         fieldState.invalid &&
                           'border-destructive focus-visible:shadow-none'
                       )}

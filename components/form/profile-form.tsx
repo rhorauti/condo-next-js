@@ -14,6 +14,8 @@ import {
   Plus,
   Save,
   Trash,
+  UserCheck,
+  UserLock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -38,6 +40,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { AddressFormDialog } from '../dialog/address-form-dialog';
 import { onUpdateUser } from '@/http/web/user/user.http';
 import { AskDialog } from '../dialog/ask-dialog';
+import { ProfileFormLoading } from '../../app/web/profiles/[idUser]/profile-form-loading';
+import Image from 'next/image';
 
 interface ProfileProps {
   previousUrl?: string;
@@ -83,6 +87,7 @@ const userSchema = z.object({
         message: 'Número de telefone incompleto.',
       }
     ),
+  isWhatsapp: z.boolean(),
   mediaFile: z.instanceof(File).nullable().optional(),
   mediaObject: z
     .object({
@@ -125,6 +130,13 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       idAddress: 0,
     }
   );
+  const [askDialogUserActiveStatus, setAskDialogUserActiveStatus] =
+    useState<IAskDialog>({
+      description: '',
+      isActive: false,
+      title: '',
+      type: 'info',
+    });
 
   const form = useForm<UserDetailSchema>({
     resolver: zodResolver(userSchema),
@@ -134,6 +146,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       birthDate: new Date('1984-02-28'),
       email: '',
       phone: '',
+      isWhatsapp: true,
       mediaObject: {
         idMedia: 0,
         mediaUrl: '',
@@ -156,6 +169,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
       email: userData.email,
       phone: userData.phone ?? '',
       mediaObject: userData.mediaObject ?? null,
+      isWhatsapp: userData.isWhatsapp,
       mediaFile: null,
       isActive: userData.isActive,
       role: userData.role ?? USER_ROLES.USER,
@@ -235,12 +249,51 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     birthDate: new Date('2026-01-28'),
     email: '',
     phone: '',
+    isWhatsapp: true,
     mediaObject: {
       idMedia: 0,
       mediaUrl: '',
     },
     isActive: false,
     role: USER_ROLES.USER,
+  };
+
+  const onShowAskDialogUserActiveStatus = (): void => {
+    setAskDialogUserActiveStatus((prev) => {
+      if (isActive) {
+        return {
+          ...prev,
+          title: 'Desativar usuário',
+          type: 'danger',
+          description: `Deseja desativar o usuário ${userData.name}`,
+          isActive: true,
+        };
+      } else {
+        return {
+          ...prev,
+          title: 'Ativar usuário',
+          type: 'info',
+          description: `Deseja ativar o usuário ${userData.name}`,
+          isActive: true,
+        };
+      }
+    });
+  };
+
+  const onChangeUserActiveState = (): void => {
+    setAskDialogUserActiveStatus((prev) => {
+      return { ...prev, isActive: false };
+    });
+    toast.success(
+      `Usuário ${userData?.name} ${userData?.isActive ? 'desativado' : 'ativado'} com sucesso!`,
+      {
+        duration: 2000,
+        action: {
+          label: 'Fechar',
+          onClick: () => {},
+        },
+      }
+    );
   };
 
   const setFinalData = () => {
@@ -250,6 +303,7 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
     finalData.phone = onRemoveMask(getValues('phone') ?? '');
     finalData.isActive = getValues('isActive');
     finalData.mediaObject = getValues('mediaObject');
+    finalData.isWhatsapp = getValues('isWhatsapp');
   };
 
   const onSubmit = async (): Promise<void> => {
@@ -287,36 +341,44 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* <Controller
+        name="isActive"
+        control={control}
+        render={({ field, fieldState }) => {
+          const isActive = field.value;
+
+          return (
+            <Field className={cn('md:shrink')}>
+              <div className="flex gap-4 items-center">
+                <span>{isActive ? 'Ativo' : 'Não Ativo'}</span>
+                <Switch
+                  checked={isActive}
+                  onCheckedChange={(checked) => field.onChange(checked)}
+                />
+              </div>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          );
+        }}
+      /> */}
       <form
         id={adminUserPageId}
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
         <div className="flex justify-between gap-2 bg-slate-700 text-white rounded-md w-full p-3">
-          <p className="font-medium md:text-lg">Dados Cadastrais</p>
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field, fieldState }) => {
-              const isActive = field.value;
-
-              return (
-                <Field className={cn('md:shrink')}>
-                  <div className="flex gap-4 items-center">
-                    <span>{isActive ? 'Ativo' : 'Não Ativo'}</span>
-                    <Switch
-                      checked={isActive}
-                      onCheckedChange={(checked) => field.onChange(checked)}
-                    />
-                  </div>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              );
-            }}
-          />
+          <p className="font-medium sm:text-lg">Dados Cadastrais</p>
+          <Button
+            type="submit"
+            variant="default"
+            size={'sm'}
+            className={cn('flex gap-2 h-full py-2 sm:py-0')}
+          >
+            <Save />
+            <span className="hidden sm:block">Salvar</span>
+          </Button>
         </div>
+
         <div className="flex flex-col-reverse md:flex-row md:items-center gap-4">
           <div className="flex flex-col gap-2 grow">
             <div className="flex flex-col md:flex-row gap-2">
@@ -455,41 +517,83 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
                   </Field>
                 )}
               />
+              <div className="flex gap-2 items-end">
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Field className="grow">
+                      <FieldLabel
+                        htmlFor={`admin-user-input-phone-${adminUserPageId}`}
+                      >
+                        Telefone
+                      </FieldLabel>
 
-              <Controller
-                name="phone"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field className="md:grow-[4]">
-                    <FieldLabel
-                      htmlFor={`admin-user-input-phone-${adminUserPageId}`}
-                    >
-                      Telefone
-                    </FieldLabel>
+                      <IMaskInput
+                        mask={['+00 (00) 0000-0000', '+00 (00) 00000-0000']}
+                        definitions={{
+                          '0': /[0-9]/,
+                        }}
+                        value={field.value ?? ''}
+                        onAccept={(value) => field.onChange(value)}
+                        onBlur={field.onBlur}
+                        disabled={formState.isSubmitting || !isActive}
+                        id={`admin-user-input-phone-${adminUserPageId}`}
+                        autoComplete="tel"
+                        className={cn(
+                          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                          fieldState.invalid && 'border-destructive'
+                        )}
+                      />
 
-                    <IMaskInput
-                      mask={['+00 (00) 0000-0000', '+00 (00) 00000-0000']}
-                      definitions={{
-                        '0': /[0-9]/,
-                      }}
-                      value={field.value ?? ''}
-                      onAccept={(value) => field.onChange(value)}
-                      onBlur={field.onBlur}
-                      disabled={formState.isSubmitting || !isActive}
-                      id={`admin-user-input-phone-${adminUserPageId}`}
-                      autoComplete="tel"
-                      className={cn(
-                        'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-                        fieldState.invalid && 'border-destructive'
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
                       )}
-                    />
-
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                    </Field>
+                  )}
+                />
+                <Controller
+                  name="isWhatsapp"
+                  control={control}
+                  render={({ field, fieldState }) => {
+                    return (
+                      <div className="flex items-end">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type="button"
+                              variant={'outline'}
+                              onClick={() => field.onChange(!field.value)}
+                              className="inline-flex items-center justify-center"
+                            >
+                              <Image
+                                src={
+                                  field.value
+                                    ? '/whatsapp.png'
+                                    : '/no-whatsapp.png'
+                                }
+                                alt="whatsapp image"
+                                width={26}
+                                height={26}
+                              />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            className="w-fit"
+                            side="top"
+                            align="center"
+                          >
+                            <p>É whattsapp?</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </div>
+                    );
+                  }}
+                />
+              </div>
             </div>
           </div>
           <ProfileImgUpload
@@ -501,7 +605,9 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
           />
         </div>
         <div className="flex justify-between bg-slate-700 text-white rounded-md w-full p-3">
-          <p className="font-medium md:text-lg">Endereço</p>
+          <p className="font-medium md:text-lg">
+            {userData.address?.length == 0 ? 'Endereço' : 'Endereços'}
+          </p>
           <Button
             onClick={() => onShowAddressDialog(0)}
             type="button"
@@ -625,30 +731,32 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
         </div>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
           <Button
+            type="button"
+            onClick={() => router.push(previousUrl ?? WEB_ROUTES.HOME)}
+            variant={'outline'}
+            className="w-full sm:w-auto"
+          >
+            <ArrowLeftCircle />
+            <span>Voltar</span>
+          </Button>
+          <Button
+            type="button"
             onClick={onShowAskDialogForDeleteProfile}
             variant={'destructive'}
             className="w-full sm:w-auto"
             disabled={formState.isSubmitting || !isActive}
           >
             <Trash />
-            Excluir
+            <span>Excluir</span>
           </Button>
           <Button
-            onClick={() => router.push(previousUrl ?? WEB_ROUTES.HOME)}
-            variant={'outline'}
-            className="w-full sm:w-auto"
+            type="button"
+            onClick={onShowAskDialogUserActiveStatus}
+            variant="default"
+            className={`w-full sm:w-auto ${isActive ? 'bg-green-800 hover:bg-green-700' : 'bg-red-800 hover:bg-red-700'}`}
           >
-            <ArrowLeftCircle />
-            <span className="hidden xs:inline">Voltar</span>
-          </Button>
-          <Button
-            type="submit"
-            variant={'default'}
-            className="w-full sm:w-auto"
-            disabled={formState.isSubmitting}
-          >
-            <Save />
-            <span className="hidden xs:inline">Salvar</span>
+            {isActive ? <UserCheck /> : <UserLock />}
+            <span className="w-full">{isActive ? 'Desativar' : 'Ativar'}</span>
           </Button>
         </div>
       </form>
@@ -694,6 +802,19 @@ export default function ProfileForm({ userData, previousUrl }: ProfileProps) {
           }
         />
       )}
+
+      <AskDialog
+        isActive={askDialogUserActiveStatus.isActive}
+        description={askDialogUserActiveStatus.description}
+        title={askDialogUserActiveStatus.title}
+        type={askDialogUserActiveStatus.type}
+        onActionNok={() =>
+          setAskDialogUserActiveStatus((prev) => {
+            return { ...prev, isActive: false };
+          })
+        }
+        onActionOk={onChangeUserActiveState}
+      />
     </div>
   );
 }

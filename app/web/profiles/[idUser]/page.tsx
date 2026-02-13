@@ -2,6 +2,7 @@
 
 import { AddressFormDialog } from '@/components/dialog/address-form-dialog';
 import ProfileForm from '@/components/form/profile-form';
+import { ProfileFormLoading } from '@/app/web/profiles/[idUser]/profile-form-loading';
 import { Button } from '@/components/ui/button';
 import { WEB_ROUTES } from '@/enum/web/routes.enum';
 import { onGetDetailedAuthUserInfo } from '@/http/web/user/user.http';
@@ -27,7 +28,7 @@ const initialUserData = {
 export default function Page() {
   const router = useRouter();
   const previousUrl = WEB_ROUTES.PROFILES;
-  const [userData, setUserData] = useState<IUserDetail>(initialUserData);
+  const [userData, setUserData] = useState<IUserDetail>();
 
   useEffect(() => {
     getAuthUser();
@@ -41,7 +42,7 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-col gap-4 w-[75rem] mb-4">
+    <div className="flex flex-col gap-4 w-full sm:w-[75rem] mb-4">
       <div className="flex gap-2 items-center justify-between">
         <h1 className="text-center md:text-2xl text-lg font-semibold">
           Informações do usuário
@@ -55,7 +56,11 @@ export default function Page() {
           <span className="hidden xs:inline">Voltar</span>
         </Button>
       </div>
-      <ProfileForm userData={userData} previousUrl={previousUrl} />
+      {!userData ? (
+        <ProfileFormLoading />
+      ) : (
+        <ProfileForm userData={userData} previousUrl={previousUrl} />
+      )}
     </div>
   );
 }
